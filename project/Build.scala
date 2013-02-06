@@ -4,7 +4,7 @@ import sbtassembly.Plugin._
 import AssemblyKeys._
 
 object Workcraft extends Build {
-  val repos = Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository", DefaultMavenRepository, "Workcraft Maven Repository" at "http://workcraft.org/maven2")
+  val repos = Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository", DefaultMavenRepository, "Workcraft Maven Repository" at "http://workcraft.org/repository/maven2")
 
   lazy val workcraft = Project(id = "workcraft", base = file("Workcraft")) 
   .settings (assemblySettings:_*)
@@ -43,7 +43,7 @@ object Workcraft extends Build {
 
   lazy val gui = Project(id = "gui", base = file ("Gui"))
   .settings (libraryDependencies := Seq ( "org.streum" %% "configrity" % "0.9.0", "org.apache.xmlgraphics" % "batik-svg-dom" % "1.7", "org.apache.xmlgraphics" % "batik-svggen" % "1.7",
-                                          "org.apache.xmlgraphics" % "batik-bridge" % "1.7", "tablelayout" % "TableLayout" % "20050920", "org.flexdock" % "flexdock" % "1.1.1",
+                                          "org.apache.xmlgraphics" % "batik-bridge" % "1.7", "tablelayout" % "TableLayout" % "20050920", "org.flexdock" % "flexdock" % "1.2.2",
                                           "commons-logging" % "commons-logging" % "1.1", "com.github.insubstantial" % "substance" % "7.1", "com.github.insubstantial" % "trident" % "7.1", "com.google.guava" % "guava" % "11.0.2")
              , resolvers := repos)
   .dependsOn (core, graphics, logger)

@@ -13,7 +13,7 @@ import org.workcraft.scala.effects.IO
 
 class ChoiceCellEditor[T](initialValue:T, choice:List[(String, T)], editingStopped:IO[Unit]) extends GenericCellEditor[T] {
   
-   val comboBox = new JComboBox()
+   val comboBox = new JComboBox[ComboboxItemWrapper]()
    comboBox.setEditable(false)
    comboBox.setFocusable(false)
    for (val p <- choice) {

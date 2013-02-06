@@ -47,9 +47,9 @@ class CreateWorkDialog private (models: List[NewModelImpl], owner: Window) exten
   setContentPane(contentPane)
 
   val modelScroll = new JScrollPane()
-  val listModel = new DefaultListModel()
+  val listModel = new DefaultListModel[ListElement]()
 
-  val modelList = new JList(listModel)
+  val modelList = new JList[ListElement](listModel)
   modelList.setFont(modelList.getFont().deriveFont(Font.BOLD))
   modelList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
   modelList.setLayoutOrientation(JList.VERTICAL_WRAP)
