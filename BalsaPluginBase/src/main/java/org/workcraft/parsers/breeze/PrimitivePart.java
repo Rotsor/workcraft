@@ -24,7 +24,7 @@ package org.workcraft.parsers.breeze;
 import org.workcraft.parsers.breeze.dom.PortDeclaration;
 import org.workcraft.parsers.breeze.expressions.Expression;
 
-import pcollections.PVector;
+import org.pcollections.PVector;
 
 public class PrimitivePart implements BreezeDefinition {
 	private final String name;

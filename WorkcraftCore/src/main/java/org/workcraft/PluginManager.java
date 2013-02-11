@@ -42,8 +42,8 @@ import org.workcraft.util.Initialiser;
 import org.workcraft.util.Maybe;
 import org.workcraft.util.XmlUtil;
 
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class PluginManager implements PluginProvider {
 	public static final File DEFAULT_MANIFEST = new File("config"+File.separator+"plugins.xml");

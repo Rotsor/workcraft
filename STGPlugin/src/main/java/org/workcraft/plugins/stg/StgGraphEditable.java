@@ -10,9 +10,9 @@ import org.workcraft.gui.graph.tools.GraphEditorTool;
 import org.workcraft.gui.propertyeditor.EditableProperty;
 import org.workcraft.util.Function;
 
-import pcollections.PSet;
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PSet;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class StgGraphEditable implements GraphEditable {
 

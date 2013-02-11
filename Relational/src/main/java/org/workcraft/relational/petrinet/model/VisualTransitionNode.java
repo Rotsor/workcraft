@@ -25,7 +25,7 @@ import org.workcraft.gui.Coloriser;
 import org.workcraft.plugins.shared.CommonVisualSettings;
 import org.workcraft.util.ExpressionUtil;
 
-import pcollections.TreePVector;
+import org.pcollections.TreePVector;
 
 public class VisualTransitionNode implements Node, DrawableNew, MovableNew {
 

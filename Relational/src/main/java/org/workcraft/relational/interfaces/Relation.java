@@ -1,7 +1,7 @@
 package org.workcraft.relational.interfaces;
 
-import pcollections.PMap;
-import pcollections.PVector;
+import org.pcollections.PMap;
+import org.pcollections.PVector;
 
 
 public interface Relation {

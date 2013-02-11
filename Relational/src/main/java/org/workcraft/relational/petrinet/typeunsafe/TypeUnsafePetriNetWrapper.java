@@ -21,8 +21,8 @@ import org.workcraft.relational.petrinet.model.VisualPlaceNode;
 import org.workcraft.relational.petrinet.model.VisualTransitionNode;
 import org.workcraft.util.ExpressionUtil;
 
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class TypeUnsafePetriNetWrapper {
 	public static VisualGroupNode wrapVisualGroup(DatabaseEngine engine, Id id) {

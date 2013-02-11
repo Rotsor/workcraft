@@ -21,8 +21,8 @@ import org.workcraft.util.Maybe;
 import org.workcraft.util.FieldAccessor;
 import org.workcraft.util.TwoWayFunction;
 
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class Expressions {
 	public static <T> Expression<T> constant(final T value) {
@@ -275,13 +275,13 @@ public class Expressions {
 	public static <A> Function<Collection<? extends Expression<? extends A>>, Expression<PVector<A>>> joinCollection(){ 
 		return new Function<Collection<? extends Expression<? extends A>>, Expression<PVector<A>>>(){
 			@Override
-			public Expression<pcollections.PVector<A>> apply(final Collection<? extends org.workcraft.dependencymanager.advanced.core.Expression<? extends A>> collection) {
+			public Expression<PVector<A>> apply(final Collection<? extends org.workcraft.dependencymanager.advanced.core.Expression<? extends A>> collection) {
 				return joinCollection(collection);
 			}
 		};
 	}
 
-	public static <A> Expression<pcollections.PVector<A>> joinCollection(
+	public static <A> Expression<PVector<A>> joinCollection(
 			final Collection<? extends org.workcraft.dependencymanager.advanced.core.Expression<? extends A>> collection) {
 		return new ExpressionBase<PVector<A>>(){
 			@Override

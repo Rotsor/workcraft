@@ -3,8 +3,8 @@ package org.workcraft.gui.propertyeditor
 import java.awt.BorderLayout
 import javax.swing.JPanel
 import javax.swing.JScrollPane
-import pcollections.PVector
-import pcollections.TreePVector
+import org.pcollections.PVector
+import org.pcollections.TreePVector
 import org.workcraft.dependencymanager.advanced.user.AutoRefreshExpression
 import org.workcraft.dependencymanager.advanced.core.EvaluationContext
 import org.workcraft.dependencymanager.advanced.user.Variable

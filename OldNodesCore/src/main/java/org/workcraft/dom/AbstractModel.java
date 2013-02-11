@@ -34,8 +34,8 @@ import org.workcraft.observation.HierarchySupervisor;
 import org.workcraft.util.Func;
 import org.workcraft.util.Hierarchy;
 
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 /**
  * A base class for all interpreted graph models. 

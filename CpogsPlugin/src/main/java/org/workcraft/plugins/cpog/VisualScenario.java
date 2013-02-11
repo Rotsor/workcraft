@@ -36,8 +36,8 @@ import org.workcraft.plugins.cpog.optimisation.booleanvisitors.FormulaRenderingR
 import org.workcraft.plugins.cpog.optimisation.booleanvisitors.FormulaToGraphics;
 import org.workcraft.util.Hierarchy;
 
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class VisualScenario extends VisualGroup implements ReflectiveTouchable, DrawableNew
 {

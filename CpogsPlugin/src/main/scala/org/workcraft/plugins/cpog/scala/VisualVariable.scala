@@ -4,10 +4,10 @@ import org.workcraft.graphics.Graphics._
 import org.workcraft.plugins.shared.CommonVisualSettings
 import org.workcraft.graphics.formularendering.FormulaToGraphics
 import org.workcraft.graphics.LabelPositioning
-import pcollections.TreePVector
+import org.pcollections.TreePVector
 import java.awt.geom.Rectangle2D
 import java.awt.BasicStroke
-import pcollections.PVector
+import org.pcollections.PVector
 import org.workcraft.scala.Expressions._
 import org.workcraft.scala.Scalaz._
 import org.workcraft.plugins.cpog.VariableState

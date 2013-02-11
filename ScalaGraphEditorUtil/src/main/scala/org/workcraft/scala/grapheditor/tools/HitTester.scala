@@ -7,8 +7,8 @@ import org.workcraft.scala.Expressions.Expression
 import scala.collection.JavaConversions._
 import java.awt.geom.Point2D
 import org.workcraft.util.Maybe
-import pcollections.TreePVector
-import pcollections.PCollection
+import org.pcollections.TreePVector
+import org.pcollections.PCollection
 import org.workcraft.graphics.Touchable
 
 trait HitTester[+N] {

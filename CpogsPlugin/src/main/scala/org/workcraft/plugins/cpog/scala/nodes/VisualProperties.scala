@@ -1,10 +1,10 @@
 import org.workcraft.scala.Util._
 import org.workcraft.gui.propertyeditor.dubble.DoubleProperty
 import org.workcraft.gui.propertyeditor.string.StringProperty
-import pcollections.TreePVector
+import org.pcollections.TreePVector
 import org.workcraft.util.FieldAccessor
 import org.workcraft.gui.propertyeditor.EditableProperty
-import pcollections.PVector
+import org.pcollections.PVector
 import java.awt.geom.Point2D
 import org.workcraft.scala.StorageManager
 import org.workcraft.scala.Expressions.ModifiableExpression

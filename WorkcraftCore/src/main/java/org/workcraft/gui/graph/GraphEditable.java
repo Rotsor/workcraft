@@ -6,7 +6,7 @@ import org.workcraft.gui.graph.tools.GraphEditorTool;
 //import org.workcraft.gui.propertyeditor.EditableProperty;
 import org.workcraft.interop.ModelService;
 
-import pcollections.PVector;
+import org.pcollections.PVector;
 
 public interface GraphEditable {
 

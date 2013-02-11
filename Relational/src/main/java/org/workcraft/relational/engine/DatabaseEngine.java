@@ -2,7 +2,7 @@ package org.workcraft.relational.engine;
 
 import org.workcraft.dependencymanager.advanced.core.Expression;
 
-import pcollections.PMap;
+import org.pcollections.PMap;
 
 public interface DatabaseEngine {
 	void delete(String obj, Id id);

@@ -29,8 +29,8 @@ import org.workcraft.gui.propertyeditor.EditableProperty;
 import org.workcraft.gui.propertyeditor.SettingsPage;
 import org.workcraft.gui.propertyeditor.string.StringProperty;
 
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class MpsatUtilitySettings implements SettingsPage {
 	public static final ModifiableExpression<String> mpsatCommand = Variable.create("mpsat");

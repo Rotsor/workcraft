@@ -52,7 +52,7 @@ import org.workcraft.gui.propertyeditor.integer.IntegerProperty;
 import org.workcraft.plugins.shared.CommonVisualSettings;
 import org.workcraft.util.Function;
 
-import pcollections.PVector;
+import org.pcollections.PVector;
 
 public class VisualPlace extends VisualComponent implements DrawableNew, ReflectiveTouchable {
 	protected static double singleTokenSize = eval(CommonVisualSettings.size) / 1.9;

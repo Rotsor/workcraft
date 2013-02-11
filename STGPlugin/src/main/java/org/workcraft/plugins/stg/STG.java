@@ -61,8 +61,8 @@ import org.workcraft.util.Hierarchy;
 import org.workcraft.util.Pair;
 import org.workcraft.util.Triple;
 
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class STG extends AbstractModel implements STGModel {
 	

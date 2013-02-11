@@ -26,7 +26,7 @@ import java.util.Collection;
 import org.workcraft.dependencymanager.advanced.core.Expression;
 import org.workcraft.dom.references.ReferenceManager;
 
-import pcollections.PVector;
+import org.pcollections.PVector;
 
 
 public interface Model {

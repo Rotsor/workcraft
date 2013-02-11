@@ -54,7 +54,7 @@ import org.workcraft.plugins.petri.VisualPlace;
 import org.workcraft.serialisation.xml.NoAutoSerialisation;
 import org.workcraft.util.Function2;
 
-import pcollections.PVector;
+import org.pcollections.PVector;
 
 public class VisualImplicitPlaceArc extends VisualConnection {
 	

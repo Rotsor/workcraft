@@ -33,8 +33,8 @@ import org.workcraft.gui.propertyeditor.SettingsPage;
 import org.workcraft.gui.propertyeditor.bool.BooleanProperty;
 import org.workcraft.gui.propertyeditor.colour.ColorProperty;
 
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 import static org.workcraft.dependencymanager.advanced.core.GlobalCache.eval;
 

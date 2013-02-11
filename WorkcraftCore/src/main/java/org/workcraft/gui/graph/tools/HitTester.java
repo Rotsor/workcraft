@@ -12,7 +12,7 @@ import org.workcraft.dom.visual.VisualNode;
 import org.workcraft.util.Function;
 import org.workcraft.util.Maybe;
 
-import pcollections.PCollection;
+import org.pcollections.PCollection;
 
 public interface HitTester<N> {
 	Maybe<N> hitTest(Point2D.Double point);

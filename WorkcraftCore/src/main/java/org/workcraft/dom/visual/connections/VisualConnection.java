@@ -34,8 +34,8 @@ import org.workcraft.dom.Connection;
 import org.workcraft.exceptions.NotSupportedException;
 import org.workcraft.util.Pair;
 
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class VisualConnection {
 	

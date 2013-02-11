@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-import pcollections.*;
+import org.pcollections.*;
 
 @SuppressWarnings("all")
 public class BreezeParser implements BreezeParserConstants {

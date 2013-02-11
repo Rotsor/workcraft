@@ -34,7 +34,7 @@ import org.workcraft.plugins.stg.STG;
 import org.workcraft.plugins.stg.SignalTransition;
 import org.workcraft.plugins.stg.VisualSTG;
 
-import pcollections.HashTreePSet;
+import org.pcollections.HashTreePSet;
 
 public class ConnectionRemoverTests {
 	@Test

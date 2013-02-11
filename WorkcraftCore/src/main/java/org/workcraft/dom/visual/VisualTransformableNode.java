@@ -38,7 +38,7 @@ import org.workcraft.dependencymanager.advanced.user.StorageManager;
 import org.workcraft.serialisation.xml.NoAutoSerialisation;
 import org.workcraft.util.Geometry;
 
-import pcollections.PVector;
+import org.pcollections.PVector;
 
 public abstract class VisualTransformableNode extends VisualNode implements MovableNew {
 	public final static class AffineTransform_X extends ModifiableExpressionImpl<Double> {

@@ -18,7 +18,7 @@ import org.workcraft.graphics.formularendering._
 import org.workcraft.graphics.LabelPositioning
 import org.workcraft.dom.visual.Label
 import org.workcraft.dependencymanager.advanced.core.Expressions.{ fmap => javafmap }
-import pcollections.PVector
+import org.pcollections.PVector
 import org.workcraft.gui.propertyeditor.EditableProperty
 import org.workcraft.plugins.cpog.optimisation.BooleanFormula
 import scalaz._

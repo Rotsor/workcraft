@@ -29,9 +29,9 @@ import org.workcraft.relational.engine.Id;
 import org.workcraft.relational.petrinet.declaration.RelationalPetriNet;
 import org.workcraft.relational.petrinet.typeunsafe.TypeUnsafePetriNetWrapper;
 
-import pcollections.HashTreePMap;
-import pcollections.HashTreePSet;
-import pcollections.PSet;
+import org.pcollections.HashTreePMap;
+import org.pcollections.HashTreePSet;
+import org.pcollections.PSet;
 
 public class VisualModel implements org.workcraft.dom.visual.VisualModel {
 

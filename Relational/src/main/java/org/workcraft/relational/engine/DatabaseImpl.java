@@ -4,8 +4,8 @@ import java.util.Collection;
 
 import org.workcraft.relational.interfaces.Relation;
 
-import pcollections.HashTreePMap;
-import pcollections.PMap;
+import org.pcollections.HashTreePMap;
+import org.pcollections.PMap;
 
 public class DatabaseImpl implements Database {
 

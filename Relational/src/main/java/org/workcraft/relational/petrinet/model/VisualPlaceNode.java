@@ -28,7 +28,7 @@ import org.workcraft.gui.Coloriser;
 import org.workcraft.plugins.shared.CommonVisualSettings;
 import org.workcraft.util.ExpressionUtil;
 
-import pcollections.TreePVector;
+import org.pcollections.TreePVector;
 
 import static org.workcraft.dependencymanager.advanced.core.GlobalCache.*;
 

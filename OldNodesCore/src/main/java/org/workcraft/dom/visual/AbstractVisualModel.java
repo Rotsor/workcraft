@@ -45,9 +45,9 @@ import org.workcraft.dom.visual.connections.VisualConnection;
 import org.workcraft.exceptions.NodeCreationException;
 import org.workcraft.gui.propertyeditor.EditableProperty;
 
-import pcollections.HashTreePSet;
-import pcollections.PSet;
-import pcollections.PVector;
+import org.pcollections.HashTreePSet;
+import org.pcollections.PSet;
+import org.pcollections.PVector;
 
 @MouseListeners ({ DefaultAnchorGenerator.class })
 public abstract class AbstractVisualModel extends AbstractModel implements VisualModel {

@@ -42,7 +42,7 @@ import org.workcraft.util.Function;
 import org.workcraft.util.GUI;
 import org.workcraft.util.Maybe;
 
-import pcollections.PCollection;
+import org.pcollections.PCollection;
 
 public class STGToolsProvider implements CustomToolsProvider {
 

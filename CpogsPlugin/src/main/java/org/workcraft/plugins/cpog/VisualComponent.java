@@ -13,8 +13,8 @@ import org.workcraft.gui.propertyeditor.dubble.DoubleProperty;
 import org.workcraft.gui.propertyeditor.string.StringProperty;
 import org.workcraft.util.FieldAccessor;
 
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class VisualComponent {
 	

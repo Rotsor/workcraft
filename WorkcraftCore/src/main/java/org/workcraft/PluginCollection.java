@@ -2,10 +2,10 @@ package org.workcraft;
 
 import org.workcraft.interop.GlobalService;
 
-import pcollections.HashTreePMap;
-import pcollections.PMap;
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.HashTreePMap;
+import org.pcollections.PMap;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class PluginCollection {
 	private final PMap <GlobalService<?>, PVector<?>> plugins;

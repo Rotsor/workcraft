@@ -14,8 +14,8 @@ import org.workcraft.relational.engine.Database;
 import org.workcraft.relational.engine.DatabaseEngine;
 import org.workcraft.relational.engine.Id;
 
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class DatabaseUtils {
 	public static ModifiableExpression<Object> fieldValue(final DatabaseEngine engine, final String object, final String fieldName, final Id id) {

@@ -8,7 +8,7 @@ import org.workcraft.gui.propertyeditor.dubble.DoubleProperty
 import org.workcraft.plugins.stg21.modifiable._
 import org.workcraft.gui.propertyeditor.choice.ChoiceProperty
 import scala.collection.JavaConversions._
-import pcollections.TreePVector
+import org.pcollections.TreePVector
 import org.workcraft.scala.Expressions.Expression
 
 object EditorUIs {

@@ -7,7 +7,7 @@ import javax.swing.JComboBox
 import org.workcraft.gui.propertyeditor.GenericCellEditor
 import org.workcraft.util.Action
 import org.workcraft.util.Pair
-import pcollections.PVector
+import org.pcollections.PVector
 import org.workcraft.scala.effects.IO
 
 

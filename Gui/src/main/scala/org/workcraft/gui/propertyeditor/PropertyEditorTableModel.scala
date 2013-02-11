@@ -2,7 +2,7 @@ package org.workcraft.gui.propertyeditor
 
 import javax.swing.table.AbstractTableModel
 import org.workcraft.exceptions.NotSupportedException
-import pcollections.PVector
+import org.pcollections.PVector
 
 
 class PropertyEditorTableModel extends AbstractTableModel {

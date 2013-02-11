@@ -8,10 +8,10 @@ import org.workcraft.relational.interfaces.PrimitiveField;
 import org.workcraft.relational.interfaces.Relation;
 import org.workcraft.relational.interfaces.RelationField;
 
-import pcollections.HashTreePMap;
-import pcollections.PMap;
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.HashTreePMap;
+import org.pcollections.PMap;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class RelationalPetriNet {
 	

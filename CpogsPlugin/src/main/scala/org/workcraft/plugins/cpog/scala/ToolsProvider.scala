@@ -40,10 +40,10 @@ import org.workcraft.scala.Util.asFunctionObject
 import org.workcraft.scala.Util.javaCollectionToList
 import org.workcraft.util.Function
 
-import pcollections.PVector
-import pcollections.HashTreePSet
-import pcollections.PSet
-import pcollections.TreePVector
+import org.pcollections.PVector
+import org.pcollections.HashTreePSet
+import org.pcollections.PSet
+import org.pcollections.TreePVector
 
 package org.workcraft.plugins.cpog.scala {
 

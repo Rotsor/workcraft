@@ -20,7 +20,7 @@ import org.workcraft.interop.ServiceProvider;
 import org.workcraft.interop.ServiceProviderImpl;
 import org.workcraft.util.Initialiser;
 
-import pcollections.TreePVector;
+import org.pcollections.TreePVector;
 
 public class RelationalModule implements Module {
 

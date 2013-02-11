@@ -15,9 +15,9 @@ import org.workcraft.relational.interfaces.Relation;
 import org.workcraft.relational.interfaces.Relation.Instance;
 import org.workcraft.relational.interfaces.RelationField;
 
-import pcollections.HashTreePMap;
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.HashTreePMap;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class DatabaseEngineTests {
 

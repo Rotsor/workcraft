@@ -26,8 +26,8 @@ import org.workcraft.interop.ModelServices;
 import org.workcraft.interop.ModelServicesImpl;
 import org.workcraft.interop.ServiceNotAvailableException;
 
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class DotExporterTests {
 	private static final class MockModel implements Model {

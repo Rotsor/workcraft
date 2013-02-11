@@ -4,8 +4,8 @@ import java.awt.Font;
 
 import org.workcraft.dependencymanager.advanced.user.Variable
 
-import pcollections.PVector
-import pcollections.TreePVector
+import org.pcollections.PVector
+import org.pcollections.TreePVector
 
 import org.workcraft.scala.Expressions._
 

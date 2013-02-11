@@ -23,8 +23,8 @@ package org.workcraft.plugins.shared;
 import org.workcraft.Config;
 import org.workcraft.dependencymanager.advanced.user.Variable;
 
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class PetrifyUtilitySettings {
 

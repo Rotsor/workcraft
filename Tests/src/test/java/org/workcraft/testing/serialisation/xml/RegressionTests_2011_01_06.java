@@ -43,7 +43,7 @@ import org.workcraft.plugins.stg.VisualDummyTransition;
 import org.workcraft.plugins.stg.VisualSTG;
 import org.workcraft.util.XmlUtil;
 
-import pcollections.HashTreePSet;
+import org.pcollections.HashTreePSet;
 
 public class RegressionTests_2011_01_06 {
 	@Test

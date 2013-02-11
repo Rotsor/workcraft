@@ -19,7 +19,7 @@ import org.workcraft.dom.visual.connections.VisualConnection;
 import org.workcraft.gui.events.GraphEditorKeyEvent;
 import org.workcraft.util.Hierarchy;
 
-import pcollections.HashTreePSet;
+import org.pcollections.HashTreePSet;
 
 public class MiscellaneousModelActions {
 	Collection<Node> selection;

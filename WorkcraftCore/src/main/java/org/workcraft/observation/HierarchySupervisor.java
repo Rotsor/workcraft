@@ -33,7 +33,7 @@ import org.workcraft.dependencymanager.advanced.core.ExpressionBase;
 import org.workcraft.dom.Node;
 import org.workcraft.util.Nothing;
 
-import pcollections.HashTreePMap;
+import org.pcollections.HashTreePMap;
 
 public class HierarchySupervisor<STATE> extends ExpressionBase<STATE> {
 	

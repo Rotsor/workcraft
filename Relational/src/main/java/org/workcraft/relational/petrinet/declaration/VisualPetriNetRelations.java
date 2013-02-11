@@ -11,10 +11,10 @@ import org.workcraft.relational.interfaces.Relation;
 import org.workcraft.relational.interfaces.RelationField;
 import org.workcraft.relational.petrinet.declaration.RelationalPetriNet.PetriNetRelations;
 
-import pcollections.HashTreePMap;
-import pcollections.PMap;
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.HashTreePMap;
+import org.pcollections.PMap;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class VisualPetriNetRelations {
 	

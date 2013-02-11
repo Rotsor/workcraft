@@ -26,7 +26,7 @@ import org.workcraft.dependencymanager.advanced.core.Expression;
 import org.workcraft.dependencymanager.advanced.core.ExpressionBase;
 import org.workcraft.dom.Node;
 
-import pcollections.PSet;
+import org.pcollections.PSet;
 
 public class RemovedNodeDeselector extends ExpressionBase<PSet<Node>> {
 	private final Expression<PSet<Node>> selection;

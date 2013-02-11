@@ -15,8 +15,8 @@ import org.workcraft.dom.visual.BoundedColorisableGraphicalContent
 import java.awt.geom.Point2D
 import org.workcraft.gui.graph.tools.selection.MoveDragHandler
 import org.workcraft.plugins.cpog.scala.nodes._
-import pcollections.HashTreePSet
-import pcollections.PSet
+import org.pcollections.HashTreePSet
+import org.pcollections.PSet
 import org.workcraft.scala.Util._
 import org.workcraft.scala.Scalaz._
 import org.workcraft.scala.Expressions._

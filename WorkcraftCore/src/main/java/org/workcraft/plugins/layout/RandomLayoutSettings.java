@@ -24,8 +24,8 @@ package org.workcraft.plugins.layout;
 import org.workcraft.Config;
 import org.workcraft.dependencymanager.advanced.user.Variable;
 
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class RandomLayoutSettings {
 	public static final Variable<Double> startX = Variable.create(0.0);

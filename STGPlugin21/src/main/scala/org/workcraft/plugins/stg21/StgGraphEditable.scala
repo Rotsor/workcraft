@@ -2,12 +2,12 @@ package org.workcraft.plugins.stg21
 import org.workcraft.gui.graph.tools.GraphEditorTool
 import org.workcraft.gui.graph.GraphEditable
 import org.workcraft.gui.graph.tools.GraphEditor
-import pcollections.PVector
+import org.pcollections.PVector
 import org.workcraft.gui.propertyeditor.EditableProperty
-import pcollections.TreePVector
+import org.pcollections.TreePVector
 import org.workcraft.gui.modeleditor.tools.selection.GenericSelectionToolMouseListener
 import org.workcraft.dependencymanager.advanced.user.Variable
-import pcollections.HashTreePSet
+import org.pcollections.HashTreePSet
 import java.awt.geom.Point2D
 import org.workcraft.gui.graph.tools.DragHandle
 import org.workcraft.gui.graph.tools.DragHandler

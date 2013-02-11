@@ -34,8 +34,8 @@ import org.workcraft.dom.Node;
 import org.workcraft.dom.visual.PopupMenuBuilder.PopupMenuSegment;
 import org.workcraft.gui.actions.ScriptedActionListener;
 
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 
 public abstract class VisualNode implements Node {

@@ -6,8 +6,8 @@ import org.workcraft.util.Function;
 import org.workcraft.util.Function0;
 import org.workcraft.util.Initialiser;
 
-import pcollections.HashTreePMap;
-import pcollections.PMap;
+import org.pcollections.HashTreePMap;
+import org.pcollections.PMap;
 
 import static org.workcraft.interop.LazyObjectProvider.*;
 

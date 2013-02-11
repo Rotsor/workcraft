@@ -2,8 +2,8 @@ package org.workcraft.parsers.breeze.dom;
 
 import java.util.List;
 
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class BreezeFile
 {

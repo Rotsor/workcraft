@@ -4,7 +4,7 @@ import org.workcraft.util.Function;
 import org.workcraft.util.Function0;
 import org.workcraft.util.Initialiser;
 
-import pcollections.PMap;
+import org.pcollections.PMap;
 
 public class ModelServicesImpl extends ServiceProviderImpl<ModelScope, ModelServicesImpl> implements ModelServices {
 

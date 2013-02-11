@@ -18,10 +18,10 @@ import org.workcraft.relational.interfaces.RelationField;
 import org.workcraft.util.Nothing;
 import org.workcraft.util.Pair;
 
-import pcollections.HashTreePMap;
-import pcollections.PMap;
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.HashTreePMap;
+import org.pcollections.PMap;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class DatabaseEngineImpl implements DatabaseEngine {
 

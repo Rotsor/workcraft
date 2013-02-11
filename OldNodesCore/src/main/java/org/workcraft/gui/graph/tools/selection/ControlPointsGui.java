@@ -21,10 +21,10 @@ import org.workcraft.exceptions.NotImplementedException;
 import org.workcraft.gui.graph.tools.MovableController;
 import org.workcraft.util.Function;
 
-import pcollections.ConsPStack;
-import pcollections.PSequence;
-import pcollections.PStack;
-import pcollections.PVector;
+import org.pcollections.ConsPStack;
+import org.pcollections.PSequence;
+import org.pcollections.PStack;
+import org.pcollections.PVector;
 
 import static org.workcraft.dependencymanager.advanced.core.Expressions.*;
 

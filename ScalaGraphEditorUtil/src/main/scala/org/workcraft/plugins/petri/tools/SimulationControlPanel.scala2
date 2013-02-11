@@ -8,7 +8,7 @@ import javax.swing.event.ChangeEvent
 import javax.swing.event.ChangeListener
 import org.workcraft.util.GUI
 import org.workcraft.util.Nothing
-import pcollections.TreePVector
+import org.pcollections.TreePVector
 import org.workcraft.swing.Swing
 import org.workcraft.swing.Swing._
 import org.workcraft.scala.Scalaz._

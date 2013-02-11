@@ -14,7 +14,7 @@ object Workcraft extends Build {
   lazy val util = Project(id = "util", base = file("Util"))
 
   lazy val depMan = Project (id = "depman", base = file ("DependencyManager")) 
-  .settings (libraryDependencies := Seq("com.google.code.pcollections" % "pcollections" % "1.0.0"), resolvers := repos) 
+  .settings (libraryDependencies := Seq("org.pcollections" % "pcollections" % "2.1.2"), resolvers := repos) 
   .dependsOn (util)
 
   lazy val scalautil = Project(id = "scalautil", base = file("ScalaUtil"))

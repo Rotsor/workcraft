@@ -5,8 +5,8 @@ import org.workcraft.dependencymanager.advanced.user.Variable;
 import org.workcraft.dom.Node;
 import org.workcraft.dom.visual.VisualGroup;
 
-import pcollections.HashTreePSet;
-import pcollections.PSet;
+import org.pcollections.HashTreePSet;
+import org.pcollections.PSet;
 
 public class StgEditorState {
 	public StgEditorState(VisualGroup root) {

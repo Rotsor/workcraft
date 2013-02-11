@@ -44,7 +44,7 @@ import org.workcraft.dom.visual.ReflectiveTouchable;
 import org.workcraft.dom.visual.Touchable;
 import org.workcraft.dom.visual.TouchableProvider;
 
-import pcollections.PCollection;
+import org.pcollections.PCollection;
 
 public class HitmanTests {
 	class DummyNode implements Node

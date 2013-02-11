@@ -52,7 +52,7 @@ import org.workcraft.exceptions.InvalidConnectionException;
 import org.workcraft.exceptions.VisualModelInstantiationException;
 import org.workcraft.plugins.stg.DefaultStorageManager;
 
-import pcollections.HashTreePSet;
+import org.pcollections.HashTreePSet;
 
 public class VisualModelTests {
 

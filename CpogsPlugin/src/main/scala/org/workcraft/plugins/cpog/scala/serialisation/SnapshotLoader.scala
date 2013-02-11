@@ -8,8 +8,8 @@ import org.workcraft.plugins.cpog.optimisation.booleanvisitors.VariableReplacer
 import org.workcraft.scala.Util._
 import org.workcraft.plugins.cpog.optimisation.BooleanFormula
 import java.awt.geom.Point2D
-import pcollections.TreePVector
-import pcollections.PVector
+import org.pcollections.TreePVector
+import org.pcollections.PVector
 
 object SnapshotLoader {
 

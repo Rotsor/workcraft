@@ -41,7 +41,7 @@ import org.workcraft.exceptions.NotImplementedException;
 import org.workcraft.gui.Coloriser;
 import org.workcraft.plugins.shared.CommonVisualSettings;
 
-import pcollections.PVector;
+import org.pcollections.PVector;
 
 import static org.workcraft.dependencymanager.advanced.core.GlobalCache.*;
 

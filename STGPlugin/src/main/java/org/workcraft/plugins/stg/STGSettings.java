@@ -7,8 +7,8 @@ import org.workcraft.gui.propertyeditor.EditableProperty;
 import org.workcraft.gui.propertyeditor.SettingsPage;
 import org.workcraft.gui.propertyeditor.bool.BooleanProperty;
 
-import pcollections.PVector;
-import pcollections.TreePVector;
+import org.pcollections.PVector;
+import org.pcollections.TreePVector;
 
 public class STGSettings implements SettingsPage {
 	private static Variable<Boolean> showInstanceNumbers = Variable.create(false);

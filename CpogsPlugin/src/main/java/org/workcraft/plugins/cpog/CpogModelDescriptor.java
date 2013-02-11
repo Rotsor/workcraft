@@ -22,7 +22,7 @@ import org.workcraft.interop.ModelServicesImpl;
 import org.workcraft.plugins.stg.HistoryPreservingStorageManager;
 import org.workcraft.workspace.WorkspaceEntry;
 
-import pcollections.PVector;
+import org.pcollections.PVector;
 import org.workcraft.plugins.cpog.scala.CPOG;
 
 public class CpogModelDescriptor implements ModelDescriptor {

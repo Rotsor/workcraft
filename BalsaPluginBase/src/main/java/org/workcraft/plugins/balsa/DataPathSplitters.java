@@ -15,7 +15,7 @@ import org.workcraft.parsers.breeze.expressions.Constant;
 import org.workcraft.parsers.breeze.expressions.ParameterReference;
 import org.workcraft.parsers.breeze.expressions.ShiftLeft;
 
-import pcollections.PVector;
+import org.pcollections.PVector;
 
 public class DataPathSplitters 
 {
