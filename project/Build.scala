@@ -6,7 +6,11 @@ import AssemblyKeys._
 object Workcraft extends Build {
   val repos = Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository", DefaultMavenRepository, "Workcraft Maven Repository" at "http://workcraft.org/repository/maven2")
 
-  lazy val workcraft = Project(id = "workcraft", base = file("Workcraft")) 
+  lazy val junit = "junit" % "junit" % "4.10" % "test"
+  lazy val scalatest = "org.scalatest" %% "scalatest" % "1.9.1" % "test"
+  lazy val junitInterface = "com.novocode" % "junit-interface" % "0.10-M2" % "test"
+
+  lazy val workcraft = Project(id = "workcraft", base = file("Workcraft"))
   .settings (assemblySettings:_*)
   .aggregate (gui, pnplugin, lolaplugin, petrifyplugin, fsmplugin, dotplugin)
   .dependsOn (gui, pnplugin, lolaplugin, petrifyplugin, fsmplugin, dotplugin)
@@ -14,7 +18,7 @@ object Workcraft extends Build {
   lazy val util = Project(id = "util", base = file("Util"))
 
   lazy val depMan = Project (id = "depman", base = file ("DependencyManager")) 
-  .settings (libraryDependencies := Seq("org.pcollections" % "pcollections" % "2.1.2"), resolvers := repos) 
+  .settings (libraryDependencies := Seq("org.pcollections" % "pcollections" % "2.1.2", scalatest, junitInterface), resolvers := repos) 
   .dependsOn (util)
 
   lazy val scalautil = Project(id = "scalautil", base = file("ScalaUtil"))
@@ -28,6 +32,7 @@ object Workcraft extends Build {
   .dependsOn (scalautil)
 
   lazy val pluginManager = Project(id = "pluginmanager", base = file ("PluginManager"))
+  .settings (libraryDependencies := Seq (scalatest, junit))
   .dependsOn (logger)
 
   lazy val core = Project(id = "core", base = file ("Core"))
@@ -38,7 +43,7 @@ object Workcraft extends Build {
 
   lazy val booleanFormulae = Project (id = "booleanformulae", base = file ("BooleanFormulae"))
   .dependsOn (scalautil)
-  .settings (libraryDependencies := Seq ("junit" % "junit" % "4.8.2"))
+  .settings (libraryDependencies := Seq (junit))
 
 
   lazy val gui = Project(id = "gui", base = file ("Gui"))
