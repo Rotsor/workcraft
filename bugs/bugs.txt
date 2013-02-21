@@ -1,0 +1,8 @@
+# State graph
+* Null pointer exception in the log upon the cancellation of "Input to use for simulation" dialog.
+* Hotkey 'm' not activating the simple simulation tool, but rather asking for the input.
+* Feature: click on a state to make a transition to it.
+* Feature: automaton determinisation.
+
+# Petri Net
+* Export non-1-safe Petri nets so they can be processed with petrify.
