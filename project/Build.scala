@@ -73,6 +73,7 @@ object Workcraft extends Build {
 
     lazy val depMan = simpleProject ("DependencyManager", Java)
      .settings (libraryDependencies := Seq(pcollections, junitInterface))
+     .settings (parallelExecution in Test := false)
      .dependsOn (util)
 
     lazy val scalautil = simpleProject("ScalaUtil", Scala)

@@ -1,6 +1,5 @@
 # Project
 * Not all tests are being run
-* DependencyManager tests failing
 * PluginManager tests failing
 * Many projects not hooked up
 

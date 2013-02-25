@@ -12,6 +12,7 @@ generated
 
 /target
 /project/target
+/project/project
 .project
 .classpath
 .settings
