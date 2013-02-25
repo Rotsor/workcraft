@@ -10,7 +10,8 @@ desij.logfile*
 generated
 /.metadata
 
-target
+/target
+/project/target
 .project
 .classpath
 .settings
@@ -19,6 +20,4 @@ target
 .ensime
 *~
 \#*\#
-tools
-
 
