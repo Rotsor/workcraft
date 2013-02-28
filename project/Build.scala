@@ -122,6 +122,7 @@ object Workcraft extends Build {
 
     lazy val fsmplugin = simpleProject ("FSMPlugin", Scala)
      .dependsOn (gui, pnplugin, graphedutil)
+     .settings(libraryDependencies := Seq(scalatest, junit))
 
     lazy val mailservice = simpleProject ("MailService", Scala)
      .settings (assemblySettings:_*)
