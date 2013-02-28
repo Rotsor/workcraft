@@ -19,6 +19,13 @@ import org.workcraft.util.MaybeVisitor
 import org.workcraft.util.Action1
 
 object Util {
+
+  /**
+    * 
+    */
+  class Id
+  def newId : effects.IO[Id] = effects.IO.ioPure.pure { new Id }
+
   
   implicit def asFunctionObject[T, R](f: (T => R)) = new Function[T, R] {
     def apply(x: T) = f(x)

@@ -20,7 +20,13 @@ object Utils {
   }
 }
 
-case class DFA[State, Symbol] (
+case class Nfa[State, Symbol] (
+  initial : State,
+  transitions : State => List[(Option[Symbol], State)],
+  isFinal : State => Boolean) {
+}
+
+case class Dfa[State, Symbol] (
   initial : State,
   transitions : State => Map[Symbol, State],
   isFinal : State => Boolean
@@ -28,19 +34,14 @@ case class DFA[State, Symbol] (
   import Utils._
   def allStates = collect(initial)(s => transitions(s).toList.map(_._2))
   def allData = allStates.toList.map(s => (s, transitions(s), isFinal(s)))
-}
-
-case class NFA[State, Symbol] (
-  initial : State,
-  transitions : State => List[(Option[Symbol], State)],
-  isFinal : State => Boolean) {
+  def nfa = Nfa[State,Symbol](initial, s => transitions(s).toList.map{case (sym,st) => (Some(sym), st)}, isFinal)
 }
 
 object Determinisation {
   import scala.collection.mutable. { Set => MSet, Map => MMap }
-  def determinise [S,E] : NFA[S,E] => DFA[Set[S], E] = {
+  def determinise [S,E] : Nfa[S,E] => Dfa[Set[S], E] = {
 
-    case NFA (initial, transitions, isFinal) => {
+    case Nfa (initial, transitions, isFinal) => {
       type StateP = Set[S]
       import Utils._
       def epsReachable(s : S) = collect(s)(s => transitions(s).filter(_._1.isEmpty).map(_._2))
@@ -63,7 +64,7 @@ object Determinisation {
         }
       }
       go(initP)
-      DFA(initP, known(_), _.toList.map(s => isFinal(s)).foldLeft(false)(_||_))
+      Dfa(initP, known(_), _.toList.map(s => isFinal(s)).foldLeft(false)(_||_))
     }
   }
 }

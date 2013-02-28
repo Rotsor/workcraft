@@ -19,6 +19,7 @@ generated
 .scala_dependencies
 .cache
 .ensime
+.ensime_lucene
 *~
 \#*\#
 

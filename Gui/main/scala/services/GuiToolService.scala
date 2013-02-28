@@ -14,6 +14,7 @@ object ToolClass {
   object Verification extends ToolClass ("Verification")
   object Layout extends ToolClass ("Layout")
   object Synthesis extends ToolClass ("Synthesis")
+  object Conversion extends ToolClass ("Conversion")
   case class Custom (secName: String) extends ToolClass(secName)
 }
 

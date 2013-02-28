@@ -71,7 +71,7 @@ class MainWindow(
   val toolboxWindow = new JPanel(new BorderLayout)
   toolboxWindow.add(new NotAvailablePanel(), BorderLayout.CENTER)
 
-  var editorInFocus: ModifiableExpression[Option[DockableWindow[ModelEditorPanel]]] = Variable.create[Option[DockableWindow[ModelEditorPanel]]](None)
+  val editorInFocus: ModifiableExpression[Option[DockableWindow[ModelEditorPanel]]] = Variable.create[Option[DockableWindow[ModelEditorPanel]]](None)
   val interfacePanel = editorInFocus.expr >>= (_.traverse(_.content.toolbox.selectedToolInstance.map(_.interfacePanel)).map(_.join))
 
   val toolControlWindow = new ToolInterfaceWindow(interfacePanel)
