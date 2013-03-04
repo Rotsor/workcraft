@@ -58,15 +58,7 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
 
   val props = new FSMProperties(fsm, selection, pushUndo)
 
-  def imageForConnection(colorisation: State => Colorisation) =
-    (fsm.states.map(_.list) <|**|> (fsm.arcs, CommonVisualSettings.settings)) >>= {
-      case (states, arcs, settings) => {
-        treeSequence((arcs.map(a => arcImage(a, settings).map(_.graphicalContent.applyColorisation(Colorisation.Empty))) ++
-          states.map(s => (stateImage(s, settings) <**> stateTransform(s))(_.transform(_).cgc.applyColorisation(colorisation(s)))))).map(_.foldLeft(GraphicalContent.Empty)(_.compose(_)))
-      }
-    }
-
-  def imageForSelection(colorisation: Node => Colorisation, offsetNodes: Set[Node], offsetValue: Point2D.Double) =
+  def image(colorisation: Node => Colorisation, offsetNodes: Set[Node], offsetValue: Point2D.Double) =
     (fsm.states.map(_.list) <|**|> (fsm.arcs, CommonVisualSettings.settings)) >>= {
       case (comp, a, settings) => {
         treeSequence((a.map(a => arcImageWithOffset(a, offsetNodes, offsetValue, settings).map(_.graphicalContent.applyColorisation(colorisation(a)))) ++
@@ -74,13 +66,18 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
       }
     }
 
+
+  def imageForConnection(colorisation: State => Colorisation) =
+    image({
+      case s : State => colorisation(s)
+      case a : Arc => Colorisation.Empty
+    }, Set(), new Point2D.Double(0,0))
+
   def imageForSimulation(colorisation: Arc => Colorisation, curState: (State, List[String])) =
-    (fsm.states.map(_.list) <|**|> (fsm.arcs, CommonVisualSettings.settings)) >>= {
-      case (comp, a, settings) => {
-        treeSequence((a.map(a => arcImage(a, settings).map(_.graphicalContent.applyColorisation(colorisation(a))))) ++
-          comp.map(c => (stateImage (c, settings) <**> stateTransform(c))(_.transform(_).cgc.applyColorisation( if (c == curState._1) Colorisation(Some(Color.ORANGE), None) else Colorisation.Empty)))).map(_.foldLeft(GraphicalContent.Empty)(_.compose(_)))
-      }
-    }
+    image({
+      case s : State => if (s == curState._1) Colorisation(Some(Color.ORANGE), None) else Colorisation.Empty
+      case a : Arc => colorisation(a)
+    }, Set(), new Point2D.Double(0,0))
 
   def stateImage(state: State, settings: CommonVisualSettings): Expression[BoundedColorisableGraphicalContent] =
     (fsm.labels.map(_(state)) <***> (fsm.initialState.map(_ == state), fsm.finalStates.map(_.contains(state))))((l, i, t) => FSMGraphics.stateImage(l, i, t, settings))
@@ -152,7 +149,7 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
     move,
     (_, x) => x,
     n => CommonVisualSettings.settings >>= (s => touchable(n, s)),
-    imageForSelection(_, _, _),
+    image(_, _, _),
     List(KeyBinding("Delete selection", KeyEvent.VK_DELETE, KeyEventType.KeyPressed, Set(), selection.eval >>= { sel =>
       fsm.deleteNodes(sel) >>= {
         case Right(io) => (pushUndo("delete nodes") >>=| selection.update(_ -- sel) >>=| io) >| None
