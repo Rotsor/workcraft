@@ -10,7 +10,7 @@ import org.workcraft.services.LayoutOrientation
 object FSMLayout {
   class FSMLayoutNode extends LayoutNode
   def apply(efsm: EditableFSM) = efsm.saveState.eval.map(vfsm => {
-    val nodeToComponent: Map[LayoutNode, State] = vfsm.fsm.states.list.map((new FSMLayoutNode, _)).toMap
+    val nodeToComponent: Map[LayoutNode, State] = vfsm.fsm.states.map((new FSMLayoutNode, _)).toMap
     val componentToNode = nodeToComponent.map(_.swap).toMap
 
     val size = (n: LayoutNode) => (1.5, 1.5) // FIXME: should be CommonVisualSettings.size

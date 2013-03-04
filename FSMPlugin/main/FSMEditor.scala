@@ -59,7 +59,7 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
   val props = new FSMProperties(fsm, selection, pushUndo)
 
   def image(colorisation: Node => Colorisation, offsetNodes: Set[Node], offsetValue: Point2D.Double) =
-    (fsm.states.map(_.list) <|**|> (fsm.arcs, CommonVisualSettings.settings)) >>= {
+    (fsm.states.expr <|**|> (fsm.arcs, CommonVisualSettings.settings)) >>= {
       case (comp, a, settings) => {
         treeSequence((a.map(a => arcImageWithOffset(a, offsetNodes, offsetValue, settings).map(_.graphicalContent.applyColorisation(colorisation(a)))) ++
           comp.map(c => (stateImage(c, settings) <**> stateTransformWithOffset(c, offsetNodes, offsetValue))(_.transform(_).cgc.applyColorisation(colorisation(c)))))).map(_.foldLeft(GraphicalContent.Empty)(_.compose(_)))
@@ -217,7 +217,7 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
 
 
   private def connectionTool =
-    GenericConnectionTool[State](fsm.states.map(_.list), n => CommonVisualSettings.settings >>= (s => touchable(n, s)), statePosition(_), connectionManager, imageForConnection(_))
+    GenericConnectionTool[State](fsm.states, n => CommonVisualSettings.settings >>= (s => touchable(n, s)), statePosition(_), connectionManager, imageForConnection(_))
 
   private def stateGeneratorTool =
     NodeGeneratorTool(Button("State", "images/icons/svg/place_empty.svg", Some(KeyEvent.VK_T)).unsafePerformIO, imageForConnection(_ => Colorisation(None, None)), pushUndo("create state") >>=| fsm.createState(_) >| Unit)

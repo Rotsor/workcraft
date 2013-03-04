@@ -30,6 +30,6 @@ object FsmBuilder {
     
     val finalStates = names.map(_._2).toSet
     
-    FSM (NonEmptyList(stateList.head, stateList.tail:_*), arcs, finalStates, initialState, labels, arcLabels)
+    FSM (stateList, arcs, finalStates, initialState, labels, arcLabels)
   }
 }

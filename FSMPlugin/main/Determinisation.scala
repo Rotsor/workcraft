@@ -24,6 +24,15 @@ case class Nfa[State, Symbol] (
   initial : State,
   transitions : State => List[(Option[Symbol], State)],
   isFinal : State => Boolean) {
+  import Utils._
+  def allStates = collect(initial)(s => transitions(s).map(_._2))
+  def mapStates[State2](to : State => State2, from : State2 => State) = {
+    Nfa[State2, Symbol](
+      to(initial),
+      s2 => transitions(from(s2)).map{case (k,v)=>(k,to(v))},
+      s2 => isFinal(from(s2))
+    )
+  }
 }
 
 case class Dfa[State, Symbol] (

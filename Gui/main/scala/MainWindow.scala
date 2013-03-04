@@ -93,7 +93,7 @@ class MainWindow(
 
   var openEditors = List[DockableWindow[ModelEditorPanel]]()
 
-  val menu = new MainMenu(this, List(loggerDockable, toolboxDockable, propEdDockable), globalServices, { case (m, b) => newModel(m, b) })
+  val menu = new MainMenu(this, List(loggerDockable, toolboxDockable, propEdDockable), globalServices, { case (m, b) => m.create >>= ((m : ModelServiceProvider) => newModel(m, b)) })
   this.setJMenuBar(menu)
 
 
@@ -135,8 +135,8 @@ class MainWindow(
 
   private def applyIconManager(implicit logger: () => Logger[IO]) = MainWindowIconManager.apply(this, logger)
 
-  def newModel(newModelImpl: NewModelImpl, editorRequested: Boolean) =
-    newModelImpl.create >>= (model => (fileMapping.update(model, None) >>=| (if (editorRequested) openEditor(model, None) else IO.Empty)))
+  def newModel(model: ModelServiceProvider, editorRequested: Boolean) =
+    fileMapping.update(model, None) >>=| (if (editorRequested) openEditor(model, None) else IO.Empty)
   
   def setFocus(editorDockable: Option[DockableWindow[ModelEditorPanel]]): IO[Unit] = ioPure.pure {
     toolboxWindow.removeAll()

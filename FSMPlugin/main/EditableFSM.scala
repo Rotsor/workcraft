@@ -9,10 +9,9 @@ import java.awt.geom.Point2D
 import org.workcraft.dom.visual.connections.StaticVisualConnectionData
 import org.workcraft.dom.visual.connections.Polyline
 import org.workcraft.plugins.petri2.NameGenerator
-import scalaz.NonEmptyList
 
 class EditableFSM(
-  val states: ModifiableExpression[NonEmptyList[State]],
+  val states: ModifiableExpression[List[State]],
   val arcs: ModifiableExpression[List[Arc]],
   val labels: ModifiableExpression[Map[State, String]],
   val stateNames: ModifiableExpression[Map[String, State]],
@@ -22,11 +21,11 @@ class EditableFSM(
   val layout: ModifiableExpression[Map[State, Point2D.Double]],
   val visualArcs: ModifiableExpression[Map[Arc, StaticVisualConnectionData]]) {
 
-  val nodes = (states.expr <**> arcs)(_.list ++ _)
+  val nodes = (states.expr <**> arcs)(_ ++ _)
 
   val nameGen = NameGenerator(stateNames, "s")
 
-  val incidentArcs: Expression[Map[State, List[Arc]]] = (arcs.expr <**> states)((arcs, states) => states.list.map(c => (c, arcs.filter(arc => (arc.to == c) || (arc.from == c)))).toMap)
+  val incidentArcs: Expression[Map[State, List[Arc]]] = (arcs.expr <**> states)((arcs, states) => states.map(c => (c, arcs.filter(arc => (arc.to == c) || (arc.from == c)))).toMap)
 
   val presetV = saveState.map (_.fsm.preset)
   val postsetV = saveState.map (_.fsm.postset)
@@ -41,7 +40,7 @@ class EditableFSM(
   def createState(where: Point2D.Double): IO[State] = for {
     s <- newState;
     name <- nameGen.newName;
-    _ <- states.update( s <:: _);
+    _ <- states.update(s :: _);
     _ <- labels.update(_ + (s -> name));
     _ <- stateNames.update(_ + (name -> s));
     _ <- layout.update(_ + (s -> where))
@@ -61,13 +60,13 @@ class EditableFSM(
 
   def deleteArc(a: Arc) = arcs.update(_ - a) >>=| arcLabels.update (_ - a) >>=| visualArcs.update(_ - a)
 
-  def remove[A](list: NonEmptyList[A], what: A): NonEmptyList[A] = {
+  def remove[A](list: List[A], what: A): List[A] = {
     if (list.head == what)
       (if (list.tail != Nil)
-        NonEmptyList(list.tail.head, list.tail.tail:_*)
+        list.tail
       else throw new RuntimeException("cannot remove last element from NonEmptyList"))
     else
-      NonEmptyList(list.head, (list.tail - what):_*)
+      list.head :: (list.tail - what)
   }
 
   def deleteState(s: State) =

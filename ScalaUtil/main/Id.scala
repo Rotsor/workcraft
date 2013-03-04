@@ -14,9 +14,6 @@ object IdUtils {
     * It uses Java reference equality, but has a referentially-transparent interface.
     * for all r1, r2: r1.id == r2.id => r1.get == r2.get
     */
-  class Reference[T] private[IdUtils] (val id : Id[T], val get : T) {
-    override def ==(ref : Reference[T]) = id == ref.id
-    override def getHashCode = id.getHashCode
-  }
-  def newReference[T](t : T) = newId[T] map (id => new Reference(id, t))
+  class Reference[T] private[IdUtils] (val get : T)
+  def newReference[T](t : T) = effects.IO.ioPure.pure { new Reference(t) }
 }

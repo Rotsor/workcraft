@@ -129,7 +129,7 @@ object Workcraft extends Build {
      .settings (libraryDependencies := Seq (mail, guava))
      .dependsOn(core, pnplugin, lolaplugin, petrifyplugin)
 
-    lazy val workcraft = mixedProject("Workcraft")
+    lazy val workcraft = simpleProject("Workcraft", Scala)
      .settings (assemblySettings:_*)
      .aggregate (gui, pnplugin, lolaplugin, petrifyplugin, fsmplugin, dotplugin)
      .dependsOn (gui, pnplugin, lolaplugin, petrifyplugin, fsmplugin, dotplugin)

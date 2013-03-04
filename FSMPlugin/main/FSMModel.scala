@@ -28,10 +28,11 @@ import org.workcraft.services.ModelServiceProvider
 import org.workcraft.services.LayoutService
 import org.workcraft.services.Layout
 
-class FSMModel(val fsm: EditableFSM) extends ModelServiceProvider {
+case class FSMModel(val fsm: EditableFSM) extends ModelServiceProvider {
   def implementation[T](service: Service[ModelScope, T]) = service match {
     case EditorService => Some(new FSMEditor(fsm))
     case LayoutService => Some(FSMLayout(fsm))
+    case Services.NfaService => Some(fsm.saveState.eval.map(v => v.fsm.toNfa))
     case _ => None
   }
 }
