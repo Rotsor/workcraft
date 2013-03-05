@@ -34,8 +34,8 @@ object StateGraphTool extends GuiTool {
       val input = File.createTempFile("workcraft", ".g")
       val output = File.createTempFile("workcraft", ".g")
 
-      val export = new PnToDotGExportJob(pn).asTask(input).mapError2(DotGExportError(_))
-      val parse = DotGParser.parseTask(output).mapError2(DotGParseError(_))
+      val export = new PnToDotGExportJob(pn, Some(15)).asTask(input).mapError(DotGExportError(_))
+      val parse = DotGParser.parseTask(output).mapError(DotGParseError(_))
       val writeSgTask = new WriteSgTask("./tools/write_sg", input, output)
 
       val chain = export >>=| writeSgTask >>=| parse

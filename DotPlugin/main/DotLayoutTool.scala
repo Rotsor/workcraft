@@ -46,8 +46,8 @@ object DotLayoutTool extends GuiTool {
       val input = File.createTempFile("workcraft", ".dot")
       val output = File.createTempFile("workcraft", ".dot")
 
-      val export = new DotExportJob(layout.spec).asTask(input).mapError2(DotExportError(_))
-      val parse = Dot.parseTask(output).mapError2(DotParseError(_))
+      val export = new DotExportJob(layout.spec).asTask(input).mapError(DotExportError(_))
+      val parse = Dot.parseTask(output).mapError(DotParseError(_))
       val layoutTask = new DotLayoutTask("./tools/dot/dot", input, output)
 
       ModalTaskDialog.runTask(mainWindow, "Generating layout using dot", export flatMap (_ => layoutTask) flatMap (_ => parse)) >>= {

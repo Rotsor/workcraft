@@ -31,19 +31,8 @@ trait Task[+O, +E] {
   def >>= [O2, E2 >: E](f: O => Task[O2, E2]) = flatMap(f)
   
   def >>=| [O2, E2 >: E] (t: Task[O2, E2]) = flatMap(_ => t)
-
-  def mapError[E2 >: E](f: E => E2) = {
-    val outer = this
-    new Task[O, E2] {
-      def runTask (tc: TaskControl) = outer.runTask(tc) map {
-        case Left(None) => Left(None)
-        case Left(Some(error)) => Left(Some(f(error)))
-        case Right(output) => Right(output)
-      }
-    }
-  }
   
-   def mapError2[E2] (f: E => E2) = {
+  def mapError[E2] (f: E => E2) = {
     val outer = this
     new Task[O, E2] {
       def runTask (tc: TaskControl) = outer.runTask(tc) map {

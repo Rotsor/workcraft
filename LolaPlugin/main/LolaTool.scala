@@ -61,8 +61,8 @@ class LolaVerificationTool(val lolaCommand: String,
       val input = File.createTempFile("workcraft", ".lola")
       val output = File.createTempFile("workcraft", ".lolapath")
 
-      val exportTask = new LolaExportJob(pn).asTask(input).mapError2(LolaChainError.LolaExportError(_))
-      val lolaTask = new LolaTask(lolaCommand, input, output).mapError2(LolaChainError.LolaRunError(_))
+      val exportTask = new LolaExportJob(pn).asTask(input).mapError(LolaChainError.LolaExportError(_))
+      val lolaTask = new LolaTask(lolaCommand, input, output).mapError(LolaChainError.LolaRunError(_))
 
       val megaTask = exportTask flatMap (_ => lolaTask)
 
