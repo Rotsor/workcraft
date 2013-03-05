@@ -48,8 +48,11 @@ class Viewport(val dimensions: Expression[(Int, Int, Int, Int)]) {
     case (x, y, w, h) => {
       val result = new AffineTransform()
       result.translate(w / 2 + x, h / 2 + y)
-      if (h != 0)
-        result.scale(h / 2, h / 2)
+      val scaleSq = math.abs(h * w / 4)
+      if (scaleSq > 0) {
+        val scale = math.sqrt(scaleSq)
+        result.scale(scale, scale)
+      }
       result
     }
   }
