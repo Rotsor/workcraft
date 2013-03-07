@@ -9,80 +9,51 @@ import java.awt.geom.Path2D
 
 import Java2DDecoration._
 
-class Path private (val p: Path2D, val stroke: BasicStroke, val color: Color) {
+class Path private (val points: List[Point], val closed : Boolean, val stroke: BasicStroke, val color: Color) {
+
+  def path2D : Path2D.Double = {
+    val res = new Path2D.Double()
+    points match {
+      case head :: tail => {
+        res.moveTo(head.x, head.y)
+        for(p <- tail) {
+          res.lineTo(p.x, p.y)
+        }
+      }
+      case _ => {}
+    }
+    res
+  }
+
   lazy val graphicalContent = GraphicalContent( g => {
       g.setStroke(stroke)
       g.setColor(color)
-      g.draw(p)
+      g.draw(path2D)
   })
   
   lazy val colorisableGraphicalContent = ColorisableGraphicalContent(colorisation => GraphicalContent ( g => {
       g.setStroke(stroke)
       g.setColor(Coloriser.colorise(color, colorisation.foreground))
-      g.draw(p)
+      g.draw(path2D)
   }))
   
-  lazy val boundedColorisableGraphicalContent = BoundedColorisableGraphicalContent (colorisableGraphicalContent, BoundingBox(p.bounds))
+  lazy val boundedColorisableGraphicalContent = BoundedColorisableGraphicalContent (colorisableGraphicalContent, BoundingBox(path2D.bounds))
   
   def touchable(touchThreshold: Double) = new Touchable {
     val pathError = 0.01
-    val segments = getSegments(p.getPathIterator(null, pathError))
 
-    private def testSegments(segments: List[Line2D.Double], point: Point2D.Double, threshold: Double): Boolean = {
+    private def testSegments(point: Point2D.Double, threshold: Double): Boolean = {
+      val segments = points.zip(points match { case h :: t => t ++ List(h); case Nil => Nil }).
+        map{case (a, b) => line2D(a, b)}
       val tSq = threshold * threshold
-      for (s <- segments) {
-        if (s.ptSegDistSq(point) < tSq)
-          return true
-      }
-      false
+      !segments.find(s => s.ptSegDistSq(point) < tSq).isEmpty
     }
-
-    private def getSegments(i: PathIterator): List[Line2D.Double] = {
-      val coords = new Array[Double](6)
-
-      var curX = 0.0
-      var curY = 0.0
-
-      var startX = 0.0
-      var startY = 0.0
-
-      var broken = true
-
-      var segments: List[Line2D.Double] = Nil
-
-      while (!i.isDone) {
-        val t = i.currentSegment(coords)
-        if (t == PathIterator.SEG_MOVETO) {
-          curX = coords(0)
-          curY = coords(1)
-          broken = true
-        } else if (t == PathIterator.SEG_LINETO) {
-          segments = new Line2D.Double(curX, curY, coords(0), coords(1)) :: segments
-          if (broken) {
-            startX = curX
-            startY = curY
-            broken = false
-          }
-          curX = coords(0)
-          curY = coords(1)
-        } else if (t == PathIterator.SEG_CLOSE) {
-          segments = new Line2D.Double(curX, curY, startX, startY) :: segments
-          curX = startX
-          curY = startY
-          broken = true
-        }
-
-        i.next()
-      }
-
-      segments
-    }
-
-    def hitTest(point: Point2D.Double) = testSegments(segments, point, touchThreshold)
-    def boundingBox = BoundingBox(p.bounds)
+    def hitTest(point: Point2D.Double) = testSegments(point, touchThreshold)
+    def boundingBox = BoundingBox(path2D.bounds)
   }
 }
 
 object Path {
-  def apply(p: Path2D, stroke: BasicStroke, color: Color) = new Path (p, stroke, color) 
+  def apply(p: List[Point], closed : Boolean, stroke: BasicStroke, color: Color) = 
+    new Path (p, closed, stroke, color)
 }

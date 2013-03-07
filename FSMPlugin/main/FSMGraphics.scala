@@ -17,6 +17,7 @@ import org.workcraft.dom.visual.connections.ConnectionGui
 import java.awt.geom.Path2D
 import org.workcraft.dom.visual.connections.VisualConnectionGui
 import java.awt.geom.Point2D
+import org.workcraft.graphics.Java2DDecoration._
 
 object FSMGraphics {
   def stateImage(label: String, isInitial: Boolean, isTerminal: Boolean, settings: CommonVisualSettings): BoundedColorisableGraphicalContent = {
@@ -35,13 +36,12 @@ object FSMGraphics {
       circle(size - settings.strokeWidth * 2, stroke, fill).boundedColorisableGraphicalContent
 
     lazy val initial = {
-      val p = new Path2D.Double()
-      p.moveTo(0, -size * 1.5)
-      p.lineTo(0, -size/2 - 0.4)
+      val p1 = point2D(0, -size * 1.5)
+      val p2 = point2D(0, -size/2 - 0.4)
 
       val arrow = VisualConnectionGui.arrowHead(settings.foregroundColor, new Point2D.Double(0, -size/2 - strokeWidth / 2), 0.5 * scala.math.Pi, 0.6, 0.4)
 
-      path(p, new BasicStroke(strokeWidth * 1.5f), settings.foregroundColor).boundedColorisableGraphicalContent.compose(arrow)
+      line(p1, p2, new BasicStroke(strokeWidth * 1.5f), settings.foregroundColor).boundedColorisableGraphicalContent.compose(arrow)
     }
 
     val i1 = if (isTerminal) image.compose(terminal) else image

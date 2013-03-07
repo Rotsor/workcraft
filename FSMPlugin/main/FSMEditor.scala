@@ -101,14 +101,15 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
 			 settings.effectiveLabelFont,
 			 settings.foregroundColor).boundedColorisableGraphicalContent)) 
 
-    val podgon = 6
-    val podgonAdjustment = if (a.from == is) -1 else 1
 
-    if (a.from == a.to)
+    if (a.from == a.to) {
+      val podgon = 6
+      val podgonAdjustment = if (a.from == is) -1 else 1
       VisualConnectionGui.getConnectionGui(
 	props,
 	VisualConnectionContext.makeContext(t1, ap1 + point(-0.125, -0.75 * podgonAdjustment), t2, ap2 + point(0.125, -0.75 * podgonAdjustment)),
 	Bezier(RelativePoint(point(-podgon, -podgon * podgonAdjustment)), RelativePoint(point(1+podgon, -podgon * podgonAdjustment))))
+    }
     else 
       if (preset.exists (_._1 == a.to))
 	VisualConnectionGui.getConnectionGui(

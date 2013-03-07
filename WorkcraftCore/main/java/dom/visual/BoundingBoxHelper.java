@@ -61,23 +61,6 @@ public class BoundingBoxHelper {
 		return bb;
 	}
 	
-	public static Rectangle2D.Double expand(Rectangle2D.Double rect, double x, double y)
-	{
-		if(rect == null)
-			return null;
-		
-		Rectangle2D.Double res = new Rectangle2D.Double.Double();
-		res.setRect(rect);
-		
-		x /= 2.0f;
-		y /= 2.0f;
-		
-		res.add(rect.getMinX() - x, rect.getMinY() - y);
-		res.add(rect.getMaxX() + x, rect.getMaxY() + y);
-
-		return res;
-	}
-
 	public static Rectangle2D.Double transform(Rectangle2D.Double rect, AffineTransform transform)
 	{
 		if(rect == null)

@@ -2,7 +2,7 @@ package org.workcraft.graphics
 import java.awt.geom.Rectangle2D
 import org.workcraft.graphics.formularendering.RichRectangle2D
 import java.awt.font.GlyphVector
-import java.awt.geom.Path2D
+import java.awt.geom.{ Path2D => Path2DJ }
 import java.awt.{ Shape => ShapeJ }
 import java.awt.geom.Point2D
 import java.awt.geom.Line2D
@@ -12,6 +12,7 @@ import java.awt.geom.CubicCurve2D
 import Geometry.{lerp, createCubicCurve}
 
 object Java2DDecoration {
+  type Point = Point2D.Double
   implicit def decorateRectangle2D(rect: Rectangle2D.Double) = new RichRectangle2D(rect)
   implicit def doubulizeRect(rect: Rectangle2D) = new Rectangle2D.Double(rect.getMinX, rect.getMinY, rect.getWidth, rect.getHeight)
   implicit def doubulizePt(pt: Point2D) = new Point2D.Double(pt.getX, pt.getY)
@@ -20,7 +21,7 @@ object Java2DDecoration {
     def visualBounds = doubulizeRect(getVisualBounds)
     def logicalBounds = doubulizeRect(getLogicalBounds)
   }
-  implicit def decoratePath2D(path2d: Path2D) = new {
+  implicit def decoratePath2D(path2d: Path2DJ) = new {
     import path2d._
     def bounds = doubulizeRect(getBounds2D)
   }
@@ -28,11 +29,28 @@ object Java2DDecoration {
     import shape._
     def bounds = doubulizeRect(getBounds2D)
   }
+  def line2D(p1 : Point2D.Double, p2 : Point2D.Double) = new Line2D.Double(p1.x, p1.y, p2.x, p2.y)
+  def point2D(x : Double, y : Double) = new Point2D.Double(x, y)
   implicit def decorateLine2D(line2D: Line2D) = new {
     import line2D._
     def p1 = doubulizePt(getP1)
     def p2 = doubulizePt(getP2)
   }
+
+  implicit def decorateTransform(t1 : AffineTransform) = new {
+    def compose(t2 : AffineTransform) = {
+      val t3 = t1.clone.asInstanceOf[AffineTransform]
+      t3.concatenate(t2)
+      t3
+    }
+  }
+
+  def translation(v : Point2D.Double) = AffineTransform.getTranslateInstance(v.x, v.y)
+  /** rotates x+ towards y+ by the angle of a radian. **/
+  def rotation(a : Double) = AffineTransform.getRotateInstance(a)
+  def rotation(v : Point2D.Double, anchor : Point2D.Double) = 
+    AffineTransform.getRotateInstance(v.getX, v.getY, anchor.getX, anchor.getY)
+  def scale(sx : Double, sy : Double) = AffineTransform.getScaleInstance(sx, sy)
 
   implicit def decoratePoint2D(pt: Point2D) = new {
     def transform(t: AffineTransform) = {
@@ -40,6 +58,7 @@ object Java2DDecoration {
       t.transform(pt, p)
       p
     }
+    def unary_- = new Point2D.Double(-pt.getX, -pt.getY)
     def +(other: Point2D) = new Point2D.Double(pt.getX + other.getX, pt.getY + other.getY)
     def -(other: Point2D) = new Point2D.Double(pt.getX - other.getX, pt.getY - other.getY)
     def *(scale: Double) = new Point2D.Double(pt.getX * scale, pt.getY * scale)

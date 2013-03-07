@@ -53,9 +53,9 @@ object BezierGui {
 
       Range.Double(0.01, 1.0, 0.01).foreach(t => {
         val samplePoint = fullCurve2D.getPointOnCurve(t)
-        val distance = pt.distance(samplePoint)
-        if (distance < nearestDist) {
-          nearestDist = distance
+        val distanceSq = pt.distanceSq(samplePoint)
+        if (distanceSq < nearestDist) {
+          nearestDist = distanceSq
           nearest = t
         }
       })
@@ -69,13 +69,6 @@ object BezierGui {
 
     override def secondDerivativeAt(t: Double): Point2D.Double = fullCurve2D.getSecondDerivative(t)
 
-    override def boundingBox: Rectangle2D.Double = {
-      val boundingBox = fullCurve2D.bounds
-      boundingBox.add(boundingBox.getMinX - VisualConnectionGui.HitThreshold, boundingBox.getMinY - VisualConnectionGui.HitThreshold)
-      boundingBox.add(boundingBox.getMinX - VisualConnectionGui.HitThreshold, boundingBox.getMaxY + VisualConnectionGui.HitThreshold)
-      boundingBox.add(boundingBox.getMaxX + VisualConnectionGui.HitThreshold, boundingBox.getMinY - VisualConnectionGui.HitThreshold)
-      boundingBox.add(boundingBox.getMaxX + VisualConnectionGui.HitThreshold, boundingBox.getMaxY + VisualConnectionGui.HitThreshold)
-      boundingBox
-    }
+    override def boundingBox: Rectangle2D.Double = fullCurve2D.bounds
   }
 }
