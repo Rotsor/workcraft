@@ -78,6 +78,10 @@ object Java2DDecoration {
       else
         new Point2D.Double(pt.getX / length, pt.getY / length)
     }
+
+    def atan2 : Double = {
+      math.atan2(pt.getY, pt.getX)
+    }
   }
   
   implicit def decorateCurve2D(curve: CubicCurve2D) = new {

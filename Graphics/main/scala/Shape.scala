@@ -1,6 +1,8 @@
 package org.workcraft.graphics
 
 import java.awt.Color
+import java.awt.geom.Line2D
+import java.awt.geom.PathIterator
 import java.awt.geom.Point2D
 import java.awt.BasicStroke
 import java.awt.Stroke
@@ -27,14 +29,14 @@ class Shape private (val s: java.awt.Shape, val stroke: Option[(Stroke, Color)],
     }
   }
 
-  lazy val graphicalContent = colorisableGraphicalContent.applyColorisation(Colorisation.None)
+  lazy val graphicalContent = colorisableGraphicalContent.applyColorisation(Colorisation.Empty)
     
   lazy val boundedColorisableGraphicalContent = BoundedColorisableGraphicalContent (colorisableGraphicalContent, BoundingBox(s.bounds))
   
   lazy val touchable = new Touchable {
 
      val pathError = 0.01
-     val segments = getSegments(p.getPathIterator(null, pathError))
+     val segments = getSegments(s.getPathIterator(null, pathError))
  
     private def testSegments(segments: List[Line2D.Double], point: Point2D.Double, threshold: Double): Boolean = {
        val tSq = threshold * threshold
@@ -85,7 +87,7 @@ class Shape private (val s: java.awt.Shape, val stroke: Option[(Stroke, Color)],
 
       segments
      }
-    def hitTest(point: Point2D.Double) = testSegments(segments, point, touchThreshold) || s.contains(point)
+    def hitTest(point: Point2D.Double) = testSegments(segments, point, 0.1) || s.contains(point)
     def boundingBox = BoundingBox(s.bounds)
   }
 }

@@ -9,7 +9,11 @@ import java.awt.geom.Path2D
 
 import Java2DDecoration._
 
-class Path private (val points: List[Point], val closed : Boolean, val stroke: BasicStroke, val color: Color) {
+class Path private (
+  val points: List[Point], 
+  val closed : Boolean,
+  val stroke: Option[(BasicStroke, Color)], 
+  val fill : Option[Color]) {
 
   def path2D : Path2D.Double = {
     val res = new Path2D.Double()
@@ -22,20 +26,28 @@ class Path private (val points: List[Point], val closed : Boolean, val stroke: B
       }
       case _ => {}
     }
+    if(closed)
+      res.closePath
     res
   }
 
-  lazy val graphicalContent = GraphicalContent( g => {
-      g.setStroke(stroke)
-      g.setColor(color)
-      g.draw(path2D)
-  })
-  
   lazy val colorisableGraphicalContent = ColorisableGraphicalContent(colorisation => GraphicalContent ( g => {
-      g.setStroke(stroke)
-      g.setColor(Coloriser.colorise(color, colorisation.foreground))
-      g.draw(path2D)
+    fill.foreach {
+      fill => {
+        g.setColor(Coloriser.colorise(fill, colorisation.foreground))
+        g.fill(path2D)
+      }
+    }
+    stroke.foreach{
+      case (s, c) => {
+        g.setStroke(s)
+        g.setColor(Coloriser.colorise(c, colorisation.foreground))
+        g.draw(path2D)
+      }
+    }
   }))
+
+  lazy val graphicalContent = colorisableGraphicalContent.applyColorisation(Colorisation.Empty)
   
   lazy val boundedColorisableGraphicalContent = BoundedColorisableGraphicalContent (colorisableGraphicalContent, BoundingBox(path2D.bounds))
   
@@ -43,7 +55,10 @@ class Path private (val points: List[Point], val closed : Boolean, val stroke: B
     val pathError = 0.01
 
     private def testSegments(point: Point2D.Double, threshold: Double): Boolean = {
-      val segments = points.zip(points match { case h :: t => t ++ List(h); case Nil => Nil }).
+      val segments = points.zip(points match { 
+        case h :: t => t ++ (if(closed)List(h) else Nil);
+        case Nil => Nil 
+      }).
         map{case (a, b) => line2D(a, b)}
       val tSq = threshold * threshold
       !segments.find(s => s.ptSegDistSq(point) < tSq).isEmpty
@@ -54,6 +69,6 @@ class Path private (val points: List[Point], val closed : Boolean, val stroke: B
 }
 
 object Path {
-  def apply(p: List[Point], closed : Boolean, stroke: BasicStroke, color: Color) = 
-    new Path (p, closed, stroke, color)
+  def apply(p: List[Point], closed : Boolean, stroke: Option[(BasicStroke, Color)], fill: Option[Color]) = 
+    new Path (p, closed, stroke, fill)
 }

@@ -21,6 +21,7 @@ import org.workcraft.graphics.Geometry.buildConnectionCurveInfo
 import org.workcraft.graphics._
 import org.workcraft.graphics.Graphics._
 import org.workcraft.graphics.Java2DDecoration._
+import scalaz._
 
 object VisualConnectionGui {
 
@@ -33,7 +34,7 @@ object VisualConnectionGui {
       point2D(0, 0)
     )
 
-    closedPath(arrowShape, new BasicStroke(width.toFloat), color)
+    closedPath(arrowShape, None, Some(color))
     .boundedColorisableGraphicalContent
     .transform(
       translation(headPosition)
@@ -59,18 +60,17 @@ object VisualConnectionGui {
       case Polyline(cps) => PolylineGui.makeCurve(properties, context, cps)
       case Bezier(cp1, cp2) => BezierGui.makeCurve(context, cp1, cp2)
     }
-    val curveInfo = buildConnectionCurveInfo(properties.arrow, context.c1.touchable, context.c2.touchable, curve, 0)
+    val curveInfo = buildConnectionCurveInfo(properties.arrow, context.c1.touchable, context.c2.touchable, curve)
     val visiblePath = curve.shape(curveInfo.tStart, curveInfo.tEnd)
     val touchable = makeConnectionTouchable(curve, curveInfo)
 
     val bcgc = 
-      NonEmptyList(shape(visiblePath, properties.stroke, properties.color),
-      connProps.arrow.map(arrow => arrowHead(properties.color, 
+      (properties.arrow.map(arrow => arrowHead(properties.color, 
         curveInfo.arrowHeadPosition,
         curveInfo.arrowOrientation,
         arrow.length,
         arrow.width)) ++
-        connProps.label.map (label => {
+        properties.label.map (label => {
 	  val p = curve.pointOnCurve(0.5)
 	  val d = curve.derivativeAt(0.5)
 	  val dd = curve.secondDerivativeAt(0.5)
@@ -85,10 +85,10 @@ object VisualConnectionGui {
 
 	  val transform = translation(offset) compose rotation(q, labelPosition)
 
-	  label.transform(transform).bcgc
-	})).reduce(_ compose _)
+	  label.transform(transform)
+	})).foldLeft(shape(visiblePath, Some(properties.stroke, properties.color), None).boundedColorisableGraphicalContent)(_ compose _)
 
-    val gc = bcgc.graphicalContent
+    val gc = bcgc.cgc
 
     new ConnectionGui(touchable, gc, curve)
   }
