@@ -11,12 +11,14 @@ case class FSMSimulation(fsm: FSM, input: List[String]) extends SimulationModel 
   val state = curState.expr
 
   val enabled = state.map { case (curState, in) => (a: Arc) => {
-      val arcs = fsm.postset(curState).filter(_._2 == a)
+    val arcs = fsm.postset(curState).filter(_._2 == a)
 
-      in match {
-	case Nil => arcs.exists(a => fsm.arcLabels(a._2) == "")
-	case x => arcs.exists( a => (fsm.arcLabels(a._2).replace(" ","").split(",").toList.contains(x.head)) || (fsm.arcLabels(a._2) == ""))
-      }
+    arcs.exists(a =>
+      fsm.arcLabels(a._2).list.contains(None) ||
+        (in match {
+	  case Nil => false
+	  case (x :: _) => fsm.arcLabels(a._2).list.contains(Some(x))
+        }))
     }
   }
 

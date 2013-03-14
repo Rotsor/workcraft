@@ -1,6 +1,7 @@
 package org.workcraft.plugins.petrify
 
-import scalaz.NonEmptyList
+import scalaz._
+import Scalaz._
 import org.workcraft.plugins.fsm.State
 import org.workcraft.plugins.fsm.Arc
 import org.workcraft.plugins.fsm.FSM
@@ -30,6 +31,6 @@ object FsmBuilder {
     
     val finalStates = names.map(_._2).toSet
     
-    FSM (stateList, arcs, finalStates, initialState, labels, arcLabels)
+    FSM (stateList, arcs, finalStates, initialState, labels, arcLabels.mapValues(s => nel(Some(s), Nil)))
   }
 }

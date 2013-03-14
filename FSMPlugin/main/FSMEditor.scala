@@ -84,8 +84,6 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
 
   def arcImage(a: Arc, settings: CommonVisualSettings): Expression[ConnectionGui] = arcImageWithOffset(a, Set(), new Point2D.Double(0, 0), settings)
 
-  def maybeShowEpsilon(s: String) = if (s.isEmpty) "ε" else s
-
   def arcImageWithOffset(a: Arc, offsetNodes: Set[Node], offsetValue: Point2D.Double, settings:CommonVisualSettings) = for {
     //TODO: support this  visualArcs <- fsm.visualArcs; 
     preset <- fsm.preset(a.from);
@@ -97,7 +95,7 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
     labels <- fsm.arcLabels
   } yield {
     val props = VisualArc.properties.copy(
-      label = Some(label(maybeShowEpsilon(labels(a)),
+      label = Some(label(ArcLabels.printLabels(",")(labels(a)),
 			 settings.effectiveLabelFont,
 			 settings.foregroundColor).boundedColorisableGraphicalContent)) 
 
@@ -182,7 +180,7 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
 	    if (fs.contains(q)) success
 	    else failure
 	  case (q, input@(x :: _)) => {
-	    if (ia(q).filter (arc => (arc.from == q && ((al(arc).replace(" ", "").split(",").toList.contains(x)) || (al(arc) == "")))).isEmpty) failure
+	    if (ia(q).filter (arc => (arc.from == q && ((al(arc).list.contains(Some(x))) || (al(arc).list.contains(None))))).isEmpty) failure
 	    else Some(("Remaining input: " + input.mkString(", "), Color.BLACK))
 	  }
 	}

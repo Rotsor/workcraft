@@ -12,7 +12,10 @@ case class FSMSimulationGen(fsm: FSM) extends SimulationModel [Arc, (State, List
 
   val enabled = state.map { case (curState, in) => (a: Arc) => fsm.postset(curState).exists(_._2 == a) }
   
-  def fire(s: Arc) = curState.update { case (_, input) => (s.to, if (fsm.arcLabels(s) == "") input ++ List("ε") else input ++ List (fsm.arcLabels(s).replace(" ", "").split(",").toList.mkString(" OR ")))}
+  def fire(s: Arc) = curState.update { 
+    case (_, input) => (s.to, 
+      input ++ List(ArcLabels.printLabels(" OR ")(fsm.arcLabels(s))))
+  }
     
   def name (e: Arc) = fsm.labels(e.to)
 
