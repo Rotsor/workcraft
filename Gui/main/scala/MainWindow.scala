@@ -191,7 +191,7 @@ class MainWindow(
     // TODO: Ask to save etc.
     fileMapping.remove(editorDockable.content.model)
 
-    openEditors = openEditors.filterNot (_ == editorDockable)    
+    openEditors = openEditors.filterNot (_ == editorDockable)
 
     if (openEditors.isEmpty)
       DockingManager.dock(placeholderDockable, editorDockable, DockingConstants.CENTER_REGION)
@@ -200,8 +200,8 @@ class MainWindow(
     DockingManager.undock(editorDockable)
   }
 
-  def exit = ioPure.pure { 
-    setVisible(false) 
+  def exit = ioPure.pure {
+    setVisible(false)
     dispose()
     this.synchronized {
       notify()

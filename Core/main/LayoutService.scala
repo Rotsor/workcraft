@@ -1,11 +1,12 @@
 package org.workcraft.services
 
 import java.awt.geom.Point2D
+import org.workcraft.scala.effects.IOMonad
 import org.workcraft.scala.effects.IO
 import java.awt.geom.Rectangle2D
 import java.awt.geom.AffineTransform
 
-object LayoutService extends Service[ModelScope, IO[Layout]]
+object LayoutableService extends Service[ModelScope, Layoutable]
 
 sealed abstract class LayoutOrientation (val transform: AffineTransform)
 
@@ -16,14 +17,18 @@ object LayoutOrientation {
   case class Custom (t: AffineTransform) extends LayoutOrientation(t) 
 }
 
-trait LayoutNode
+trait Layouter[M[_]] {
+  def layout[N](spec : LayoutSpec[N]) : M [List[(N, Point2D.Double)]]
+}
 
-case class Layout (spec: LayoutSpec, apply: List[(LayoutNode, Point2D.Double)] => IO[Unit])
+trait Layoutable {
+  def apply[M[_]](layouter : Layouter[M])(implicit m : IOMonad[M]): M[Unit]
+}
 
-case class LayoutSpec (
-    nodes: List[LayoutNode], 
-    size: LayoutNode => (Double, Double),  // (width, height)
-    outgoingArcs: LayoutNode => List[LayoutNode],
-    nodeSeparation: Double,
-    rankSeparation: Double,
-    orientation: LayoutOrientation)
+case class LayoutSpec[Node] (
+  nodes: List[Node],
+  size: Node => (Double, Double),  // (width, height)
+  outgoingArcs: Node => List[Node],
+  nodeSeparation: Double,
+  rankSeparation: Double,
+  orientation: LayoutOrientation)

@@ -11,7 +11,7 @@ import java.io.FileOutputStream
 import org.workcraft.scala.effects.IO
 import org.workcraft.scala.effects.IO._
 import org.workcraft.services.ExportError
-import org.workcraft.services.LayoutService
+import org.workcraft.services.LayoutableService
 import scalaz.Scalaz._
 import org.workcraft.services.LayoutSpec
 
@@ -24,7 +24,7 @@ import org.workcraft.services.LayoutSpec
   }
 }*/
 
-class DotExportJob(layout: LayoutSpec) extends ExportJob {
+class DotExportJob[N](layout: LayoutSpec[N]) extends ExportJob {
   def job(file: File) = ioPure.pure {
     val out = new PrintStream(new BufferedOutputStream(new FileOutputStream(file)))
     try {

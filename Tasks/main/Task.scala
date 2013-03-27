@@ -5,6 +5,7 @@ import org.workcraft.dependencymanager.advanced.core.Expression
 import scalaz._
 import Scalaz._
 import org.workcraft.scala.effects.IO
+import org.workcraft.scala.effects.IOMonad
 import org.workcraft.scala.effects.IO._
 
 case class TaskControl(cancelRequest : IO[Boolean], progressUpdate: Double => IO[Unit], descriptionUpdate: String => IO[Unit])
@@ -27,10 +28,11 @@ trait Task[+O, +E] {
       }
     }
   }
-  
+
   def >>= [O2, E2 >: E](f: O => Task[O2, E2]) = flatMap(f)
   
   def >>=| [O2, E2 >: E] (t: Task[O2, E2]) = flatMap(_ => t)
+  def *> [O2, E2 >: E] (t: Task[O2, E2]) = >>=| (t)
   
   def mapError[E2] (f: E => E2) = {
     val outer = this
@@ -55,11 +57,6 @@ object Task {
     def runTask(tc: TaskControl) = Right(outcome).pure[IO]
   }
 
-  implicit def taskMonad[E] = new Monad[({ type λ[α] = Task[α, E] })#λ] {
-    def bind[O1, O2](a: Task[O1, E], f: O1 => Task[O2, E]) = a.flatMap(f)
-    def pure[O](a: => O) = Task.pure(a)
-  }
-
   implicit def taskMA[O, E](t: Task[O, E]): MA[({ type λ[α] = Task[α, E] })#λ, O] = ma[({ type λ[α] = Task[α, E] })#λ, O](t)
   
   def apply[E,O] (task: IO[Either[E, O]]) = new Task[O,E] {
@@ -73,7 +70,18 @@ object Task {
     def runTask(tc: TaskControl) = task(tc)
   }
   
-  implicit def ioTask[E] (action: IO[Unit]) = new Task[Unit, E] {
-    def runTask(tc: TaskControl) = action >>= (x => Right(()).pure[IO])
+   def ioTask[O,E] (action: IO[O]) = new Task[O, E] {
+    def runTask(tc: TaskControl) = action >>= (x => Right(x).pure[IO])
+  }
+
+/*  implicit def monad[E] = new Monad[({ type t[a] = Task[a , E] })#t] {
+    def bind[O1, O2](a: Task[O1, E], f: O1 => Task[O2, E]) = a.flatMap(f)
+    def pure[O](a: => O) = Task.pure(a)
+  }*/
+
+  implicit def ioMonad[E] = new IOMonad[({ type t[a] = Task[a , E] })#t] {
+    def bind[O1, O2](a: Task[O1, E], f: O1 => Task[O2, E]) = a.flatMap(f)
+    def pure[O](a: => O) = Task.pure(a)
+    def lift[A](x : IO[A]) = ioTask(x)
   }
 }
