@@ -9,7 +9,7 @@ import java.io.FileOutputStream
 import org.workcraft.tasks.Task
 import org.workcraft.tasks.TaskControl
 
-object ExporterService extends GlobalService[Exporter]
+object ExporterService extends MultiService[GlobalScope, Exporter]
 
 case class ServiceNotAvailableException(service: ModelService[_]) {
   override def toString = "Model service is not available: " + service.getClass.getSimpleName

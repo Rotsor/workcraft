@@ -5,11 +5,8 @@ import java.awt.event.ActionListener
 import java.awt.event.ActionEvent
 import javax.swing.KeyStroke
 import java.awt.event.KeyEvent
-import org.workcraft.services.GlobalServiceManager
-import org.workcraft.services.NewModelService
+import org.workcraft.services._
 import GUI.menuItem
-import org.workcraft.services.NewModelImpl
-import org.workcraft.services.ModelServiceProvider
 import java.awt.event.MouseListener
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent

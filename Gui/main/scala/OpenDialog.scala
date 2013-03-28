@@ -1,8 +1,7 @@
 package org.workcraft.gui
 import java.awt.Window
+import org.workcraft.services.GlobalServiceProvider
 import org.workcraft.services.ModelServiceProvider
-import org.workcraft.services.GlobalServiceManager
-import org.workcraft.services.FileOpenService
 import java.io.File
 import javax.swing.JFileChooser
 import org.workcraft.services.FileOpen
@@ -14,6 +13,7 @@ import javax.swing.JOptionPane
 import java.awt.Font
 import javax.swing.JLabel
 import javax.swing.JTextArea
+import org.workcraft.services.FileOpenService
 
 import org.workcraft.scala.Expressions._
 import org.workcraft.scala.effects.IO
@@ -54,8 +54,8 @@ object OpenDialog {
     }
   })
 
-  def open(parentWindow: Window, globalServices: GlobalServiceManager): IO[Option[(File, ModelServiceProvider)]] = {
-    val importers = globalServices.implementations(FileOpenService)
+  def open(parentWindow: Window, globalServices: GlobalServiceProvider): IO[Option[(File, ModelServiceProvider)]] = {
+    val importers = globalServices.implementation(FileOpenService)
 
     if (importers.isEmpty) ioPure.pure {
       JOptionPane.showMessageDialog(parentWindow, "No import plug-ins are available.", "Error", JOptionPane.ERROR_MESSAGE)

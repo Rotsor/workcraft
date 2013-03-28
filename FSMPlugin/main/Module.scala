@@ -25,13 +25,13 @@ object NewFSM extends NewModelImpl {
 }
 
 object FSMServiceProvider extends GlobalServiceProvider {
-  def implementations[T](service: Service[GlobalScope, T]) = service match {
+  def implementation[T](service: Service[GlobalScope, T]) = service match {
     case NewModelService => List(NewFSM)
     case GuiToolService => List(DeterminisationTool)
 
     //case ExporterService => List(DotGExporter)
     //case GuiToolService => List(LolaDeadlockTool) 
-    case _ => Nil
+    case s => import s._; mzero
   }
 }
 

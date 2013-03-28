@@ -2,7 +2,7 @@ package org.workcraft.gui
 
 import java.awt.Font
 import javax.swing.JFrame
-import org.workcraft.services.GlobalServiceManager
+import org.workcraft.services.GlobalServiceProvider
 import org.workcraft.logging.Logger
 import org.workcraft.logging.Logger._
 import org.workcraft.logging.StandardStreamLogger
@@ -44,9 +44,10 @@ import java.awt.event.FocusListener
 import java.awt.event.FocusEvent
 import java.io.File
 import java.awt.Color
+import DefaultLayout._
 
 class MainWindow(
-  val globalServices: GlobalServiceManager,
+  val globalServices: GlobalServiceProvider,
   configuration: Option[GuiConfiguration]) extends JFrame {
   val loggerWindow = new LoggerWindow
   implicit val implicitLogger: () => Logger[IO] = () => loggerWindow
@@ -136,7 +137,9 @@ class MainWindow(
   private def applyIconManager(implicit logger: () => Logger[IO]) = MainWindowIconManager.apply(this, logger)
 
   def newModel(model: ModelServiceProvider, editorRequested: Boolean) =
-    fileMapping.update(model, None) >>=| (if (editorRequested) openEditor(model, None) else IO.Empty)
+    fileMapping.update(model, None) >>=|
+    runDefaultLayout(globalServices, model, this) >>=|
+    (if (editorRequested) openEditor(model, None) else IO.Empty)
   
   def setFocus(editorDockable: Option[DockableWindow[ModelEditorPanel]]): IO[Unit] = ioPure.pure {
     toolboxWindow.removeAll()

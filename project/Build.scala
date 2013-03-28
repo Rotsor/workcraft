@@ -4,6 +4,7 @@ import sbtassembly.Plugin._
 import AssemblyKeys._
 
 object Workcraft extends Build {
+
     
     val rootTargetDirectory = file("target")
     
@@ -44,6 +45,8 @@ object Workcraft extends Build {
        .settings(target := rootTargetDirectory / name)
        .settings(sourceDirectory <<= baseDirectory)
        .settings (scalacOptions ++= Seq("-unchecked", "-deprecation"))
+       .settings(maxErrors := 1)
+
 
       def simpleProject(name : String, lang : Lang) = MyProject(name, SimpleProject(lang))
       def mixedProject(name : String) = MyProject(name, MixedProject)

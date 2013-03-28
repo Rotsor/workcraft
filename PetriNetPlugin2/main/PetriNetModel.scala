@@ -23,8 +23,8 @@ import org.workcraft.services.ModelScope
 import org.workcraft.services.Service
 import scalaz.Scalaz._
 import org.workcraft.services.ModelServiceProvider
-import org.workcraft.services.LayoutableService
-import org.workcraft.services.Layoutable
+import org.workcraft.services.layout.LayoutableService
+import org.workcraft.services.layout.Layoutable
 
 class PetriNetModel(val net: EditablePetriNet) extends ModelServiceProvider {
   def implementation[T](service: Service[ModelScope, T]) = service match {
@@ -33,6 +33,6 @@ class PetriNetModel(val net: EditablePetriNet) extends ModelServiceProvider {
     case PetriNetService => Some(net.saveState.map(_.net).eval)
     case VisualPetriNetService => Some(net.saveState.eval)
     case DefaultFormatService => Some(Format.WorkcraftPetriNet)
-    case _ => None
+    case s => import s._; mzero
   }
 }

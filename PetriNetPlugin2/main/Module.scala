@@ -10,17 +10,20 @@ import org.workcraft.services.Exporter
 import org.workcraft.services.ExporterService
 import org.workcraft.services.FileOpenService
 
+import scalaz._
+import Scalaz._
+
 object NewPetriNet extends NewModelImpl {
   def name = "Petri Net"
   def create = EditablePetriNet.create(VisualPetriNet.Empty).map(new PetriNetModel(_))
 }
 
 object PetriNetServiceProvider extends GlobalServiceProvider {
-  def implementations[T](service: Service[GlobalScope, T]) = service match {
+  def implementation[T](service: Service[GlobalScope, T]) = service match {
     case NewModelService => List(NewPetriNet)
     case ExporterService => List(PnExporter)
     case FileOpenService => List(PnFileOpen, LlnetFileOpen)
-    case _ => Nil
+    case s => import s._; mzero
   }
 }
 

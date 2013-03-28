@@ -1,4 +1,9 @@
-package org.workcraft.services
+package org.workcraft
+
+package object services {
+
+import scalaz._
+import Scalaz._
 
 sealed trait Scope
 
@@ -8,42 +13,68 @@ trait ModelScope extends Scope
 
 trait EditorScope extends Scope
 
-trait Service[S <: Scope, ImplT]
-
-/*trait ServiceProvider[S <: Scope] {
-  def implementation[T](service: Service[S, T]): Option[T]
-}*/
-
-trait GlobalServiceProvider {
-  def implementations[T](service: Service[GlobalScope,T]): List[T]
+// these must support identity comparison
+trait Service[S <: Scope, ImplT] {
+  implicit def monoid : Monoid[ImplT]
 }
 
-object GlobalServiceProvider {
-  val Empty = new GlobalServiceProvider {
-    def implementations[T](service: Service[GlobalScope, T]) = Nil
-  }
+// these must support identity comparison
+trait MultiService[S <: Scope, ImplT] extends Service[S, List[ImplT]] {
+  override def monoid : Monoid[List[ImplT]] = scalaz.Monoid.monoid(
+    Scalaz.semigroup((a,b) => a ++ b),
+    Scalaz.zero(Nil)
+  )
 }
 
-trait ModelServiceProvider {
-  def implementation[T](service: Service[ModelScope,T]): Option[T]
+trait SingleService[S <: Scope, ImplT] extends Service[S, Option[ImplT]] {
+  override def monoid : Monoid[Option[ImplT]] = scalaz.Monoid.monoid(
+    Scalaz.semigroup(
+      (a, b) => b match {
+        case None => a
+        case b => b
+      }),
+    Scalaz.zero(None))
+}
 
-  def ++ (x: ModelServiceProvider): ModelServiceProvider = {
-    val outer = this
-    new Object with ModelServiceProvider {
-      def implementation[S](service: Service[ModelScope, S]) = {
-	val impl = x.implementation(service)
-	if (impl.isDefined) impl else outer.implementation(service)
+trait ServiceProvider[S <: Scope] {
+  def implementation[T](service: Service[S, T]): T
+}
+
+type GlobalServiceProvider = ServiceProvider[GlobalScope]
+
+object ServiceProvider {
+/*  def singleton[S <: Scope, T](service : Service[S, T], value : T) : ServiceProvider[S]
+    = new ServiceProvider[S] {
+      import service._
+      def implementation[T2](s : Service[S,T2]) =
+        if(s == service) value.asInstanceOf[T] else mzero
+    }*/
+
+  implicit def zero[S <: Scope] : Zero[ServiceProvider[S]] = Scalaz.zero(
+    new ServiceProvider[S] {
+      def implementation[T](service : Service[S, T]) : T = {
+        service.monoid.zero
       }
-    }
-  }
+    })
+  implicit def semigroup[S <: Scope] : Semigroup[ServiceProvider[S]] = 
+    Scalaz.semigroup((a,b) => {
+      val e = new Exception
+      new ServiceProvider[S]{
+      def implementation[T](service : Service[S, T]) : T = {
+        import service.monoid
+        a.implementation(service) |+| b.implementation(service)
+      }}
+    })
 }
 
-trait EditorServiceProvider {
-  def implementation[T](service: Service[EditorScope,T]): Option[T]
-}
+type ModelServiceProvider = ServiceProvider[ModelScope]
 
-object ModelServiceProvider {
-  val Empty = new ModelServiceProvider {
-    def implementation[T](service: Service[ModelScope, T]) = None
-  }
+type EditorServiceProvider = ServiceProvider[EditorScope]
+
+
+type Model = ModelServiceProvider
+type ModelService[T] = SingleService[ModelScope, T]
+type GlobalService[T] = MultiService[GlobalScope, T]
+
+
 }

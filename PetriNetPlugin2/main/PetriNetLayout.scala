@@ -5,10 +5,10 @@ import scalaz.Scalaz._
 import java.awt.geom.Rectangle2D
 import java.awt.geom.Point2D
 import org.workcraft.scala.effects.IOMonad
-import org.workcraft.services.LayoutSpec
-import org.workcraft.services.Layoutable
-import org.workcraft.services.Layouter
-import org.workcraft.services.LayoutOrientation
+import org.workcraft.services.layout.LayoutSpec
+import org.workcraft.services.layout.Layoutable
+import org.workcraft.services.layout.Layouter
+import org.workcraft.services.layout.LayoutOrientation
 import org.workcraft.gui.CommonVisualSettings
 
 object PetriNetLayoutable {

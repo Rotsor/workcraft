@@ -1,12 +1,14 @@
 package org.workcraft.services
 
+package object layout {
+
 import java.awt.geom.Point2D
 import org.workcraft.scala.effects.IOMonad
 import org.workcraft.scala.effects.IO
 import java.awt.geom.Rectangle2D
 import java.awt.geom.AffineTransform
 
-object LayoutableService extends Service[ModelScope, Layoutable]
+object LayoutableService extends SingleService[ModelScope, Layoutable]
 
 sealed abstract class LayoutOrientation (val transform: AffineTransform)
 
@@ -32,3 +34,4 @@ case class LayoutSpec[Node] (
   nodeSeparation: Double,
   rankSeparation: Double,
   orientation: LayoutOrientation)
+}

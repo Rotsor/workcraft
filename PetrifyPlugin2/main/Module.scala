@@ -20,11 +20,11 @@ import org.workcraft.gui.tasks.ModalTaskDialog
 import scalaz.Scalaz._
 
 object PetrifyServiceProvider extends GlobalServiceProvider {
-  def implementations[T](service: Service[GlobalScope, T]) = service match {
+  def implementation[T](service: Service[GlobalScope, T]) = service match {
     case ExporterService => List(DotGExporter)
     case GuiToolService => List(StateGraphTool)
     case FileOpenService => List(DotGFileOpen)
-    case _ => Nil
+    case s => import s._; mzero
   }
 }
 

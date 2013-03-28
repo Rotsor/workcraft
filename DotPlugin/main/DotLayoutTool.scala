@@ -14,14 +14,15 @@ import org.workcraft.plugins.dot.parser.Node
 import org.workcraft.gui.tasks.ModalTaskDialog
 import org.workcraft.tasks.Task._
 import javax.swing.JOptionPane
-import org.workcraft.services.LayoutableService
-import org.workcraft.services.Layoutable
-import org.workcraft.services.Layouter
-import org.workcraft.services.LayoutSpec
+import org.workcraft.services.layout.LayoutableService
+import org.workcraft.services.layout.Layoutable
+import org.workcraft.services.layout.Layouter
+import org.workcraft.services.layout.LayoutSpec
 import org.workcraft.plugins.dot.parser.Attr
 import java.awt.geom.Point2D
 import java.awt.geom.AffineTransform
 import org.workcraft.tasks.Task
+import org.workcraft.tasks.File._
 
 sealed trait DotError
 
@@ -45,46 +46,47 @@ object DotLayoutTool extends GuiTool {
     res
   }
 
-
-  def task(layoutable : Layoutable) : Task [Unit, DotError] = {
-    val input = File.createTempFile("workcraft", ".dot")
-    val output = File.createTempFile("workcraft", ".dot")
-
-    layoutable.apply[({type T[A]=Task[A, DotError]})#T](new Layouter[({type T[A]=Task[A, DotError]})#T] {
+  def layouter[E >: DotError] = new Layouter[({type T[A]=Task[A, E]})#T] {
       def layout[N](spec : LayoutSpec[N]) = {
-        val export = new DotExportJob(spec).asTask(input).mapError(DotExportError(_))
-        val parse = Dot.parseTask(output).mapError(DotParseError(_))
-        val layoutTask = new DotLayoutTask("./tools/dot/dot", input, output)
-        export *> 
-        layoutTask *> 
-        parse map {
-          graph => {
-            val nodeToId = spec.nodes.zipWithIndex.toMap
-            val idToNode = nodeToId.map(_.swap).toMap
+        withTempFile("workcraft",".dot",input => 
+          withTempFile("workcraft",".dot",output => {
+            val export = new DotExportJob(spec).asTask(input).mapError(DotExportError(_))
+            val parse = Dot.parseTask(output).mapError(DotParseError(_))
+            val layoutTask = new DotLayoutTask("./tools/dot/dot", input, output)
 
-            graph.statements.map { 
-              case Node(id, _, attrs @ _ *) => 
-                Some((idToNode(id.toInt), 
-                  parsePos(attrs.find(_.name == "pos").map(_.value.get), 
-                    spec.orientation.transform)))
-              case _ => None
-            }.flatten.toList
+            export *>
+              layoutTask *>
+              parse map {
+                graph => {
+                  val nodeToId = spec.nodes.zipWithIndex.toMap
+                  val idToNode = nodeToId.map(_.swap).toMap
+
+                  graph.statements.map {
+                    case Node(id, _, attrs @ _ *) =>
+                      Some((idToNode(id.toInt),
+                        parsePos(attrs.find(_.name == "pos").map(_.value.get),
+                          spec.orientation.transform)))
+                    case _ => None
+                  }.flatten.toList
+                }
+              }
           }
-        }
+          )
+        )
       }
-    })
-
-
   }
 
-  def run(mainWindow: MainWindow) = 
+  def task(layoutable : Layoutable) : Task [Unit, DotError] = {
+    layoutable.apply[({type T[A]=Task[A, DotError]})#T](layouter)
+  }
+
+  def run(mainWindow: MainWindow) =
     mainWindow.editorInFocus.expr.map(
       editorWindow => editorWindow.flatMap(_.content.model.implementation(LayoutableService))
         .map(
           (l => {
-            val a : IO[Either[Option[DotError], Unit]]
-              = ModalTaskDialog.runTask(mainWindow, "Generating layout using dot", task(l))
-            a flatMap {
+            ModalTaskDialog.runTask(mainWindow, "Generating layout using dot", task(l)) >>=
+             {
               case Left(None) => 
                 ioPure.pure { JOptionPane.showMessageDialog(mainWindow, "Cancelled") }
               case Left(Some(error)) => 

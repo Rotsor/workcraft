@@ -2,7 +2,7 @@ package org.workcraft.gui
 import java.awt.Window
 import org.workcraft.logging.StandardStreamLogger
 import java.util.UUID
-import org.workcraft.services.GlobalServiceManager
+import org.workcraft.services.GlobalServiceProvider
 import org.workcraft.services.Module
 import java.io.File
 import org.streum.configrity.Configuration
@@ -42,7 +42,7 @@ object Main {
     unsafeInfo("Configuration directory OK")
   }
 
-  def main(configDescription: String, globalServices: GlobalServiceManager, args: Array[String]) = {
+  def main(configDescription: String, globalServices: GlobalServiceProvider, args: Array[String]) = {
     unsafeInfo("Welcome to Workcraft 2.2: Return of The Deadlock")
     unsafeInfo("This build is using " + configDescription)
 
