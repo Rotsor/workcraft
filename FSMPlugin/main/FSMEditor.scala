@@ -84,8 +84,6 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
 
   def arcImage(a: Arc, settings: CommonVisualSettings): Expression[ConnectionGui] = arcImageWithOffset(a, Set(), new Point2D.Double(0, 0), settings)
 
-  def maybeShowEpsilon(s: String) = if (s.isEmpty) "ε" else s
-
   def arcImageWithOffset(a: Arc, offsetNodes: Set[Node], offsetValue: Point2D.Double, settings:CommonVisualSettings) = for {
     //TODO: support this  visualArcs <- fsm.visualArcs; 
     preset <- fsm.preset(a.from);
@@ -97,18 +95,19 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
     labels <- fsm.arcLabels
   } yield {
     val props = VisualArc.properties.copy(
-      label = Some(label(maybeShowEpsilon(labels(a)),
+      label = Some(label(ArcLabels.printLabels(",")(labels(a)),
 			 settings.effectiveLabelFont,
 			 settings.foregroundColor).boundedColorisableGraphicalContent)) 
 
-    val podgon = 6
-    val podgonAdjustment = if (a.from == is) -1 else 1
 
-    if (a.from == a.to)
+    if (a.from == a.to) {
+      val podgon = 6
+      val podgonAdjustment = if (a.from == is) -1 else 1
       VisualConnectionGui.getConnectionGui(
 	props,
 	VisualConnectionContext.makeContext(t1, ap1 + point(-0.125, -0.75 * podgonAdjustment), t2, ap2 + point(0.125, -0.75 * podgonAdjustment)),
 	Bezier(RelativePoint(point(-podgon, -podgon * podgonAdjustment)), RelativePoint(point(1+podgon, -podgon * podgonAdjustment))))
+    }
     else 
       if (preset.exists (_._1 == a.to))
 	VisualConnectionGui.getConnectionGui(
@@ -181,7 +180,7 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
 	    if (fs.contains(q)) success
 	    else failure
 	  case (q, input@(x :: _)) => {
-	    if (ia(q).filter (arc => (arc.from == q && ((al(arc).replace(" ", "").split(",").toList.contains(x)) || (al(arc) == "")))).isEmpty) failure
+	    if (ia(q).filter (arc => (arc.from == q && ((al(arc).list.contains(Some(x))) || (al(arc).list.contains(None))))).isEmpty) failure
 	    else Some(("Remaining input: " + input.mkString(", "), Color.BLACK))
 	  }
 	}

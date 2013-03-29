@@ -2,7 +2,6 @@ package org.workcraft.gui
 import javax.swing.JFileChooser
 import org.workcraft.services.ModelServiceProvider
 import org.workcraft.services.GlobalServiceProvider
-import org.workcraft.services.GlobalServiceManager
 import org.workcraft.services.ExporterService
 import javax.swing.JOptionPane
 import java.awt.Window
@@ -65,14 +64,14 @@ object SaveDialog {
 
   def export(parentWindow: Window, model: ModelServiceProvider, format: Format, exporter: ExportJob): IO[Option[IO[Option[ExportError]]]] = chooseFile (None, parentWindow, format).map(_.map(exporter.job(_)))
 
-  def saveAs(parentWindow: Window, model: ModelServiceProvider, globalServices: GlobalServiceManager): IO[Option[(File, IO[Option[ExportError]])]] = model.implementation(DefaultFormatService) match {
+  def saveAs(parentWindow: Window, model: ModelServiceProvider, globalServices: GlobalServiceProvider): IO[Option[(File, IO[Option[ExportError]])]] = model.implementation(DefaultFormatService) match {
     case None => ioPure.pure {
       JOptionPane.showMessageDialog(parentWindow, "Current model does not define a default file format.\nTry using export and choosing a specific format instead.", "Error", JOptionPane.ERROR_MESSAGE)
       None
     }
 
     case Some(format) => {
-      val exporters = globalServices.implementations(ExporterService).filter(_.targetFormat == format)
+      val exporters = globalServices.implementation(ExporterService).filter(_.targetFormat == format)
       val (unapplicable, applicable) = partitionEither(exporters.map(_.export(model)))
 
       if (applicable.isEmpty) {

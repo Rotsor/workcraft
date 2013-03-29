@@ -40,10 +40,18 @@ object StateGraphTool extends GuiTool {
 
       val chain = export >>=| writeSgTask >>=| parse
 
-      ModalTaskDialog.runTask(mainWindow, "Generating state graph using petrify", chain) >>= {
+      val a : IO[Either[Option[PetrifyError], DotGParser.DotG]]
+        = ModalTaskDialog.runTask(mainWindow, "Generating state graph using petrify", chain)
+      a flatMap {
         case Left(None) => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, "Cancelled") }
         case Left(Some(error)) => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, error, "Error", JOptionPane.ERROR_MESSAGE) }
-        case Right(dotg) => EditableFSM.create(VisualFSM(FsmBuilder.buildFSM(dotg), Map[State, Point2D.Double]().withDefaultValue(new Point2D.Double(0, 0)), Map[Arc, StaticVisualConnectionData]().withDefaultValue(new Polyline(List())))) >>= (editable => mainWindow.openEditor(new FSMModel(editable), None))
+        case Right(dotg) => 
+          (EditableFSM.create(
+            VisualFSM(
+              FsmBuilder.buildFSM(dotg),
+              Map[State, Point2D.Double]().withDefaultValue(new Point2D.Double(0, 0)), 
+              Map[Arc, StaticVisualConnectionData]().withDefaultValue(new Polyline(List())))) >>= 
+          (editable => mainWindow.openEditor(new FSMModel(editable), None)) : IO[Unit])
       }
     })
     case None => None

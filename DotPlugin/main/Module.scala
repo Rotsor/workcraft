@@ -2,6 +2,7 @@ package org.workcraft.plugins.dot
 
 import org.workcraft.services.Module
 import org.workcraft.services.Service
+import org.workcraft.services.SingleService
 import org.workcraft.services.GlobalServiceProvider
 import org.workcraft.services.NewModelImpl
 import org.workcraft.services.GlobalScope
@@ -20,10 +21,10 @@ import org.workcraft.gui.tasks.ModalTaskDialog
 import scalaz.Scalaz._
 
 object DotServiceProvider extends GlobalServiceProvider {
-  def implementations[T](service: Service[GlobalScope, T]) = service match {
+  def implementation[T](service: Service[GlobalScope, T]) = service match {
     //case ExporterService => List(DotExporter)
     case GuiToolService => List(DotLayoutTool)
-    case _ => Nil
+    case s => import s._; mzero
   }
 }
 

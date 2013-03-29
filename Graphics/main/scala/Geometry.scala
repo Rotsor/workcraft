@@ -25,7 +25,8 @@ case class Arrow(width: Double, length: Double)
 
 case class VisualCurveProperties(color: Color, arrow: Option[Arrow], stroke: Stroke, label: Option[BoundedColorisableGraphicalContent])
 
-case class PartialCurveInfo(tStart: Double, tEnd: Double, arrowHeadPosition: Point2D.Double, arrowOrientation: Double)
+case class PartialCurveInfo(tStart: Double, tEnd: Double, 
+  arrowHeadPosition : Point2D.Double, arrowOrientation: Double)
 
 object Geometry {
   def lerp(p1: Point2D.Double, p2: Point2D.Double, t: Double): Point2D.Double =
@@ -50,51 +51,44 @@ object Geometry {
     }
   }
 
-  def getBorderPointParameter(collisionNode: Touchable, curve: ParametricCurve, tStart: Double, tEnd: Double): Double = {
-    var point: Point2D.Double = new Point2D.Double()
-    var tstart = tStart
-    var tend = tEnd
-
-    while (Math.abs(tend - tstart) > 1e-6) {
-      var t: Double = (tstart + tend) * 0.5
-      point = curve.pointOnCurve(t)
-      if (collisionNode.hitTest(point))
-        tstart = t
-      else
-        tend = t
-    }
-    return tstart
+  // assuming `f(end) != f(start)`
+  // finds `res = bsearch(f, inaccuracy)(start, end)` such that there exists
+  // `x` within `inaccuracy` from `res` and `f(x) != f(res)`
+  def bSearch(f : Double => Boolean, inaccuracy : Double)(start : Double, end : Double) : Double = {
+    if(math.abs(end - start) > inaccuracy) {
+      val t = (start + end) * 0.5
+      if(f(t)) bSearch(f, inaccuracy)(start, t)
+      else bSearch(f, inaccuracy)(t, end)
+    } else
+      start
   }
 
-  def buildConnectionCurveInfo(arrow: Option[Arrow], t1: Touchable, t2: Touchable, curve: ParametricCurve, endCutoff: Double): PartialCurveInfo = {
+  def getBorderPointParameter(collisionNode: Touchable, curve: ParametricCurve, tStart: Double, tEnd: Double): Double = {
+    bSearch(
+      t => !collisionNode.hitTest(curve.pointOnCurve(t))
+        , 1e-6)(tStart, tEnd)
+  }
 
-    var tstart = getBorderPointParameter(t1, curve, 0, 1)
-    var tend = getBorderPointParameter(t2, curve, 1, endCutoff)
-    var arrowPos = curve.pointOnCurve(tend)
-    var arrowOrientation = 0.0
+  def buildConnectionCurveInfo(arrow: Option[Arrow], t1: Touchable, t2: Touchable, curve: ParametricCurve): PartialCurveInfo = {
 
-    var dt = tend
-    var t = 0.0
-    var pt = new Point2D.Double
+    val tstart = getBorderPointParameter(t1, curve, 0, 1)
+    val tend = getBorderPointParameter(t2, curve, 1, 0)
 
-    arrow.foreach {
-      case Arrow(width, length) => {
+    arrow match {
+      case Some(Arrow(width, length)) => {
+        val arrowPos = curve.pointOnCurve(tend)
+
         val arrowLengthSq = length * length
 
-        while (dt > 1e-6) {
-          dt /= 2.0
-          t += dt
-          pt = curve.pointOnCurve(t)
-          if (arrowPos.distanceSq(pt) < arrowLengthSq)
-            t -= dt
-        }
-
-        tend = t
-        arrowOrientation = scala.math.atan2(arrowPos.getY - pt.getY, arrowPos.getX - pt.getX)
+        val t2 = bSearch(
+          t => arrowPos.distanceSq(curve.pointOnCurve(t)) < arrowLengthSq, 1e-6) (0, tend)
+        val arrowOrientation = (arrowPos - curve.pointOnCurve(t2)).atan2
+        PartialCurveInfo(tstart, t2, arrowPos, arrowOrientation)
       }
+      case None => 
+        PartialCurveInfo(tstart, tend, point(0, 0), 0)
     }
 
-    PartialCurveInfo(tstart, tend, arrowPos, arrowOrientation)
   }
   
   /**

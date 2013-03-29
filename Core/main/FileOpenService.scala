@@ -3,7 +3,7 @@ import java.io.File
 import org.workcraft.scala.effects.IO
 import java.io.InputStream
 
-object FileOpenService extends Service[GlobalScope, FileOpen]
+object FileOpenService extends MultiService[GlobalScope, FileOpen]
 
 trait FileOpen {
   val sourceFormat: Format

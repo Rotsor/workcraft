@@ -3,15 +3,18 @@ package org.workcraft.services
 import org.workcraft.scala.effects.IO
 import org.workcraft.scala.effects.IO._
 
-object FileNameService extends Service[ModelScope, FileName] {
-  def attach (model: ModelServiceProvider, fileName: Option[String]) = model ++ new ModelServiceProvider {
-    def implementation[T](service: Service[ModelScope,T]): Option[T] = service match {
+import scalaz._
+import Scalaz._
+
+object FileNameService extends SingleService[ModelScope, FileName] {
+  def create (fileName: Option[String]) = new ModelServiceProvider {
+    def implementation[T](service: Service[ModelScope,T]): T = service match {
       case FileNameService => Some (new Object with FileName {
 	var name = fileName
 	def lastSavedAs = name
 	def update (savedAs: String) = ioPure.pure { name = Some(savedAs) }
       })
-      case _ => None
+      case s => import s._; mzero
     }
   }
 }

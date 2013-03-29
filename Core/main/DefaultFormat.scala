@@ -1,3 +1,3 @@
 package org.workcraft.services
 
-object DefaultFormatService extends Service[ModelScope, Format]
+object DefaultFormatService extends SingleService[ModelScope, Format]

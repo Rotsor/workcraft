@@ -11,7 +11,14 @@ sealed trait Node
 class State extends Node
 class Arc(val from: State, val to: State) extends Node
 
-case class FSM(states: List[State], arcs: List[Arc], finalStates: Set[State], initialState: State, labels: Map[State, String], arcLabels: Map[Arc, String]) {
+case class FSM(
+  states: List[State], 
+  arcs: List[Arc], 
+  finalStates: Set[State], 
+  initialState: State, 
+  labels: Map[State, String], 
+  arcLabels: Map[Arc, NonEmptyList[Option[String]]]) 
+{
   lazy val names = labels.map(_.swap).toMap
 
   lazy val postset: Map[State, List[(State, Arc)]] =
@@ -25,9 +32,17 @@ case class FSM(states: List[State], arcs: List[Arc], finalStates: Set[State], in
     }
   def toNfa : Nfa[String, String] = {
     def from : Map[String, State] = states.toList.map(s => (labels(s), s)).toMap
-    def successors = arcs.map(arc => (labels(arc.from), (arcLabels.get(arc) >>= {case ""=>None; case s => Some(s)}, labels(arc.to)))).groupBy(_._1).mapValues(_.map(_._2)).withDefault(_ => List())
-    Nfa(labels(initialState), str => successors(str)
-      , str => finalStates.contains(from(str)))
+    def successors = 
+      FSM.buildMap(for(
+        arc <- arcs;
+        label <- arcLabels(arc).list
+      ) yield (labels(arc.from), (label, labels(arc.to))))
+      .mapValues(_.list)
+      .withDefault(_ => List())
+    Nfa(
+      labels(initialState),
+      str => successors(str),
+      str => finalStates.contains(from(str)))
   }
 }
 
@@ -37,23 +52,34 @@ object FSM {
     FSM(List(st), List(), Set(), st, Map(st -> "s0"), Map())
   }
 
+  def buildMap[A,B] : List[(A,B)] => Map[A, NonEmptyList[B]] =
+    l => l.groupBy(_._1).mapValues { 
+      case (h :: t) => nel(h,t).map(_._2); 
+      case Nil => error("groupBy is not supposed to return empty lists")
+    }
+
   /**
     * Creates an editor-friendly FSM from the math-friendly Nfa.
     **/
   def create (nfa : Services.PublicNfa) : IO[FSM] = {
-    def createAssocs[M[_],A,B](create : A => M[B])(l : List[A])(implicit monad : Applicative[M]) : M[(List[B],Map[A,B],Map[B,A])] =
+    def createAssocs[M[_],A,B](l : List[A])(create : A => M[B])(implicit monad : Applicative[M]) : M[(List[B],Map[A,B],Map[B,A])] =
       l.traverse(x => create(x) map (s => (x,s))).
         map(l => (l map (_._2), l.toMap, l.map(_.swap).toMap))
 
     for(
-      sss <- createAssocs{(_ : String) => ioPure.pure{new State}}(nfa.allStates.toList);
+      sss <- createAssocs (nfa.allStates.toList) {_ => ioPure.pure{new State}};
       val (states, to, from) = sss;
-      aaa <- createAssocs[IO,((String, (Option[String], String)),Int),Arc]{case ((s1, (e, s2)),_) => ioPure.pure{new Arc(to(s1), to(s2))}}(nfa.allStates.toList.flatMap(s => nfa.transitions(s).map(t => (s,t))).zipWithIndex);
+      val arcLabels = buildMap(
+          for(
+            s1 <- nfa.allStates.toList;
+            (e, s2) <- nfa.transitions(s1)
+          ) yield ((s1, s2), e));
+      aaa <- createAssocs(arcLabels.keys.toList){case (s1, s2) => ioPure.pure{new Arc(to(s1), to(s2))}};
       val (arcs, ato, afrom) = aaa;
       val initial = to(nfa.initial);
       val finals = to.toList.flatMap{case(s1,s2) => if (nfa.isFinal(s1)) List(s2) else List()}.toSet;
       val labels = from;
-      val aLabels = ato.flatMap[(Arc,String), Map[Arc, String]]{case (((_, (None,_)), _),_) => Map(); case(((_,(Some(x), _)),_), a)=>Map((a, x)) }
+      val aLabels = arcLabels.map{case (k,v) => (ato(k), v) }
     )
     yield { FSM(states, arcs, finals, initial, labels, aLabels) }
   }
@@ -67,3 +93,4 @@ object VisualFSM {
     VisualFSM(fsm, Map(fsm.states.head -> new Point2D.Double(0, 0)), Map())
   }
 }
+

@@ -21,7 +21,7 @@ object IOUtils {
     })
 
   def open (file: File, globalServices: GlobalServiceProvider): IO[Either[String, List[ModelServiceProvider]]] = 
-    globalServices.implementations(FileOpenService).map(_.open(file)).sequence >>= (_.flatten match {
+    globalServices.implementation(FileOpenService).map(_.open(file)).sequence >>= (_.flatten match {
        case Nil => ioPure.pure { Left ("No import plug-ins know how to read the file \"" + file.getName + "\".") }
        case x => x.map(_.job).sequence.map( results => {
          val (bad, good) = partitionEither(results)
@@ -40,7 +40,7 @@ object IOUtils {
   }
   
   def export (model: ModelServiceProvider, format: Format, file: File, globalServices: GlobalServiceProvider): Either[String, IO[Option[ExportError]]] = {
-    val exporters = globalServices.implementations(ExporterService).filter(_.targetFormat == format)
+    val exporters = globalServices.implementation(ExporterService).filter(_.targetFormat == format)
     val (unapplicable, applicable) = partitionEither(exporters.map(_.export(model)))
 
     if (applicable.isEmpty) {

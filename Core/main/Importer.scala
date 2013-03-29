@@ -12,4 +12,4 @@ trait Importer {
 	def importFrom (int : InputStream) : IO[Model] // will throw on error
 }
 
-object ImporterService extends GlobalService[Importer]
+object ImporterService extends MultiService[GlobalScope, Importer]

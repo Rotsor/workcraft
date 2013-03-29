@@ -38,7 +38,12 @@ case class FSMProperties(fsm: EditableFSM, selection: Expression[Set[Node]], pus
   def terminal(s: State): ModifiableExpression[Boolean] = 
     ModifiableExpression (fsm.finalStates.map (_.contains(s)), setTerminal => pushUndo("change final state") >>=| (if (setTerminal) fsm.finalStates.update(_ + s) else fsm.finalStates.update(_ - s)))
   
-  def label(a: Arc) : ModifiableExpression[String] = ModifiableExpression (fsm.arcLabels.map(_(a)), label => pushUndo("change arc label") >>=| fsm.arcLabels.update(_ + (a -> label)))
+  def label(a: Arc) : ModifiableExpression[String] = {
+    import ArcLabels._
+    ModifiableExpression(
+      fsm.arcLabels.map(ls => printLabels(", ")(ls(a))),
+      label => pushUndo("change arc labelling") >>=| fsm.arcLabels.update(_ + (a -> parseLabels(label))))
+  }
     
   def props: Expression[List[Expression[EditableProperty]]] = selection.map(_.toList.flatMap({
     case p: State => List(StringProperty("Name", name(p)), BooleanProperty("Initial state", initial(p)), BooleanProperty("Final", terminal(p)))

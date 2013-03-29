@@ -1,12 +1,12 @@
 package org.workcraft.gui.services
 import org.workcraft.scala.effects.IO
 import org.workcraft.scala.Expressions._
-import org.workcraft.services.Service
+import org.workcraft.services.MultiService
 import org.workcraft.services.ModelServiceProvider
 import org.workcraft.gui.MainWindow
 import org.workcraft.services.GlobalScope
 
-object GuiToolService extends Service[GlobalScope, GuiTool]
+object GuiToolService extends MultiService[GlobalScope, GuiTool]
 
 sealed abstract class ToolClass(val sectionName: String)
 

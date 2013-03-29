@@ -5,11 +5,8 @@ import java.awt.event.ActionListener
 import java.awt.event.ActionEvent
 import javax.swing.KeyStroke
 import java.awt.event.KeyEvent
-import org.workcraft.services.GlobalServiceManager
-import org.workcraft.services.NewModelService
+import org.workcraft.services._
 import GUI.menuItem
-import org.workcraft.services.NewModelImpl
-import org.workcraft.services.ModelServiceProvider
 import java.awt.event.MouseListener
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
@@ -31,7 +28,7 @@ import org.workcraft.services.ExportError
 import javax.swing.JOptionPane
 import IOUtils._
 
-class FileMenu(services: GlobalServiceManager, mainWindow: MainWindow, newModel: ((NewModelImpl, Boolean)) => IO[Unit]) extends ReactiveMenu("File") {
+class FileMenu(services: GlobalServiceProvider, mainWindow: MainWindow, newModel: ((NewModelImpl, Boolean)) => IO[Unit]) extends ReactiveMenu("File") {
   def handleExportError(error: Option[ExportError]): IO[Unit] = error match {
     case None => IO.Empty
     case Some(error) => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, error match { case ExportError.Exception(e) => e.toString(); case ExportError.Message(m) => m }, "Error", JOptionPane.ERROR_MESSAGE) }
@@ -54,7 +51,7 @@ class FileMenu(services: GlobalServiceManager, mainWindow: MainWindow, newModel:
   // Must be lazy because Scala allows to read uninitialized values
   lazy val items = mainWindow.editorInFocus.map(editor => {
     val newWork = menuItem("New work", Some('N'), Some(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK)),
-      CreateWorkDialog.show(services.implementations(NewModelService), mainWindow) >>= { case Some(choice) => newModel(choice); case None => IO.Empty })
+      CreateWorkDialog.show(services.implementation(NewModelService), mainWindow) >>= { case Some(choice) => newModel(choice); case None => IO.Empty })
 
     val open = menuItem("Open file...", Some('O'), Some(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK)),
 			OpenDialog.open(mainWindow, services) >>= {
@@ -111,7 +108,7 @@ class FileMenu(services: GlobalServiceManager, mainWindow: MainWindow, newModel:
       case Some(e) => {
         val defaultFormat = e.content.model.implementation(DefaultFormatService)
 
-        val exporters = services.implementations(ExporterService).map(exp => (exp.targetFormat, exp.export(e.content.model)))
+        val exporters = services.implementation(ExporterService).map(exp => (exp.targetFormat, exp.export(e.content.model)))
           .flatMap({ case (format, Right(job)) if (defaultFormat.map(_ != format).getOrElse(true)) => Some((format, job)); case _ => None })
 
         exportMenu(e.content.model, exporters)

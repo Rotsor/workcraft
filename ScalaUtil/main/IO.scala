@@ -105,6 +105,8 @@ sealed trait IO[+A] {
 }*/
 
 object IO {
+  def wrapImpure[A](impure : => A) : IO[A] = ioPure.pure(impure)
+
   def Empty = ioPure.pure({})
   
   def apply[A](f: World[RealWorld] => (World[RealWorld], A)): IO[A] = new IO[A] {

@@ -169,7 +169,6 @@ class ModelEditorPanel (val model: ModelServiceProvider, val editor: ModelEditor
   }
 
   def fitView: IO[Unit] = {
-    ioPure.pure { println ("BLA BLA") } >>=|
     view.fitAround (new Rectangle2D.Double (-5, -5, 10, 10))
   }
 }

@@ -12,21 +12,25 @@ import java.awt.geom.Rectangle2D
 import java.awt.BasicStroke
 
 class Grid(val viewport: Viewport) {
+
+  import math._
+
   def autoInterval: Expression[Double] = for {
     visibleArea <- viewport.visibleArea
-    magThreshold <- Grid.magThreshold
-    minThreshold <- Grid.minThreshold
+    targetMagCount <- Grid.targetMagCount
     intervalScaleFactor <- Grid.intervalScaleFactor
   } yield {
 
-    val visibleHeight = visibleArea.getHeight
+    val visibleSize = {
+      val visibleHeight = visibleArea.getHeight
+      val visibleWidth = visibleArea.getWidth
+      math.sqrt(math.abs(visibleHeight * visibleWidth))
+    }
 
-    var majorInterval = 10.0
-
-    while (visibleHeight / majorInterval > magThreshold)
-      majorInterval *= intervalScaleFactor
-    while (visibleHeight / majorInterval < minThreshold)
-      majorInterval /= intervalScaleFactor
+    val desiredMagSize = max(20, visibleSize) / targetMagCount
+    val desiredExponent = log(desiredMagSize / 10) / log(intervalScaleFactor)
+    val activeExponent = round(desiredExponent)
+    val majorInterval = 10 * pow(intervalScaleFactor, activeExponent)
 
     majorInterval
   }
@@ -36,7 +40,7 @@ class Grid(val viewport: Viewport) {
     majorInterval <- autoInterval;
     minorIntervalFactor <- Grid.minorIntervalFactor
   } yield {
-    def visibleLines(min: Double, max: Double, interval: Double) = Range(Math.ceil(min / interval).toInt, Math.floor(max / interval).toInt+1).map(_*interval).toList
+    def visibleLines(min: Double, max: Double, interval: Double) = Range(ceil(min / interval).toInt, floor(max / interval).toInt+1).map(_*interval).toList
      
     val minorInterval = majorInterval * minorIntervalFactor
     
@@ -93,7 +97,7 @@ class Grid(val viewport: Viewport) {
   } yield {
     val interval = majorInterval * minorIntervalFactor
 
-    x => Math.floor(x / interval + 0.5) * interval
+    x => floor(x / interval + 0.5) * interval
   }
 }
 
@@ -101,8 +105,7 @@ object Grid {
   val minorIntervalFactor = Variable.create(0.1)
   val intervalScaleFactor = Variable.create(2)
 
-  val magThreshold = Variable.create(5)
-  val minThreshold = Variable.create(2.5)
+  val targetMagCount = Variable.create(4)
 
   val minorLinesStroke = Variable.create(new BasicStroke(1))
   val majorLinesStroke = Variable.create(new BasicStroke(1))

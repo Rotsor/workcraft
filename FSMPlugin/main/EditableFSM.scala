@@ -4,6 +4,7 @@ import org.workcraft.scala.Expressions._
 import org.workcraft.scala.effects.IO._
 import org.workcraft.scala.effects.IO
 import scalaz.Scalaz._
+import scalaz._
 import org.workcraft.dependencymanager.advanced.user.Variable
 import java.awt.geom.Point2D
 import org.workcraft.dom.visual.connections.StaticVisualConnectionData
@@ -15,7 +16,7 @@ class EditableFSM(
   val arcs: ModifiableExpression[List[Arc]],
   val labels: ModifiableExpression[Map[State, String]],
   val stateNames: ModifiableExpression[Map[String, State]],
-  val arcLabels: ModifiableExpression[Map[Arc, String]],
+  val arcLabels: ModifiableExpression[Map[Arc, NonEmptyList[Option[String]]]],
   val finalStates: ModifiableExpression[Set[State]],
   val initialState: ModifiableExpression[State],
   val layout: ModifiableExpression[Map[State, Point2D.Double]],
@@ -49,7 +50,7 @@ class EditableFSM(
   def createArc(from: State, to: State) = for {
     arc <- newArc(from, to);
     _ <- arcs.update(arc :: _);
-    _ <- arcLabels.update(_ + (arc -> ""))
+    _ <- arcLabels.update(_ + (arc -> nel(None, Nil)))
     _ <- visualArcs.update(_ + (arc -> Polyline(List())))
   } yield arc
 

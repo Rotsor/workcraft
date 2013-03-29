@@ -1,19 +1,13 @@
 package org.workcraft.plugins.dot
-import org.workcraft.services.Exporter
-import org.workcraft.services.Format
-import org.workcraft.services.ModelServiceProvider
-import org.workcraft.services.ServiceNotAvailableException
-import org.workcraft.services.ExportJob
 import java.io.File
 import java.io.PrintStream
 import java.io.BufferedOutputStream
 import java.io.FileOutputStream
 import org.workcraft.scala.effects.IO
 import org.workcraft.scala.effects.IO._
-import org.workcraft.services.ExportError
-import org.workcraft.services.LayoutService
+import org.workcraft.services.layout._
+import org.workcraft.services._
 import scalaz.Scalaz._
-import org.workcraft.services.LayoutSpec
 
 /*object DotExporter extends Exporter {
   val targetFormat = Format.Dot
@@ -24,7 +18,7 @@ import org.workcraft.services.LayoutSpec
   }
 }*/
 
-class DotExportJob(layout: LayoutSpec) extends ExportJob {
+class DotExportJob[N](layout: LayoutSpec[N]) extends ExportJob {
   def job(file: File) = ioPure.pure {
     val out = new PrintStream(new BufferedOutputStream(new FileOutputStream(file)))
     try {

@@ -11,7 +11,6 @@ import org.workcraft.graphics.VisualCurveProperties
 import org.workcraft.graphics.ParametricCurve
 import org.workcraft.graphics.Geometry.lerp
 import org.workcraft.graphics.Geometry.createRectangle
-import org.workcraft.dom.visual.connections.VisualConnectionContext
 
 object PolylineGui {
 
@@ -44,9 +43,7 @@ object PolylineGui {
     }
 
     override def derivativeAt(tt: Double): Point2D.Double = {
-      var t = tt
-      if (t < 0) t = 0
-      if (t > 1) t = 1
+      val t = math.max(0, math.min(1, tt))
 
       val segmentIndex = getLocalT(t)._1
       val segment = getSegment(segmentIndex)
