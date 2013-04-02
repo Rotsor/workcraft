@@ -66,7 +66,7 @@ object Workcraft extends Build {
       "org.apache.xmlgraphics" % "batik-bridge" % "1.7")
     lazy val tableLayout = "tablelayout" % "TableLayout" % "20050920"
     lazy val flexDock = "org.flexdock" % "flexdock" % "1.2.2"
-    lazy val logging = "commons-logging" % "commons-logging" % "1.1"
+    lazy val logging = "commons-logging" % "commons-logging" % "1.1.2"
     lazy val substance = Seq("com.github.insubstantial" % "substance" % "7.1", 
          "com.github.insubstantial" % "trident" % "7.1")
     lazy val guava = "com.google.guava" % "guava" % "11.0.2"
@@ -134,6 +134,8 @@ object Workcraft extends Build {
 
     lazy val workcraft = simpleProject("Workcraft", Scala)
      .settings (assemblySettings:_*)
+     .settings (mergeStrategy in assembly <<= (mergeStrategy in assembly) (old => { 
+       x => if (x.startsWith("org/w3c/")) MergeStrategy.first else old(x) } ))
      .aggregate (gui, pnplugin, lolaplugin, petrifyplugin, fsmplugin, dotplugin)
      .dependsOn (gui, pnplugin, lolaplugin, petrifyplugin, fsmplugin, dotplugin)
 }
