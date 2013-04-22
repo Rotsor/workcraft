@@ -15,5 +15,8 @@ object IdUtils {
     * for all r1, r2: r1.id == r2.id => r1.get == r2.get
     */
   class Reference[T] private[IdUtils] (val get : T)
-  def newReference[T](t : T) = effects.IO.ioPure.pure { new Reference(t) }
+  def newRef[T](t : T) = effects.IO.ioPure.pure { new Reference(t) }
+
+/*  class TaggedReference[Tag,Data] private[IdUtils] (val get : Data)
+  def newTaggedRef[T](t : T) = effects.IO.ioPure.pure { new TaggedReference(t) } */
 }

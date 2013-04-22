@@ -51,6 +51,9 @@ object Expressions {
     }
     
     def xmap[S](f: T => S)(g: S => T) = ModifiableExpression(expr.lwmap(f), set.contramap(g))
+    def refract[S](f : T => S, g : S => T => T) = 
+      ModifiableExpression(expr.lwmap(f), 
+        (newS : S) => expr.eval >>= ((oldT : T) => set(g(newS)(oldT))))
     
     def validate[E] (validator : T => Option[E]) : ModifiableExpressionWithValidation[T,E] = ModifiableExpressionWithValidation(expr, x => {
       validator(x) match {

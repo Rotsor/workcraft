@@ -12,7 +12,7 @@ case class TaskControl(cancelRequest : IO[Boolean], progressUpdate: Double => IO
 
 trait Task[+O, +E] {
   import Task._
-  
+
   def runTask (tc : TaskControl) : IO[Either[Option[E], O]]
 
   def flatMap[O2, E2 >: E](f: O => Task[O2, E2]) = {

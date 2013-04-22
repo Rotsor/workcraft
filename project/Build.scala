@@ -111,6 +111,9 @@ object Workcraft extends Build {
     lazy val pnplugin = simpleProject ("PetriNetPlugin2", Scala)
      .dependsOn (gui, graphedutil)
 
+    lazy val sonsplugin = simpleProject ("SONs", Scala)
+     .dependsOn (gui, graphedutil)
+
     lazy val graphedutil = simpleProject ("ScalaGraphEditorUtil", Scala)
      .dependsOn (scalautil, graphics, gui)
 
@@ -134,6 +137,6 @@ object Workcraft extends Build {
 
     lazy val workcraft = simpleProject("Workcraft", Scala)
      .settings (assemblySettings:_*)
-     .aggregate (gui, pnplugin, lolaplugin, petrifyplugin, fsmplugin, dotplugin)
-     .dependsOn (gui, pnplugin, lolaplugin, petrifyplugin, fsmplugin, dotplugin)
+     .aggregate (gui, pnplugin, lolaplugin, petrifyplugin, fsmplugin, dotplugin, sonsplugin)
+     .dependsOn (gui, pnplugin, lolaplugin, petrifyplugin, fsmplugin, dotplugin, sonsplugin)
 }

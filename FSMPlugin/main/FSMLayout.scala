@@ -25,7 +25,7 @@ object FSMLayoutable {
           LayoutOrientation.Down
         )) >>= { 
           l => m.lift(l.traverse_ { 
-            p => efsm.layout.update(_ + p) 
+            p => efsm.layout.update(_ + p)
           })
         }
       }).eval).flatMap(x => x)
