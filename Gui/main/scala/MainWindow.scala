@@ -138,7 +138,6 @@ class MainWindow(
 
   def newModel(model: ModelServiceProvider, editorRequested: Boolean) =
     fileMapping.update(model, None) >>=|
-    runDefaultLayout(globalServices, model, this) >>=|
     (if (editorRequested) openEditor(model, None) else IO.Empty)
   
   def setFocus(editorDockable: Option[DockableWindow[ModelEditorPanel]]): IO[Unit] = ioPure.pure {
@@ -164,7 +163,9 @@ class MainWindow(
     editorInFocus.set(editorDockable).unsafePerformIO
   }
 
-  def openEditor(model: ModelServiceProvider, source: Option[File]): IO[Unit] = {
+  def openEditor(model: ModelServiceProvider, source: Option[File]): IO[Unit] = 
+    runDefaultLayout(globalServices, model, this) >>=| (
+    {
     model.implementation(EditorService) match {
       case None => ioPure.pure { JOptionPane.showMessageDialog(this, "The model type that you have chosen does not support visual editing :(", "Warning", JOptionPane.WARNING_MESSAGE) }
       case Some(editor) => fileMapping.update (model, source) >>=| ioPure.pure {
@@ -188,7 +189,7 @@ class MainWindow(
 
       } >>= { case (dockable, panel) => setFocus(Some(dockable)) }// >>=| panel.fitView }
     }
-  }
+    })
 
   def closeEditor(editorDockable: DockableWindow[ModelEditorPanel]) {
     // TODO: Ask to save etc.
