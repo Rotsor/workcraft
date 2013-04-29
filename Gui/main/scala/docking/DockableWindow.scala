@@ -39,6 +39,16 @@ class DockableWindow[A <: JComponent](
         case (tabbedPane: JTabbedPane, false) => {
           dockable.hideHeader
 
+
+          import javax.swing.event._
+
+          tabbedPane.addChangeListener(new ChangeListener() {
+            def stateChanged(evt : ChangeEvent) : Unit = {
+              val cmp = tabbedPane.getSelectedComponent
+              if(cmp != null) cmp.requestFocus
+            }
+          })
+
           Range(0, tabbedPane.getComponentCount).find(dockable.getComponent() == tabbedPane.getComponentAt(_)).
             foreach(tabbedPane.setTabComponentAt(_, new DockableTab(dockable)))
         }
@@ -75,7 +85,6 @@ class DockableWindow[A <: JComponent](
         Range(0, tabbedPane.getComponentCount).find(getComponent() == tabbedPane.getComponentAt(_)).
           foreach(tabbedPane.setSelectedIndex(_))
       }
-
       case _ => {}
     }
   }

@@ -116,6 +116,8 @@ class DockableWindowContentPanel[A <: JComponent](val window: DockableWindow[A])
 
   setFocusable(false)
 
+  override def requestFocus = window.content.requestFocus
+
   def showHeader =
     if (Header.getParent() != contentPane) {
       contentPane.add(Header, BorderLayout.NORTH)
