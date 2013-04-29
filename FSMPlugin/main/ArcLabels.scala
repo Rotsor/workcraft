@@ -9,7 +9,7 @@ object ArcLabels {
   def parseLabels : String => NonEmptyList[Option[String]] =
     s => s.split(",").map(_.trim).map{
       case "" => None
-      case "0" => None
+//      case "0" => None
       case "ε" => None
       case w => Some(w)
     }.toList match {

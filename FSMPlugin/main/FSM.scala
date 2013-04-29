@@ -42,7 +42,9 @@ case class FSM(
     Nfa(
       labels(initialState),
       str => successors(str),
-      str => finalStates.contains(from(str)))
+      str => finalStates.contains(from(str)),
+      Some(states.toList.map(s => labels(s)))
+    )
   }
 }
 
@@ -88,9 +90,11 @@ object FSM {
 case class VisualFSM(fsm: FSM, layout: Map[State, Point2D.Double], visualArcs: Map[Arc, StaticVisualConnectionData])
 
 object VisualFSM {
-  def Minimal = {
-    val fsm = FSM.Minimal
-    VisualFSM(fsm, Map(fsm.states.head -> new Point2D.Double(0, 0)), Map())
+  def Minimal(fsm : FSM) = {
+    import org.workcraft.dom.visual.connections._
+    import java.awt.geom.Point2D
+    VisualFSM(fsm, 
+              fsm.states.map(s => (s, new Point2D.Double(0,0))).toMap,
+              fsm.arcs.map(a => (a, Polyline(List()))).toMap)
   }
 }
-

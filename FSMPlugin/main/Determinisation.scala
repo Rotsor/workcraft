@@ -20,18 +20,35 @@ object Utils {
   }
 }
 
+import Utils.collect
 case class Nfa[State, Symbol] (
   initial : State,
   transitions : State => List[(Option[Symbol], State)],
-  isFinal : State => Boolean) {
-  import Utils._
-  def allStates = collect(initial)(s => transitions(s).map(_._2))
+  isFinal : State => Boolean,
+  allStatesOverride : Option[List[State]] = None
+) {
+  def allStates = allStatesOverride match {
+    case None => collect(initial)(s => transitions(s).map(_._2)).toList
+    case Some(states) => states
+  }
+  def allData = (initial, allStates.toList.map(s => (s, transitions(s), isFinal(s))))
   def mapStates[State2](to : State => State2, from : State2 => State) = {
     Nfa[State2, Symbol](
       to(initial),
       s2 => transitions(from(s2)).map{case (k,v)=>(k,to(v))},
       s2 => isFinal(from(s2))
     )
+  }
+}
+
+object Nfa {
+  def fromData[State, Symbol] : ((State, List[(State, List[(Option[Symbol], State)], Boolean)])) 
+    => Nfa[State, Symbol]
+   = {
+    case (initial, stateList) => {
+      val m = stateList.map{case (a, b, c) => (a, (b, c))}.toMap
+      Nfa(initial, s => m(s)._1, s => m(s)._2, Some(m.keys.toList))
+    }
   }
 }
 
@@ -50,7 +67,7 @@ object Determinisation {
   import scala.collection.mutable. { Set => MSet, Map => MMap }
   def determinise [S,E] : Nfa[S,E] => Dfa[Set[S], E] = {
 
-    case Nfa (initial, transitions, isFinal) => {
+    case Nfa (initial, transitions, isFinal, _) => {
       type StateP = Set[S]
       import Utils._
       def epsReachable(s : S) = collect(s)(s => transitions(s).filter(_._1.isEmpty).map(_._2))

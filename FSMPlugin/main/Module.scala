@@ -21,13 +21,15 @@ import scalaz.Scalaz._
 
 object NewFSM extends NewModelImpl {
   def name = "Finite State Machine"
-  def create = EditableFSM.create(VisualFSM.Minimal).map(new FSMModel(_))
+  def create = EditableFSM.create(VisualFSM.Minimal(FSM.Minimal)).map(new FSMModel(_))
 }
 
 object FSMServiceProvider extends GlobalServiceProvider {
   def implementation[T](service: Service[GlobalScope, T]) = service match {
     case NewModelService => List(NewFSM)
     case GuiToolService => List(DeterminisationTool)
+    case ExporterService => List(FsmExporter)
+    case FileOpenService => List(FsmFileOpen)
 
     //case ExporterService => List(DotGExporter)
     //case GuiToolService => List(LolaDeadlockTool) 
