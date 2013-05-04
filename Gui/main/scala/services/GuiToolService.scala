@@ -1,5 +1,5 @@
 package org.workcraft.gui.services
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import org.workcraft.scala.Expressions._
 import org.workcraft.services.MultiService
 import org.workcraft.services.ModelServiceProvider

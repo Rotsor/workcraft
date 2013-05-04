@@ -1,7 +1,7 @@
 package org.workcraft.services
 import java.io.OutputStream
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import scalaz._
 import Scalaz._
 import java.io.File
@@ -31,6 +31,6 @@ trait ExportJob {
   def job(stream: File): IO[Option[ExportError]]
   
   def asTask(file: File) = new Task[File, ExportError] {
-    def runTask(tc: TaskControl) = tc.descriptionUpdate ("Exporting " + file.getPath) >>=| (job(file) map {case None => Right(file); case Some(error) => Left(Some(error))})
+    def runTask(tc: TaskControl) = tc.descriptionUpdate ("Exporting " + file.getPath) >> (job(file) map {case None => Right(file); case Some(error) => Left(Some(error))})
   } 
 }

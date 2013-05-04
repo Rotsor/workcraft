@@ -3,8 +3,8 @@ package org.workcraft.gui.modeleditor
 import org.workcraft.scala.Expressions._
 import scalaz._
 import Scalaz._
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 
 import org.workcraft.graphics.GraphicalContent
 import java.awt.geom.AffineTransform
@@ -127,7 +127,7 @@ class Viewport(val dimensions: Expression[(Int, Int, Int, Int)]) {
     val panInScreenSpace = new Point2D.Double(originInScreenSpace.getX + dx, originInScreenSpace.getY + dy)
     val panInUserSpace = screenToUser(panInScreenSpace)
 
-    translationX.update(_ + panInUserSpace.getX) >>=| translationY.update(_ + panInUserSpace.getY)
+    translationX.update(_ + panInUserSpace.getX) >> translationY.update(_ + panInUserSpace.getY)
   }).join
 
   def zoom(levels: Int): IO[Unit] =
@@ -142,7 +142,7 @@ class Viewport(val dimensions: Expression[(Int, Int, Int, Int)]) {
     tx <- translationX.eval;
     ty <- translationY.eval
   } yield {
-   translationX.set(tx + anchorInNewSpace.getX - anchorInOldSpace.getX) >>=| translationY.set(ty + anchorInNewSpace.getY - anchorInOldSpace.getY)
+   translationX.set(tx + anchorInNewSpace.getX - anchorInOldSpace.getX) >> translationY.set(ty + anchorInNewSpace.getY - anchorInOldSpace.getY)
   }).join
 
 
@@ -171,10 +171,10 @@ class Viewport(val dimensions: Expression[(Int, Int, Int, Int)]) {
     val offX = rect.getMinX - (v.getWidth - rect.getWidth) / 2
     val offY = rect.getMinY - (v.getHeight - rect.getHeight) / 2
 
-    (translationX.set(offX)) >>=| (translationY.set(offY))
+    (translationX.set(offX)) >> (translationY.set(offY))
   })
 
-  def fitAround (rect: Rectangle2D.Double) = fitZoom(rect) >>=| fitPan(rect)
+  def fitAround (rect: Rectangle2D.Double) = fitZoom(rect) >> fitPan(rect)
 }
 
 object Viewport {

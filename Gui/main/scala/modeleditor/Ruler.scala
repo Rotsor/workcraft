@@ -55,7 +55,7 @@ class Ruler (val grid: Grid, val viewport: Viewport, val dimensions: Expression[
        g.drawLine (x + size, userToScreenY(ty) + y, x + size - majorTickSize, userToScreenY(ty) + y)
        val re = g.getTransform()
        g.translate (x+size-5, y + userToScreenY(ty) - 2)
-       g.rotate(-Math.Pi/2)
+       g.rotate(-math.Pi/2)
        g.drawString (String.format("%.2f", ty.asInstanceOf[java.lang.Object]), 0, 0)
        g.setTransform(re)
       })

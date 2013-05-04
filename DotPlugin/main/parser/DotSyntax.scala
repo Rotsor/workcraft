@@ -6,7 +6,8 @@ import scala.util.parsing.input.PagedSeqReader
 import org.workcraft.tasks.Task
 import org.workcraft.tasks.TaskControl
 import scalaz.Scalaz._
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO._
+import scalaz.effect.IO
 
 object Dot extends DotParser {
 
@@ -27,7 +28,7 @@ object Dot extends DotParser {
   }*/
   
   def parseTask (file: File) = new Task[Graph, String] {
-    def runTask(tc: TaskControl) = tc.descriptionUpdate ("Reading " + file.getPath) >>=| ( ioPure.pure { parse(file) } map {case Right(result) => Right(result); case Left(error) => Left(Some(error))})
+    def runTask(tc: TaskControl) = tc.descriptionUpdate ("Reading " + file.getPath) >> ( IO { parse(file) } map {case Right(result) => Right(result); case Left(error) => Left(Some(error))})
   }  
 
   def main(args: Array[String]) {

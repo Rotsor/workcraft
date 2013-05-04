@@ -19,7 +19,7 @@ import java.awt.BorderLayout
 import java.awt.GridBagLayout
 import java.awt.GridBagConstraints
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO._
 import java.awt.BorderLayout
 import javax.swing.SwingUtilities
 import javax.swing.JButton
@@ -27,7 +27,7 @@ import info.clearthought.layout.TableLayout
 import info.clearthought.layout.TableLayoutConstants
 import javax.swing.JScrollPane
 import java.awt.BasicStroke
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import java.awt.event.MouseAdapter
 import javax.swing.UIManager
 import java.awt.event.MouseEvent
@@ -132,7 +132,7 @@ class SimControlPanel[Event, State](t: Expression[MarkedTrace[Event, State]], to
   setLayout (new BorderLayout())
   setFocusable(false)
 
-  val refresh = swingAutoRefresh(t, (trace: MarkedTrace[Event, State]) => ioPure.pure {
+  val refresh = swingAutoRefresh(t, (trace: MarkedTrace[Event, State]) => IO {
     val kojo = new JScrollPane
     kojo.setFocusable(false)
 

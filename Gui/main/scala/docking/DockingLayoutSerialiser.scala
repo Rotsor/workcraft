@@ -12,7 +12,7 @@ import org.flexdock.docking.defaults.DefaultDockingPort
 import java.awt.BorderLayout
 import org.workcraft.logging.Logger
 import org.workcraft.logging.Logger._
-import scalaz.effects.IO
+import scalaz.effect.IO
 import scalaz.Scalaz._
 
 class DockingLayoutSerialiser {

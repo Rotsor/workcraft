@@ -24,12 +24,13 @@ import org.workcraft.gui.propertyeditor.string.StringProperty
 import org.workcraft.gui.propertyeditor.EditableProperty
 import org.workcraft.gui.CommonVisualSettings
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO._
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO._
+import scalaz.effect.IO
 import org.workcraft.scala.grapheditor.tools.GenericConnectionTool
 import org.workcraft.scala.grapheditor.tools.GenericSelectionTool
 import scalaz.Scalaz._
 import scalaz._
+import org.workcraft.scala.Scalaz._
 import org.workcraft.gui.modeleditor.sim.GenericSimulationTool
 import org.workcraft.services.Service
 import org.workcraft.services.EditorScope
@@ -57,20 +58,20 @@ class PetriNetEditor(net: EditablePetriNet) extends ModelEditor {
             oldName <- expr.eval;
             names <- net.names.eval
           } yield if (name != oldName) {
-            if (names.contains(name)) ioPure.pure(Some("The name '" + name + "' is already taken."))
+            if (names.contains(name)) IO(Some("The name '" + name + "' is already taken."))
             else {
-              pushUndo("change name") >>=|
-                net.names.set(names - oldName + ((name, p))) >>=|
+              pushUndo("change name") >>
+                net.names.set(names - oldName + ((name, p))) >>
                 net.labelling.update(_ + ((p, name))) >| None
             }
           } else
-            ioPure.pure(None)).join
-      } else ioPure.pure(Some("Names must be non-empty Latin alphanumeric strings.")))
+            IO(None)).join
+      } else IO(Some("Names must be non-empty Latin alphanumeric strings.")))
   }
 
   def tokens(p: Place) = ModifiableExpressionWithValidation[Int, String](
     net.tokens(p),
-    x => if (x < 0) ioPure.pure { Some("Token count cannot be negative.") } else pushUndo("change token count") >>=| net.marking.update(_ + (p -> x)) >| None)
+    x => if (x < 0) IO { Some("Token count cannot be negative.") } else pushUndo("change token count") >> net.marking.update(_ + (p -> x)) >| None)
 
   def props: Expression[List[Expression[EditableProperty]]] = selection.map(_.toList.flatMap({
     case p: Place => List(
@@ -164,18 +165,18 @@ class PetriNetEditor(net: EditablePetriNet) extends ModelEditor {
   def toggleSelectionMarking (selection: Set[Node]) : IO[Unit] = net.marking.eval >>= ( marking => selection.traverse_ {
     case p:Place if (marking(p) == 0) => net.marking.update (_ + (p -> 1))
     case p:Place if (marking(p) == 1) => net.marking.update (_ + (p -> 0))
-    case _ => IO.Empty
+    case _ => ().pure[IO]
   })
 
   def toggleMarking (node: Node) : IO[Unit] = net.marking.eval >>= ( marking => node match {
     case p:Place if (marking(p) == 0) => net.marking.update (_ + (p -> 1))
     case p:Place if (marking(p) == 1) => net.marking.update (_ + (p -> 0))
-    case _ => IO.Empty
+    case _ => ().pure[IO]
   })
 
-  def move(nodes: Set[Node], offset: Point2D.Double): IO[Unit] = pushUndo("move nodes") >>=| nodes.map({
+  def move(nodes: Set[Node], offset: Point2D.Double): IO[Unit] = pushUndo("move nodes") >> nodes.map({
     case c: Component => net.layout.update(l => l + (c -> (l(c) + offset)))
-    case _ => IO.Empty
+    case _ => ().pure[IO]
   }).traverse_(x => x)
 
   private def selectionTool = GenericSelectionTool[Node](
@@ -186,15 +187,15 @@ class PetriNetEditor(net: EditablePetriNet) extends ModelEditor {
     touchable(_),
     imageForSelection(_, _, _),
     List(
-      KeyBinding("Delete selection", KeyEvent.VK_DELETE, KeyEventType.KeyPressed, Set(), pushUndo("delete nodes") >>=| selection.eval >>= (sel => selection.update(_ -- sel) >>=| net.deleteNodes(sel) >| None)),
-      KeyBinding("Toggle marking", KeyEvent.VK_SPACE, KeyEventType.KeyPressed, Set(), pushUndo("toggle marking") >>=| (selection.eval >>= (sel => toggleSelectionMarking(sel))) >| None)
+      KeyBinding("Delete selection", KeyEvent.VK_DELETE, KeyEventType.KeyPressed, Set(), pushUndo("delete nodes") >> selection.eval >>= (sel => selection.update(_ -- sel) >> net.deleteNodes(sel) >| None)),
+      KeyBinding("Toggle marking", KeyEvent.VK_SPACE, KeyEventType.KeyPressed, Set(), pushUndo("toggle marking") >> (selection.eval >>= (sel => toggleSelectionMarking(sel))) >| None)
     ),
     Some (toggleMarking(_)))
 
   private val connectionManager = new ConnectionManager[Component] {
     def connect(node1: Component, node2: Component): Expression[Either[InvalidConnectionException, IO[Unit]]] = constant((node1, node2) match {
-      case (from: Place, to: Transition) => Right(pushUndo("create arc") >>=| net.createConsumerArc(from, to) >| Unit)
-      case (from: Transition, to: Place) => Right(pushUndo("create arc") >>=| net.createProducerArc(from, to) >| Unit)
+      case (from: Place, to: Transition) => Right(pushUndo("create arc") >> net.createConsumerArc(from, to) >| Unit)
+      case (from: Transition, to: Place) => Right(pushUndo("create arc") >> net.createProducerArc(from, to) >| Unit)
       case (_: Place, _: Place) => Left(new InvalidConnectionException("Arcs between places are invalid"))
       case (_: Transition, _: Transition) => Left(new InvalidConnectionException("Arcs between transitions are invalid"))
     })
@@ -221,10 +222,10 @@ class PetriNetEditor(net: EditablePetriNet) extends ModelEditor {
     GenericConnectionTool[Component](net.components, touchable(_), componentPosition(_), connectionManager, imageC(_))
 
   private def placeGeneratorTool =
-    NodeGeneratorTool(Button("Place", "images/icons/svg/place.svg", Some(KeyEvent.VK_P)).unsafePerformIO, image(_ => Colorisation(None, None), Set(), new Point2D.Double(0, 0)), pushUndo("create place") >>=| net.createPlace(_) >| Unit)
+    NodeGeneratorTool(Button("Place", "images/icons/svg/place.svg", Some(KeyEvent.VK_P)).unsafePerformIO, image(_ => Colorisation(None, None), Set(), new Point2D.Double(0, 0)), pushUndo("create place") >> net.createPlace(_) >| Unit)
 
   private def transitionGeneratorTool =
-    NodeGeneratorTool(Button("Transition", "images/icons/svg/transition.svg", Some(KeyEvent.VK_T)).unsafePerformIO, image(_ => Colorisation(None, None), Set(), new Point2D.Double(0, 0)), pushUndo("create transition") >>=| net.createTransition(_) >| Unit)
+    NodeGeneratorTool(Button("Transition", "images/icons/svg/transition.svg", Some(KeyEvent.VK_T)).unsafePerformIO, image(_ => Colorisation(None, None), Set(), new Point2D.Double(0, 0)), pushUndo("create transition") >> net.createTransition(_) >| Unit)
 
   def tools = NonEmptyList(selectionTool, connectionTool, placeGeneratorTool, transitionGeneratorTool, simulationTool)
   def keyBindings = List()
@@ -239,20 +240,20 @@ class PetriNetEditor(net: EditablePetriNet) extends ModelEditor {
 
   def saveState(description: String): IO[EditorState] = (net.saveState.eval <**> selection.eval)(EditorState(description, _, _))
 
-  def loadState(state: EditorState): IO[Unit] = net.loadState(state.net) >>=| selection.set(state.selection)
+  def loadState(state: EditorState): IO[Unit] = net.loadState(state.net) >> selection.set(state.selection)
 
   def pushState(description: String, stack: ModifiableExpression[List[EditorState]]): IO[Unit] = (saveState(description) >>= (state => stack.update(s => (state :: s).take(100))))
 
-  def pushUndo(description: String) = pushState(description, undoStack) >>=| redoStack.update(_ => Nil)
+  def pushUndo(description: String) = pushState(description, undoStack) >> redoStack.update(_ => Nil)
 
   def popUndo: IO[Unit] = undoStack.eval >>= ({
-    case top :: rest => pushState(top.description, redoStack) >>=| loadState(top) >>=| undoStack.update(_ => rest)
-    case _ => ioPure.pure {}
+    case top :: rest => pushState(top.description, redoStack) >> loadState(top) >> undoStack.update(_ => rest)
+    case _ => IO {}
   })
 
   def popRedo: IO[Unit] = redoStack.eval >>= ({
-    case top :: rest => pushState(top.description, undoStack) >>=| loadState(top) >>=| redoStack.update(_ => rest)
-    case _ => ioPure.pure {}
+    case top :: rest => pushState(top.description, undoStack) >> loadState(top) >> redoStack.update(_ => rest)
+    case _ => IO {}
   })
 
   def implementation[T](service: Service[EditorScope, T]) = service match {

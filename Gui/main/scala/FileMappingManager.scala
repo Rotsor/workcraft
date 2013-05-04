@@ -1,7 +1,7 @@
 package org.workcraft.gui
 
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import org.workcraft.scala.Expressions._
 import scalaz.Scalaz._
 import org.workcraft.services.ModelServiceProvider

@@ -8,7 +8,7 @@ import org.workcraft.gui.propertyeditor.GenericCellEditor
 import org.workcraft.gui.propertyeditor.GenericEditorProvider
 import org.workcraft.util.Action
 
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 
 object BooleanCellEditor extends GenericEditorProvider[Boolean] {
   override def createEditor(initialValue: Boolean, accept: IO[Unit], cancel: IO[Unit]): GenericCellEditor[Boolean] = {

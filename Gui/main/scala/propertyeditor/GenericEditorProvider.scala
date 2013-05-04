@@ -2,7 +2,7 @@ package org.workcraft.gui.propertyeditor
 
 import org.workcraft.util.Action
 
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 
 
 trait GenericEditorProvider[T] {

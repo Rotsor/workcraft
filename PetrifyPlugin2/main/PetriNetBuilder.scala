@@ -3,8 +3,8 @@ package org.workcraft.plugins.petrify
 import org.workcraft.plugins.petri2._
 import PetriNet._
 
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 
 import scalaz.Scalaz._
 
@@ -29,13 +29,13 @@ object PetriNetBuilder {
     case x @ SignalTransition(name, direction, instance) => {
       val pnname = signalTransitionName(x)
       if (net.names.contains(pnname))
-        ioPure.pure { (net.names(pnname), net) }
+        IO { (net.names(pnname), net) }
       else newTransition.map(t => (t, net.copy(transitions = t :: net.transitions, labelling = net.labelling + (t -> pnname))))
     }
 
     case PlaceOrDummy(name) => {
       if (net.names.contains(name))
-        ioPure.pure { (net.names(name), net) }
+        IO { (net.names(name), net) }
       else if (dummy.contains(name))
         newTransition.map(t => (t, net.copy(transitions = t :: net.transitions, labelling = net.labelling + (t -> name))))
       else
@@ -45,7 +45,7 @@ object PetriNetBuilder {
 
   // Builds a Petri Net from a .g file AST
   def buildPetriNet(dotg: DotG): IO[PetriNet] = {
-    val z = ioPure.pure { (Map[(Transition, Transition), Place](), PetriNet.Empty) }
+    val z = IO { (Map[(Transition, Transition), Place](), PetriNet.Empty) }
 
     val buildNet = dotg.graph.toList.foldLeft(z) {
       case (state, (element, postset)) => state >>= { case (implicitPlaces, net) => {
@@ -58,7 +58,7 @@ object PetriNetBuilder {
         // Gather the list of components coresponding to the references in the STG and the state of the Petri Net so far.
 
         val createComponents: IO[(List[Component], PetriNet)] = {
-          val z = ioPure.pure { (List[Component](), net) }
+          val z = IO { (List[Component](), net) }
           (element :: postset).foldLeft(z) {
             case (result, element) => result >>= {
               case (comps, net) => getOrCreate(dotg.dummy, element, net).map { case (newComp, newNet) => (newComp :: comps, newNet) }
@@ -77,7 +77,7 @@ object PetriNetBuilder {
               if (net.names.contains(name)) findFreeName(0) else name
             }
 
-            val z = ioPure.pure { (implicitPlaces, net) }
+            val z = IO { (implicitPlaces, net) }
 
             components.tail.foldLeft(z) {
               case (result, comp) => (components.head, comp) match {

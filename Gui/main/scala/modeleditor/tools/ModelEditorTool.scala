@@ -4,7 +4,7 @@ import org.workcraft.scala.Expressions.Expression
 import org.workcraft.graphics.GraphicalContent
 import javax.swing.JPanel
 import org.workcraft.gui.GUI
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import org.workcraft.gui.modeleditor.KeyBinding
 import org.workcraft.gui.modeleditor.ToolMouseListener
 import org.workcraft.gui.modeleditor.Viewport
@@ -56,16 +56,16 @@ trait ModelEditorToolInstance {
 }
 
 object ModelEditorToolInstance {
-  implicit def applicativeSemigroup[A : Semigroup, F[_] : Applicative] : Semigroup[F[A]]= semigroup ((p,q) => {
-    (p <**> q) (_ |+| _)
+  implicit def applicativeSemigroup[A : Semigroup, F[_] : Applicative] : Semigroup[F[A]]= Semigroup.instance ((p,q) => {
+    ^(p, q) (_ |+| _)
   })
   
-  implicit def met2aSemigroup : Semigroup[ModelEditorToolInstance] = semigroup((a,b) => new ModelEditorToolInstance {
+  implicit def met2aSemigroup : Semigroup[ModelEditorToolInstance] = Semigroup.instance((a,b) => new ModelEditorToolInstance {
     val keyBindings = a.keyBindings |+| b.keyBindings
-    val mouseListener : Option[ToolMouseListener] = LastOptionTo(a.mouseListener) |+| LastOptionTo(b.mouseListener)
+    val mouseListener : Option[ToolMouseListener] = Tags.Last(a.mouseListener) |+| Tags.Last(b.mouseListener)
     val userSpaceContent = a.userSpaceContent |+| b.userSpaceContent
     val screenSpaceContent = a.screenSpaceContent |+| b.screenSpaceContent
-    val interfacePanel : Option[JPanel] = LastOptionTo(a.interfacePanel) |+| LastOptionTo(b.interfacePanel)
+    val interfacePanel : Option[JPanel] = Tags.Last(a.interfacePanel) |+| Tags.Last(b.interfacePanel)
   })
 }
 

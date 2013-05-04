@@ -14,8 +14,8 @@ import SimulationControlPanel._
 import org.workcraft.gui.GUI
 
 import scalaz.Scalaz._
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 
 object SimulationControlPanel {
   type SimulationControl[M[_], State] = SimulationModel[M, Unit, State] {

@@ -7,12 +7,8 @@ import java.awt.Shape
 import java.awt.Font
 import java.awt.geom.AffineTransform
 import java.awt.geom.Point2D
-import org.workcraft.dependencymanager.advanced.core.Expression
-import org.workcraft.dependencymanager.advanced.core.ExpressionBase
-import org.workcraft.dependencymanager.advanced.core.EvaluationContext
 import org.workcraft.scala.Util._
 import org.workcraft.scala.Scalaz._
-import org.workcraft.scala.Expressions._
 import java.awt.geom.Path2D
 import org.workcraft.graphics.Java2DDecoration._
 
@@ -63,9 +59,6 @@ package org.workcraft.graphics {
 
     def formulaLabel(formula: String, font: Font, color: Color) =
       formularendering.FormulaToGraphics(PodgonFontRenderContext).WithFont(font).print(formula).withColor(color)
-
-    def compose(a: Expression[GraphicalContent], b: Expression[GraphicalContent]): Expression[GraphicalContent] =
-      for (a <- a; b <- b) yield a.compose(b)
 
     def alignTransform(what: Rectangle2D, to: Rectangle2D, horizontalAlignment: HorizontalAlignment, verticalAlignment: VerticalAlignment): AffineTransform = {
       val xTranslate = horizontalAlignment match {

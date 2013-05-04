@@ -4,7 +4,7 @@ import org.workcraft.scala.Expressions._
 import org.workcraft.gui.services.GuiToolService
 import scalaz.Scalaz._
 import org.workcraft.gui.services.GuiTool
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import javax.swing.JMenu
 import org.workcraft.gui.GUI._
 

@@ -12,8 +12,8 @@ import scala.collection.immutable.PagedSeq
 import scala.util.parsing.input.PagedSeqReader
 import java.awt.geom.Point2D
 import java.io.File
-import org.workcraft.scala.effects.IO._
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO._
+import scalaz.effect.IO
 import org.workcraft.dom.visual.connections.Polyline
 
 sealed trait PnTokens
@@ -107,14 +107,14 @@ class PnFormatParser extends Parsers {
     case Marking => (marking*) map (mrk => PartialResult(Nil, Nil, Nil, Nil, mrk))
   }).flatMap(p => (section | Eof ^^^ (PartialResult(Nil, Nil, Nil, Nil, Nil))) map (p + _))
 
-  def parse(in: File): IO[Either[String, VisualPetriNet]] = ioPure.pure {
+  def parse(in: File): IO[Either[String, VisualPetriNet]] = IO {
     section(lexer.scanner(in)) match {
       case Success(a, b) => {
         val allNames = a.places ++ a.transitions
-        val distinctNames = allNames.distinct
+        val duplicateNames = allNames.groupBy(x => x).toList.filter{case (_, n) => n.length > 1}.map(_._1)
 
-        if (allNames.length != distinctNames.length)
-          Left("Duplicate names found: " + (allNames -- distinctNames).mkString(", "))
+        if (duplicateNames.length > 0)
+          Left("Duplicate names found: " + duplicateNames.mkString(", "))
         else {
           val places = a.places.map(name => (new Place, name))
           val placeLabelling = places.toMap

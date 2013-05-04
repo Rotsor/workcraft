@@ -1,6 +1,6 @@
 package org.workcraft.gui
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import org.workcraft.scala.Expressions._
 import scalaz.Scalaz._
 import javax.swing.ImageIcon
@@ -56,7 +56,7 @@ object GUI {
     result
   }
 
-  def createIconFromImage(resourcePath: String): IO[Option[ImageIcon]] = ioPure.pure {
+  def createIconFromImage(resourcePath: String): IO[Option[ImageIcon]] = IO {
     val res = this.getClass().getClassLoader().getResource(resourcePath)
     if (res == null)
       None
@@ -67,7 +67,7 @@ object GUI {
   def createIconFromSvgUsingSettingsSize(path: String) =
     CommonVisualSettings.settings.map(_.iconSize).eval >>= (size => createIconFromSvg(path, size, size, None))
 
-  def createIconFromSvg(path: String, height: Int, width: Int, background: Option[Color]): IO[ImageIcon] = ioPure.pure {
+  def createIconFromSvg(path: String, height: Int, width: Int, background: Option[Color]): IO[ImageIcon] = IO {
     System.setProperty("org.apache.batik.warn_destination", "false")
 
     val parser = XMLResourceDescriptor.getXMLParserClassName()

@@ -2,8 +2,8 @@ package org.workcraft.gui
 import java.awt.Color
 import scalaz._
 import Scalaz._
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import javax.swing.SwingUtilities
 import javax.swing.ImageIcon
 import java.awt.event.WindowAdapter

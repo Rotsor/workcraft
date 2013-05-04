@@ -13,7 +13,7 @@ package object core {
     states : Map[S,(Option[E], Option[E])]
   ) {
     def nodes : List[Node[S,E]] =
-      states.keys.toList.map(Left(_:S)) ++ ((states.values >>= {case (l,r) => l.toList ++ r.toList}).toSet.toList.map(Right(_:E)))
+      states.keys.toList.map(Left(_:S)) ++ ((states.values.toList >>= {case (l,r) => l.toList ++ r.toList}).toSet.toList.map(Right(_:E)))
   }
   object OccurrenceNet {
     def Empty[S,E] = OccurrenceNet(Map[S,(Option[E],Option[E])]())

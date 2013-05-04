@@ -2,8 +2,8 @@ package org.workcraft.pluginmanager
 import java.lang.reflect.Modifier
 import java.util.UUID
 import org.workcraft.logging.Logger
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import scalaz.Scalaz._
 import Logger._
 

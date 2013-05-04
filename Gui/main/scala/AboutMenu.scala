@@ -12,7 +12,8 @@ import java.awt.event.ActionEvent
 import javax.swing.JComponent
 import javax.swing.JPanel
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO._
+import scalaz.effect.IO
 
 class AboutMenu (mainWindow: MainWindow) extends JMenu("About") {
   val panel = new JPanel()
@@ -45,7 +46,7 @@ class AboutMenu (mainWindow: MainWindow) extends JMenu("About") {
 
   panel.setPreferredSize (new Dimension (600, 250))
 
-  val item = menuItem("About Workcraft", None, None, ioPure.pure {
+  val item = menuItem("About Workcraft", None, None, IO {
     JOptionPane.showMessageDialog (mainWindow, panel, "About Workcraft", JOptionPane.PLAIN_MESSAGE, null)
   })
 

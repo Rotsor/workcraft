@@ -4,7 +4,7 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import org.workcraft.exceptions.DeserialisationException
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 
 trait Importer {
 	def accept (file : File) : IO[Boolean]

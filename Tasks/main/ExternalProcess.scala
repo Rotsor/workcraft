@@ -3,8 +3,8 @@ package org.workcraft.tasks
 import java.io.File
 import java.io.IOException
 import java.util.LinkedList
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import java.util.concurrent.atomic.AtomicBoolean
 import java.io.InputStream
 import java.util.Arrays
@@ -52,7 +52,7 @@ class CancelRequestMonitorThread(process: ProcessHandle, cancelRequest: IO[Boole
 
 case class ProcessHandle private[tasks] (private[tasks] val process: Process) {
   private var cancelRequested = false
-  def writeData(data: Array[Byte]): IO[Unit] = ioPure.pure { process.getOutputStream().write(data) }
+  def writeData(data: Array[Byte]): IO[Unit] = IO { process.getOutputStream().write(data) }
   def cancel = { process.destroy(); cancelRequested = true }
   def cancelled = cancelRequested
 }
@@ -64,8 +64,8 @@ trait ProcessListener {
 }
 
 trait DiscardingListener extends ProcessListener {
-  def stdout(data: Array[Byte]) = ioPure.pure {}
-  def stderr(data: Array[Byte]) = ioPure.pure {}
+  def stdout(data: Array[Byte]) = IO {}
+  def stderr(data: Array[Byte]) = IO {}
 }
 
 trait SynchronousProcessListener {
@@ -74,8 +74,8 @@ trait SynchronousProcessListener {
 }
 
 class DiscardingSynchronousListener extends SynchronousProcessListener {
-  def stdout(data: Array[Byte]): IO[Unit] = ioPure.pure {}
-  def stderr(data: Array[Byte]): IO[Unit] = ioPure.pure {}
+  def stdout(data: Array[Byte]): IO[Unit] = IO {}
+  def stderr(data: Array[Byte]): IO[Unit] = IO {}
 }
 
 class AccumulatingSynchronousListener extends SynchronousProcessListener {
@@ -86,7 +86,7 @@ class AccumulatingSynchronousListener extends SynchronousProcessListener {
 }
 
 object ExternalProcess {
-  def runAsync(command: List[String], workingDir: Option[File], listener: ProcessListener, cancelRequest: IO[Boolean]): IO[Either[Throwable, ProcessHandle]] = ioPure.pure {
+  def runAsync(command: List[String], workingDir: Option[File], listener: ProcessListener, cancelRequest: IO[Boolean]): IO[Either[Throwable, ProcessHandle]] = IO {
     val processBuilder = new ProcessBuilder(scala.collection.JavaConversions.asJavaList(command))
     workingDir.foreach(processBuilder.directory(_))
     try {
@@ -108,7 +108,7 @@ object ExternalProcess {
     }
   }
 
-  def runSynchronously(command: List[String], workingDir: Option[File], listener: SynchronousProcessListener, cancelRequest: IO[Boolean]): IO[Either[Throwable, (Int, Boolean)]] = ioPure.pure {
+  def runSynchronously(command: List[String], workingDir: Option[File], listener: SynchronousProcessListener, cancelRequest: IO[Boolean]): IO[Either[Throwable, (Int, Boolean)]] = IO {
     val processBuilder = new ProcessBuilder(scala.collection.JavaConversions.asJavaList(command))
     workingDir.foreach(processBuilder.directory(_))
     try {
@@ -139,7 +139,7 @@ object ExternalProcess {
 
   def runSyncCollectOutput(command: List[String], workingDir: Option[File], cancelRequest: IO[Boolean]): IO[Either[Throwable, (Int, Boolean, Array[Byte], Array[Byte])]] =
     for {
-      acc <- ioPure.pure { new AccumulatingSynchronousListener };
+      acc <- IO { new AccumulatingSynchronousListener };
       res <- runSynchronously(command, workingDir, acc, cancelRequest);
       stderr <- acc.accumulator.collectStderr;
       stdout <- acc.accumulator.collectStdout

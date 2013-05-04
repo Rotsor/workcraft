@@ -5,6 +5,7 @@ import AssemblyKeys._
 
 object Workcraft extends Build {
 
+
     
     val rootTargetDirectory = file("target")
     
@@ -46,6 +47,10 @@ object Workcraft extends Build {
        .settings(sourceDirectory <<= baseDirectory)
        .settings (scalacOptions ++= Seq("-unchecked", "-deprecation"))
        .settings(maxErrors := 1)
+       .settings(libraryDependencies ++= Seq(
+         "org.scala-lang" % "scala-library" % "2.10.0" % "provided",
+         "org.scala-lang" % "scala-compiler" % "2.10.0"))
+        .settings(scalaVersion := "2.10.0")
 
 
       def simpleProject(name : String, lang : Lang) = MyProject(name, SimpleProject(lang))
@@ -58,7 +63,10 @@ object Workcraft extends Build {
     lazy val scalatest = "org.scalatest" %% "scalatest" % "1.9.1" % "test"
     lazy val junitInterface = "com.novocode" % "junit-interface" % "0.10-M2" % "test"
     lazy val pcollections = "org.pcollections" % "pcollections" % "2.1.2"
-    lazy val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.3"
+    lazy val scalaz = Seq(
+      "org.scalaz" %% "scalaz-core" % "7.0.0",
+      "org.scalaz" %% "scalaz-effect" % "7.0.0"
+    )
     lazy val configrity = "org.streum" %% "configrity-core" % "1.0.0"
     lazy val batikSvg = Seq(
       "org.apache.xmlgraphics" % "batik-svg-dom" % "1.7",
@@ -75,12 +83,12 @@ object Workcraft extends Build {
     lazy val util = simpleProject ("Util", Java)
 
     lazy val depMan = simpleProject ("DependencyManager", Java)
-     .settings (libraryDependencies := Seq(pcollections, junitInterface))
+     .settings (libraryDependencies ++= Seq(pcollections, junitInterface))
      .settings (parallelExecution in Test := false)
      .dependsOn (util)
 
     lazy val scalautil = simpleProject("ScalaUtil", Scala)
-     .settings (libraryDependencies := Seq(scalaz))
+     .settings (libraryDependencies ++= scalaz)
      .dependsOn (util, depMan)
 
     lazy val tasks = simpleProject("Tasks", Scala)
@@ -90,7 +98,7 @@ object Workcraft extends Build {
      .dependsOn (scalautil)
 
     lazy val pluginManager = mixedProject("PluginManager")
-     .settings (libraryDependencies := Seq (scalatest, junit))
+     .settings (libraryDependencies ++= Seq (scalatest, junit))
      .dependsOn (logger)
 
     lazy val core = simpleProject("Core", Scala)
@@ -98,13 +106,13 @@ object Workcraft extends Build {
 
     lazy val booleanFormulae = simpleProject("BooleanFormulae", Java)
      .dependsOn (util)
-     .settings (libraryDependencies := Seq (junit_always))
+     .settings (libraryDependencies ++= Seq (junit_always))
 
     lazy val graphics = mixedProject("Graphics")
      .dependsOn (scalautil, booleanFormulae)
 
     lazy val gui = mixedProject("Gui")
-     .settings (libraryDependencies := Seq (configrity) ++ batikSvg ++ Seq(tableLayout, flexDock) ++ substance ++ Seq(guava))
+     .settings (libraryDependencies ++= Seq (configrity) ++ batikSvg ++ Seq(tableLayout, flexDock) ++ substance ++ Seq(guava))
      .dependsOn (core, graphics, logger)
 
 
@@ -128,11 +136,11 @@ object Workcraft extends Build {
 
     lazy val fsmplugin = simpleProject ("FSMPlugin", Scala)
      .dependsOn (gui, pnplugin, graphedutil)
-     .settings(libraryDependencies := Seq(scalatest, junit))
+     .settings(libraryDependencies ++= Seq(scalatest, junit))
 
     lazy val mailservice = simpleProject ("MailService", Scala)
      .settings (assemblySettings:_*)
-     .settings (libraryDependencies := Seq (mail, guava))
+     .settings (libraryDependencies ++= Seq (mail, guava))
      .dependsOn(core, pnplugin, lolaplugin, petrifyplugin)
 
     lazy val workcraft = simpleProject("Workcraft", Scala)

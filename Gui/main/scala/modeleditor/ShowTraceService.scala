@@ -3,7 +3,7 @@ import org.workcraft.services.SingleService
 import org.workcraft.services.EditorScope
 import org.workcraft.gui.modeleditor.tools.ModelEditorTool
 import org.workcraft.gui.modeleditor.tools.ModelEditorToolInstance
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import org.workcraft.gui.modeleditor.tools.ToolEnvironment
 
 object ShowTraceService extends SingleService[EditorScope, ShowTrace]

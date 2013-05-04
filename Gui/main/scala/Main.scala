@@ -12,8 +12,8 @@ import org.pushingpixels.substance.api.SubstanceLookAndFeel
 import org.pushingpixels.substance.api.SubstanceConstants.TabContentPaneBorderKind
 import org.workcraft.logging.Logger._
 import org.workcraft.logging.Logger
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import javax.swing.WindowConstants
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent

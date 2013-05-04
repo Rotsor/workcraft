@@ -30,8 +30,8 @@ import org.workcraft.plugins.stg21.types.MathStg
 import org.workcraft.plugins.stg21.types.VisualModel
 import org.workcraft.plugins.stg21.types.VisualStg
 import org.workcraft.plugins.stg21.StgModel
-import org.workcraft.scala.effects.IO.ioPure
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO.ioPure
+import scalaz.effect.IO
 import org.workcraft.services.Model
 import org.workcraft.services.Importer
 

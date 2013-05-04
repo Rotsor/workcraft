@@ -9,17 +9,17 @@ import scalaz._
 import Scalaz._
 import org.workcraft.scala.Expressions.ModifiableExpression
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 
 class Toolbox(val env: ToolEnvironment, val tools: NonEmptyList[ModelEditorTool], val selected: ModifiableExpression[ModelEditorTool], val selectedInstance: ModifiableExpression[ModelEditorToolInstance]) {
   val selectedTool: Expression[ModelEditorTool] = selected.expr
   val selectedToolInstance = selectedInstance.expr
   
-  def selectTool(tool: ModelEditorTool) = ((tool.createInstance(env)) >>= (i => selectedInstance.set(i))) >>=| selected.set(tool)
+  def selectTool(tool: ModelEditorTool) = ((tool.createInstance(env)) >>= (i => selectedInstance.set(i))) >> selected.set(tool)
   
   def selectToolWithInstance (tool: ModelEditorTool, instance: (ToolEnvironment => IO[ModelEditorToolInstance])) =
-    (instance(env) >>= ( i => selectedInstance.set(i))) >>=| selected.set(tool)
+    (instance(env) >>= ( i => selectedInstance.set(i))) >> selected.set(tool)
 
   private val hotkeys = tools.list.flatMap(t => t.button.hotkey.map((t, _))).groupBy(_._2).mapValues(_.map(_._1))
   private val cyclicHotkeyIterator = hotkeys.mapValues(Stream.continually(_).flatten.iterator)

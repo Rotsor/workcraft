@@ -4,7 +4,8 @@ import org.workcraft.dom.visual.connections.StaticVisualConnectionData
 import scalaz._
 import scalaz.Scalaz._
 import org.workcraft.scala.effects._
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO._
+import scalaz.effect.IO
 
 sealed trait Node
 
@@ -54,7 +55,7 @@ object FSM {
 
   def buildMap[A,B] : List[(A,B)] => Map[A, NonEmptyList[B]] =
     l => l.groupBy(_._1).mapValues { 
-      case (h :: t) => nel(h,t).map(_._2); 
+      case (h :: t) => NonEmptyList.nel(h,t).map(_._2); 
       case Nil => error("groupBy is not supposed to return empty lists")
     }
 
@@ -67,14 +68,14 @@ object FSM {
         map(l => (l map (_._2), l.toMap, l.map(_.swap).toMap))
 
     for(
-      sss <- createAssocs (nfa.allStates.toList) {_ => ioPure.pure{new State}};
+      sss <- createAssocs (nfa.allStates.toList) {_ => IO{new State}};
       val (states, to, from) = sss;
       val arcLabels = buildMap(
           for(
             s1 <- nfa.allStates.toList;
             (e, s2) <- nfa.transitions(s1)
           ) yield ((s1, s2), e));
-      aaa <- createAssocs(arcLabels.keys.toList){case (s1, s2) => ioPure.pure{new Arc(to(s1), to(s2))}};
+      aaa <- createAssocs(arcLabels.keys.toList){case (s1, s2) => IO{new Arc(to(s1), to(s2))}};
       val (arcs, ato, afrom) = aaa;
       val initial = to(nfa.initial);
       val finals = to.toList.flatMap{case(s1,s2) => if (nfa.isFinal(s1)) List(s2) else List()}.toSet;

@@ -7,7 +7,7 @@ import org.workcraft.util.Action
 import org.workcraft.plugins.stg21.modifiable._
 import org.workcraft.scala.Expressions._
 import org.workcraft.gui.modeleditor.tools.ConnectionManager
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 
 class StgConnectionManager(val visualStg : ModifiableExpression[VisualStg]) extends ConnectionManager[StgConnectable] {
       def connect(node1 : StgConnectable, node2 : StgConnectable) : Either[InvalidConnectionException, IO[Unit]]= {
@@ -25,7 +25,7 @@ class StgConnectionManager(val visualStg : ModifiableExpression[VisualStg]) exte
         }
       }
       
-      def addConnection(a : Arc) : IO[Unit] = IO.ioPure.pure{
+      def addConnection(a : Arc) : IO[Unit] = IO{
           org.workcraft.plugins.stg21.modifiable.decorateModifiableExpression(visualStg.math.arcs).runState(Col.add(a))
         }
 }

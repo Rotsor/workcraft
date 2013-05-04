@@ -6,7 +6,8 @@ import Scalaz._
 import org.workcraft.scala._
 import org.workcraft.scala.Expressions._
 import org.workcraft.graphics.Java2DDecoration._
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO._
+import scalaz.effect.IO
 import org.workcraft.scala.effects._
 import org.workcraft.services._
 import org.workcraft.gui.modeleditor.EditorService
@@ -30,7 +31,7 @@ object EditableOccurrenceNet {
         case EditorService => Some(new OccNetEditor(versions, tmp))
         //    case LayoutableService => Some(PetriNetLayoutable(net))
         //    case DefaultFormatService => Some(Format.WorkcraftPetriNet)
-        case s => import s._; mzero
+        case s => s.monoid.zero
       }
     }
 }

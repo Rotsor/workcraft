@@ -1,7 +1,7 @@
 package org.workcraft.gui
 import org.streum.configrity.Configuration
 import org.workcraft.logging.Logger
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import org.workcraft.logging.Logger._
 import javax.swing.UIManager
 import java.io.File

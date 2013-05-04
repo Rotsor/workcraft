@@ -14,8 +14,8 @@ import org.workcraft.graphics.GraphicalContent
 import org.workcraft.gui.modeleditor.tools.Button
 import org.workcraft.gui.GUI
 import org.workcraft.gui.modeleditor.ToolMouseListener
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import scalaz.Scalaz._
 import org.workcraft.gui.modeleditor.MouseButton
 import org.workcraft.gui.modeleditor.Modifier
@@ -59,7 +59,7 @@ class GenericSelectionToolMouseListener[Node](
 
   override def buttonClicked(button: MouseButton, clickCount: Int, modifiers: Set[Modifier], position: Point2D.Double): IO[Unit] = {
     if ((notClick1 && button == LeftButton) || (notClick3 && button == RightButton))
-      IO.Empty
+      ().pure[IO]
     else if (button == LeftButton) {
       hitTester.hitTest(position) match {
         case Some(node) => if (clickCount == 1)
@@ -67,17 +67,17 @@ class GenericSelectionToolMouseListener[Node](
             case (false, false) => selection.set(Set(node))
             case (true, false) => selection.update(_ + node)
             case (false, true) => selection.update(_ - node)
-            case (true, true) => IO.Empty // both Shift and Control are down, such action is undefined
+            case (true, true) => ().pure[IO] // both Shift and Control are down, such action is undefined
           } else if (clickCount == 2) {
 	    doubleClickHandler match {
 	      case Some(handler) => handler(node)
-	      case _ => IO.Empty
+	      case _ => ().pure[IO]
 	    }
-	  } else IO.Empty
+	  } else ().pure[IO]
           case None if (modifiers.isEmpty) => selection.set(Set[Node]())
-          case _ => IO.Empty
+          case _ => ().pure[IO]
 	}
-    } else IO.Empty
+    } else ().pure[IO]
   }
 
   override def dragStarted(button: MouseButton, position: Point2D.Double, modifiers: Set[Modifier]): IO[Unit] = {
@@ -90,10 +90,10 @@ class GenericSelectionToolMouseListener[Node](
             // mouse down without modifiers, begin move-drag
             dragHandle = Some(nodeDragHandler.dragStarted(position, hitNode))
 
-            selection.eval >>= (sel => if (!sel.contains(hitNode)) selection.set(Set(hitNode)) else IO.Empty)
+            selection.eval >>= (sel => if (!sel.contains(hitNode)) selection.set(Set(hitNode)) else ().pure[IO])
           } else
             // do nothing if pressed on a node with modifiers
-            IO.Empty
+            ().pure[IO]
         }
 
         case None => {
@@ -105,7 +105,7 @@ class GenericSelectionToolMouseListener[Node](
             case _ => SelectionMode.None
           }
 
-          ioPure.pure(
+          IO(
             if (mode != SelectionMode.None) {
               // selection will not actually be changed until drag completes
               dragHandle = Some(selectDragHandler.startDrag(position, mode))
@@ -113,37 +113,37 @@ class GenericSelectionToolMouseListener[Node](
         }
       }
     } else
-      IO.Empty
+      ().pure[IO]
   }
 
   override def dragged(button: MouseButton, position: Point2D.Double, modifiers: Set[Modifier]): IO[Unit] = dragHandle match {
     case Some(handle) => handle.dragged(position)
-    case None => IO.Empty
+    case None => ().pure[IO]
   }
 
   override def buttonPressed(button: MouseButton, modifiers: Set[Modifier], position: Point2D.Double): IO[Unit] = button match {
     // I wonder what sort of podgon is this? :)
-    case LeftButton => ioPure.pure { notClick1 = false }
+    case LeftButton => IO { notClick1 = false }
     case RightButton => if (isDragging)
-      cancelDrag >>=| ioPure.pure { notClick1 = true; notClick3 = true }
+      cancelDrag >> IO { notClick1 = true; notClick3 = true }
     else
-      ioPure.pure { notClick3 = false }
-    case _ => IO.Empty
+      IO { notClick3 = false }
+    case _ => ().pure[IO]
   }
 
   def finishDrag: IO[Unit] = dragHandle match {
-    case Some(handle) => handle.commit >>=| ioPure.pure { dragHandle = None }
+    case Some(handle) => handle.commit >> IO { dragHandle = None }
     case None => throw new RuntimeException("Attempt to commit on an empty drag handle")
   }
 
   def cancelDrag: IO[Unit] = dragHandle match {
-    case Some(handle) => handle.cancel >>=| ioPure.pure { dragHandle = None }
+    case Some(handle) => handle.cancel >> IO { dragHandle = None }
     case None => throw new RuntimeException("Attempt to cancel on an empty drag handle")
   }
 
   override def dragFinished(button: MouseButton, position: Point2D.Double, modifiers: Set[Modifier]): IO[Unit] = dragHandle match {
-    case Some(handle) => handle.dragged(position) >>=| finishDrag
-    case None => IO.Empty
+    case Some(handle) => handle.dragged(position) >> finishDrag
+    case None => ().pure[IO]
   }
 
   def userSpaceContent(viewPort: Viewport): Expression[GraphicalContent] =

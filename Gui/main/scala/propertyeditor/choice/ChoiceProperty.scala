@@ -10,7 +10,7 @@ import org.workcraft.gui.propertyeditor.string.StringProperty
 import org.workcraft.util.Action
 import org.workcraft.util.Pair
 import org.pcollections.PVector
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import org.workcraft.scala.Expressions.Expression
 import org.workcraft.scala.Expressions._
 

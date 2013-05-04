@@ -82,7 +82,7 @@ class SimulationTraceTable[State]
       else {
 	model.unfire(event).unsafePerformIO
       
-	traces = (TraceStep.step compose lens).mod(traces, _ - 1)
+	traces = (TraceStep.step compose lens).mod(_ - 1, traces)
 	true
       }
     }
@@ -111,7 +111,7 @@ class SimulationTraceTable[State]
 	  return false}
 	model.fire(event).unsafePerformIO
 
-	traces = (TraceStep.step compose TracePair.branch).mod(traces, _ + 1)
+	traces = (TraceStep.step compose TracePair.branch).mod(_ + 1, traces)
 	
 	return true
       }
@@ -127,7 +127,7 @@ class SimulationTraceTable[State]
 	return false
       model.fire(event).unsafePerformIO
 	  
-      traces = (TraceStep.step compose TracePair.main).mod(traces, _ + 1)
+      traces = (TraceStep.step compose TracePair.main).mod(_ + 1, traces)
       return true
     }
   }
@@ -136,9 +136,9 @@ class SimulationTraceTable[State]
       val nextEvent = getNextEvent
       println("firing " + event + " (next event : " + nextEvent + ")")
       if (!event.equals(nextEvent)) {
-	traces = TracePair.branch.mod(traces, branch => {
+	traces = TracePair.branch.mod(branch => {
 	  TraceStep(Trace(branch.trace.list.take(branch.step) :+ event), branch.step)
-	})
+	}, traces)
       }
       quietStep
     }

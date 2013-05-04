@@ -42,7 +42,7 @@ import org.workcraft.gui.modeleditor.tools._
 import org.workcraft.scala.grapheditor.tools.HitTester
 import org.workcraft.gui.CommonVisualSettings
 import StgVisualStuff._
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import org.workcraft.plugins.petri.tools.SimulationTool
 import org.workcraft.gui.modeleditor.KeyBinding
 import org.workcraft.gui.modeleditor.ToolMouseListener

@@ -15,7 +15,9 @@ import org.workcraft.services.Service
 import org.workcraft.services.EditorScope
 
 import scalaz.{Node=>_, Scalaz=>_, _}
-import Scalaz._
+import scalaz.Scalaz._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 
 object OccNetEditor {
   case class EditorState[S,E] (net : VisualOccurrenceNet[S,E], selection : Set[Node[S,E]])
@@ -39,7 +41,7 @@ class OccNetEditor[S,E](
   val currentVersion = ModifiableExpression(
     tmp >>= {
       case None => versions.map(_.current._1)
-      case Some(x) => implicitly[Pure[Expression]].pure(x)
+      case Some(x) => x.pure[Expression]
     },
     (x : EditorState[S,E]) => tmp.set(Some(x))
   )
@@ -70,16 +72,13 @@ class OccNetEditor[S,E](
     null,
     null,
     null /*List(
-      KeyBinding("Delete selection", KeyEvent.VK_DELETE, KeyEventType.KeyPressed, Set(), pushUndo("delete nodes") >>=| selection.eval >>= (sel => selection.update(_ -- sel) >>=| net.deleteNodes(sel) >| None)),
-      KeyBinding("Toggle marking", KeyEvent.VK_SPACE, KeyEventType.KeyPressed, Set(), pushUndo("toggle marking") >>=| (selection.eval >>= (sel => toggleSelectionMarking(sel))) >| None)
+      KeyBinding("Delete selection", KeyEvent.VK_DELETE, KeyEventType.KeyPressed, Set(), pushUndo("delete nodes") >> selection.eval >>= (sel => selection.update(_ -- sel) >> net.deleteNodes(sel) >| None)),
+      KeyBinding("Toggle marking", KeyEvent.VK_SPACE, KeyEventType.KeyPressed, Set(), pushUndo("toggle marking") >> (selection.eval >>= (sel => toggleSelectionMarking(sel))) >| None)
     )*/,
     Some (null))
 
   def tools = null // NonEmptyList(selectionTool, connectionTool, stateGeneratorTool, eventGeneratorTool, simulationTool)
 
-  def implementation[T](service: Service[EditorScope, T]) = { 
-    import scalaz._
-    import Scalaz._
-    import service._
-    mzero }
+  def implementation[T](service: Service[EditorScope, T]) =
+    service.monoid.zero
 }

@@ -1,7 +1,8 @@
 package org.workcraft.gui
 import javax.swing.JPanel
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO._
+import scalaz.effect.IO
 import java.awt.BorderLayout
 
 abstract class ReactivePanel extends JPanel {
@@ -9,7 +10,7 @@ abstract class ReactivePanel extends JPanel {
   
   val container = new JPanel(new BorderLayout)
   
-  val refresh = swingAutoRefresh(contents, (panel: JPanel) => ioPure.pure {
+  val refresh = swingAutoRefresh(contents, (panel: JPanel) => IO {
     container.removeAll()
     container.add(panel, BorderLayout.CENTER)
   })

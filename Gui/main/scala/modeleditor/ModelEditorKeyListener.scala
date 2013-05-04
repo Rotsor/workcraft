@@ -2,7 +2,7 @@ package org.workcraft.gui.modeleditor
 
 import java.awt.event.KeyListener
 import java.awt.event.{ KeyEvent => JKeyEvent }
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import scalaz._
 import Scalaz._
 import org.workcraft.scala.Expressions._

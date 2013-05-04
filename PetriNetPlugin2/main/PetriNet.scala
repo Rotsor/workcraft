@@ -1,8 +1,8 @@
 package org.workcraft.plugins.petri2
 import java.awt.geom.Point2D
 import org.workcraft.dom.visual.connections.Polyline
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import org.workcraft.dom.visual.connections.StaticVisualConnectionData
 import scalaz._
 import Scalaz._
@@ -54,13 +54,13 @@ object PetriNet {
   val namePattern = "[0-9a-zA-Z_]+"
   def isValidName(s: String) = s.matches(namePattern)
 
-  implicit val _semigroup = semigroup[PetriNet](
+  implicit val _semigroup = Semigroup.instance[PetriNet](
     (n1, n2) => PetriNet(n1.marking ++ n2.marking, n1.labelling ++ n2.labelling, n1.places ++ n2.places, n1.transitions ++ n2.transitions, n1.arcs ++ n2.arcs))
 
-  def newPlace = ioPure.pure { new Place }
-  def newTransition = ioPure.pure { new Transition }
+  def newPlace = IO { new Place }
+  def newTransition = IO { new Transition }
 
-  def newArc (from: Component, to: Component): IO[Either[String, Arc]] = ioPure.pure {
+  def newArc (from: Component, to: Component): IO[Either[String, Arc]] = IO {
     (from, to) match {
       case (from: Place, to: Transition) => Right(new ConsumerArc(from, to))
       case (from: Transition, to: Place) => Right(new ProducerArc(from, to))
@@ -68,8 +68,8 @@ object PetriNet {
     }
   }
 
-  def newProducerArc(from: Transition, to: Place) = ioPure.pure { new ProducerArc(from, to) }
-  def newConsumerArc(from: Place, to: Transition) = ioPure.pure { new ConsumerArc(from, to) }
+  def newProducerArc(from: Transition, to: Place) = IO { new ProducerArc(from, to) }
+  def newConsumerArc(from: Place, to: Transition) = IO { new ConsumerArc(from, to) }
 }
 
 case class VisualPetriNet(net: PetriNet, layout: Map[Component, Point2D.Double], visualArcs: Map[Arc, StaticVisualConnectionData])

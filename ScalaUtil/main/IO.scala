@@ -12,7 +12,7 @@ import Scalaz._
 private[effects] case class World[A]()
 sealed trait RealWorld
 
-sealed trait IO[+A] {
+/* sealed trait IO[+A] {
   private[effects] def apply(rw: World[RealWorld]): (World[RealWorld], A)
   /**
    * Unsafe operation. Runs I/O and performs side-effects.
@@ -92,7 +92,7 @@ sealed trait IO[+A] {
 
   /* def bracketIO[M[_], B](after: A => IO[Unit])(during: A => M[B])(implicit m: MonadControlIO[M]): M[B] =
     controlIO((runInIO: RunInBase[M, IO]) => bracket(after)(runInIO.apply compose during)) */
-}
+} */
 
 /** 
  * A mutable reference in the IO monad. Note that unsafePerformIO will allow leaking 
@@ -104,10 +104,10 @@ sealed trait IO[+A] {
   def mod(f: A => A): IO[A] = stToIO(value.mod(f) >>= (_.read))
 }*/
 
-object IO {
-  def wrapImpure[A](impure : => A) : IO[A] = ioPure.pure(impure)
+ object IO {
+/*
 
-  def Empty = ioPure.pure({})
+  def Empty = IO({})
   
   def apply[A](f: World[RealWorld] => (World[RealWorld], A)): IO[A] = new IO[A] {
     private[effects] def apply(rw: World[RealWorld]) = f(rw)
@@ -122,6 +122,6 @@ object IO {
 
   implicit val ioFunctor: Functor[IO] = new Functor[IO] {
     def fmap[A, B](io: IO[A], f: A => B): IO[B] = io map f 
-  }
-}
+  }*/
+} 
 }

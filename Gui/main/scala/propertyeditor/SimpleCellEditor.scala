@@ -1,7 +1,7 @@
 package org.workcraft.gui.propertyeditor
 
 import java.awt.Component
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 
 trait SimpleCellEditor {
   def commit: IO[Option[String]]

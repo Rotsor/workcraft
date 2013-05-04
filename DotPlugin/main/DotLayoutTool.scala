@@ -3,8 +3,8 @@ import org.workcraft.gui.services.GuiTool
 import org.workcraft.gui.services.ToolClass
 import org.workcraft.gui.MainWindow
 import org.workcraft.scala.Expressions
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import org.workcraft.scala.Expressions._
 import scalaz.Scalaz._
 import java.io.File
@@ -40,7 +40,7 @@ object DotLayoutTool extends GuiTool {
   val classification = ToolClass.Layout
   
   def parsePos (pos: Option[String], transform: AffineTransform) = {
-    val Array(x, y) = pos.map(_.value).getOrElse("0,0").split(",").map(_.toDouble)
+    val Array(x, y) = pos.getOrElse("0,0").split(",").map(_.toDouble)
     val res = new Point2D.Double (x / 72.0, y / 72.0)
     transform.transform(res, res)
     res
@@ -88,10 +88,10 @@ object DotLayoutTool extends GuiTool {
             ModalTaskDialog.runTask(mainWindow, "Generating layout using dot", task(l)) >>=
              {
               case Left(None) => 
-                ioPure.pure { JOptionPane.showMessageDialog(mainWindow, "Cancelled") }
+                IO { JOptionPane.showMessageDialog(mainWindow, "Cancelled") }
               case Left(Some(error)) => 
-                ioPure.pure { JOptionPane.showMessageDialog(mainWindow, error, "Error", JOptionPane.ERROR_MESSAGE) }
-              case Right(()) => ioPure.pure { }
+                IO { JOptionPane.showMessageDialog(mainWindow, error, "Error", JOptionPane.ERROR_MESSAGE) }
+              case Right(()) => IO { }
             }})
       )
     )

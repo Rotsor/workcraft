@@ -3,8 +3,8 @@ package org.workcraft.services
 package object layout {
 
 import java.awt.geom.Point2D
-import org.workcraft.scala.effects.IOMonad
-import org.workcraft.scala.effects.IO
+import scalaz.effect.MonadIO
+import scalaz.effect.IO
 import java.awt.geom.Rectangle2D
 import java.awt.geom.AffineTransform
 
@@ -24,7 +24,7 @@ trait Layouter[M[_]] {
 }
 
 trait Layoutable {
-  def apply[M[_]](layouter : Layouter[M])(implicit m : IOMonad[M]): M[Unit]
+  def apply[M[_]](layouter : Layouter[M])(implicit m : MonadIO[M]): M[Unit]
 }
 
 case class LayoutSpec[Node] (

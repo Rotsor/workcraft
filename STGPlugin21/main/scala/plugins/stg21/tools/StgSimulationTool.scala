@@ -44,7 +44,7 @@ import org.workcraft.plugins.stg21.types.ProducingArc
 import org.workcraft.plugins.stg21.types.DummyLabel
 import org.workcraft.plugins.stg21.types.SignalLabel
 import org.workcraft.plugins.stg21.types.TransitionLabel
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import org.workcraft.plugins.stg21.types.SignalType
 import org.workcraft.plugins.petri.tools.SimColors
 import org.workcraft.gui.modeleditor.tools.ToolEnvironment
@@ -95,7 +95,7 @@ object Sim {
     label
   }
 
-  def createSimulationTool(visualStg: VisualStg): IO[ToolEnvironment => ModelEditorToolInstance] = IO.ioPure.pure {
+  def createSimulationTool(visualStg: VisualStg): IO[ToolEnvironment => ModelEditorToolInstance] = IO {
     val stg = visualStg.math
     val marking: Variable[Marking] = Variable.create(stg.initialMarking)
     val model = new StgSimulationModel(stg, marking)
@@ -118,7 +118,7 @@ object Sim {
     val (toolStub, colorisation) = SimulationTool[String](
       simControl,
       p => liftIO(hitTester.map(h => h.hitTest(p).map(t => SimHelper.transitionName(stg, t)))),
-      IO.ioPure.pure(SimColors(Color.GREEN, Color.BLUE)))
+      IO(SimColors(Color.GREEN, Color.BLUE)))
     env => toolStub(env) |+| new EmptyModelEditorToolInstance{
       override def interfacePanel = Some(interfacePanel_)
       override def userSpaceContent = (CommonVisualSettings.settings.expr <**> marking) ((s, m) => visualStg.copy(math = visualStg.math.setInitialMarking(m)).image(s))

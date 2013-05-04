@@ -13,8 +13,10 @@ import org.workcraft.scala.Scalaz._
 import org.workcraft.scala.Util._
 import org.workcraft.dependencymanager.advanced.user.Setter
 import javax.swing.SwingUtilities
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
+import scalaz.syntax.monad._
+// import scalaz.effect.IO.ioMonad.syntax._
 import org.workcraft.dependencymanager.util.listeners.Listener
 import org.workcraft.dependencymanager.advanced.core.ExpressionBase.ValueHandleTuple
 import org.workcraft.dependencymanager.advanced.user.AutoRefreshExpression
@@ -24,7 +26,7 @@ import org.workcraft.dependencymanager.advanced.user.SwingAutoRefreshExpression
 object Expressions {
   case class Expression[+T](jexpr: JExpression[_ <: T]) {
     def unsafeEval: T = GlobalCache.eval(jexpr)
-    def eval: IO[T] = ioPure.pure { unsafeEval }
+    def eval: IO[T] = IO(unsafeEval)
     def lwmap[S] (f : T => S) : Expression[S] = Expression(new JExpression[S] {
       override def getValue(subscriber : Listener) : ValueHandleTuple[S] = { 
         val res = jexpr.getValue(subscriber)
@@ -34,9 +36,9 @@ object Expressions {
   }
 
   case class ModifiableExpression[T](expr: Expression[T], set: T => IO[Unit]) {
-    def unsafeAssign(from: Expression[T]) = GlobalCache.assign(this, from.jexpr)
+    def unsafeAssign(from: Expression[T]) = GlobalCache.assign(jexpr, from.jexpr)
     def update(f: T => T) = expr.eval >>= (v => set(f(v)))
-    def assign(from: Expression[T]): IO[Unit] = ioPure.pure(unsafeAssign(from))
+    def assign(from: Expression[T]): IO[Unit] = IO(unsafeAssign(from))
     
     def := (from: Expression[T]) = assign(from)
     def := (from: T) = set(from) // grief and woe
@@ -50,7 +52,7 @@ object Expressions {
       })
     }
     
-    def xmap[S](f: T => S)(g: S => T) = ModifiableExpression(expr.lwmap(f), set.contramap(g))
+    def xmap[S](f: T => S)(g: S => T) = ModifiableExpression(expr.lwmap(f), set.compose(g))
     def refract[S](f : T => S, g : S => T => T) = 
       ModifiableExpression(expr.lwmap(f), 
         (newS : S) => expr.eval >>= ((oldT : T) => set(g(newS)(oldT))))
@@ -58,7 +60,7 @@ object Expressions {
     def validate[E] (validator : T => Option[E]) : ModifiableExpressionWithValidation[T,E] = ModifiableExpressionWithValidation(expr, x => {
       validator(x) match {
         case None => set(x) >| None
-        case Some(err) => ioPure.pure(Some(err))
+        case Some(err) => IO(Some(err))
       }
     })
   }
@@ -71,11 +73,12 @@ object Expressions {
     }
   }
 
-  implicit def convertModifiableExpression[T](me: JModifiableExpression[T]) = ModifiableExpression[T](decorateExpression(me), x => ioPure.pure{me.setValue(x)})
+  implicit def convertModifiableExpression[T](me: JModifiableExpression[T]) = 
+    ModifiableExpression[T](decorateExpression(me), x => IO{me.setValue(x)})
 
   implicit object JExpressionMonad extends Monad[JExpression] {
-    override def pure[A](x: => A) = jConstant(x)
-    override def bind[A, B](a: JExpression[A], f: A => JExpression[B]): JExpression[B] = bindJ(a, asFunctionObject(f))
+    override def point[A](x: => A) = jConstant(x)
+    override def bind[A, B](a: JExpression[A])(f: A => JExpression[B]): JExpression[B] = bindJ(a, asFunctionObject(f))
   }
 
   implicit def decorateExpression[T](e: JExpression[_ <: T]): Expression[T] = Expression[T](e)
@@ -83,15 +86,15 @@ object Expressions {
   implicit def modifiableExpressionAsReadonly[T](m: ModifiableExpression[T]): Expression[T] = m.expr
 
   implicit object ExpressionMonad extends Monad[Expression] {
-    override def fmap[A, B](fa: Expression[A], f: A => B): Expression[B] = fmapJ[A, B] (asFunctionObject(f), fa.jexpr)
-    override def apply[A, B](f: Expression[A => B], a: Expression[A]): Expression[B] = fmapJ[A=>B, A, B](asFunctionObject2(_(_)), f.jexpr, a.jexpr) 
-    override def pure[A](x: => A) = constant(x)
-    override def bind[A, B](a: Expression[A], f: A => Expression[B]): Expression[B] = decorateExpression(bindJ[A, B](a.jexpr: JExpression[_ <: A], asFunctionObject(((_: Expression[B]).jexpr).compose(f))))
+    override def map[A, B](fa: Expression[A])(f: A => B): Expression[B] = fmapJ[A, B] (asFunctionObject(f), fa.jexpr)
+    override def ap[A, B](a: => Expression[A])(f: => Expression[A => B]): Expression[B] = fmapJ[A=>B, A, B](asFunctionObject2(_(_)), f.jexpr, a.jexpr) 
+    override def point[A](x: => A) = constant(x)
+    override def bind[A, B](a: Expression[A])(f: A => Expression[B]): Expression[B] = decorateExpression(bindJ[A, B](a.jexpr: JExpression[_ <: A], asFunctionObject(((_: Expression[B]).jexpr).compose(f))))
   }
 
   case class ModifiableExpressionWithValidation[T,E](expr: Expression[T], set: T => IO[Option[E]]) {
     def xmap[S](f : T => S)(g : S => Either[E, T]) = ModifiableExpressionWithValidation[S,E](expr.map(f), s => g(s) match{
-      case Left(err) => ioPure.pure(Some(err))
+      case Left(err) => IO(Some(err))
       case Right(t) => set(t)
     })
   }
@@ -102,9 +105,9 @@ object Expressions {
    *  Needed because Scala is stupid!
    */
   implicit def monadicSyntaxME[A](m: ModifiableExpression[A]) = new {
-    def map[B](f: A => B) = implicitly[Monad[Expression]].fmap(m, f)
-    def flatMap[B](f: A => Expression[B]) = implicitly[Monad[Expression]].bind(m, f)
-    def >>=[B](f: A => Expression[B]) = implicitly[Monad[Expression]].bind(m, f)
+    def map[B](f: A => B) = ExpressionMonad.map(m)(f)
+    def flatMap[B](f: A => Expression[B]) = implicitly[Monad[Expression]].bind(m)(f)
+    def >>=[B](f: A => Expression[B]) = implicitly[Monad[Expression]].bind(m)(f)
   }
 
   implicit def monadicSyntaxV[A](m: Variable[A]) = monadicSyntaxME(m)
@@ -121,20 +124,21 @@ object Expressions {
       }
     }
   }
-
-  implicit def implicitJexpr[T](e: Expression[T]): JExpression[_ <: T] = e.jexpr
-  implicit def implicitMJexpr[T](e: ModifiableExpression[T]): JModifiableExpression[T] = e.jexpr
+ 
+//  implicit def implicitJexpr[T](e: Expression[T]): JExpression[_ <: T] = e.jexpr
+//  implicit def implicitMJexpr[T](e: ModifiableExpression[T]): JModifiableExpression[T] = e.jexpr
 
   def sequenceExpressions[A](collection: Iterable[Expression[_ <: A]]): Expression[List[A]] = collection.foldRight(constant(Nil: List[A]))((head: Expression[_ <: A], tail: Expression[List[A]]) => for (tail <- tail; head <- head) yield head :: tail)
 
-  def newVar[T](x: T): IO[Variable[T]] = ioPure.pure(Variable.create(x))
+  def newVar[T](x: T): IO[Variable[T]] = IO(Variable.create(x))
   
   def evanescentAutoRefresh[T] (expr: Expression[T], update: T => IO[Unit]) = new AutoRefreshHandle (new AutoRefreshExpression {
-    override def onEvaluate (context: EvaluationContext) = update(context.resolve(expr)).unsafePerformIO      
+    override def onEvaluate (context: EvaluationContext) = 
+      update(context.resolve(expr.jexpr)).unsafePerformIO
   })
   
   def swingAutoRefresh[T] (expr: Expression[T], update: T => IO[Unit]) = new AutoRefreshHandle (new SwingAutoRefreshExpression {
-    override def onEvaluate (context: EvaluationContext) = update(context.resolve(expr)).unsafePerformIO 
+    override def onEvaluate (context: EvaluationContext) = update(context.resolve(expr.jexpr)).unsafePerformIO 
   })
   
   object DisposableAutoRefreshExpression {
@@ -149,7 +153,7 @@ object Expressions {
     
     override def onEvaluate (context: EvaluationContext) = {
       if (!disposeRequested)
-    	  update(context.resolve(expr)).unsafePerformIO      
+    	  update(context.resolve(expr.jexpr)).unsafePerformIO
     }
     
     def dispose = {
@@ -173,5 +177,5 @@ object Expressions {
   }
 
   def treeSequence[A](l: List[Expression[A]]): Expression[List[A]] =
-    treeFold[Expression[List[A]]](constant(List()))((q, p) => (q <**> p)(_ ++ _), l.map(_.lwmap(List(_))))  
+    treeFold[Expression[List[A]]](constant(List()))((q, p) => ^(q, p)(_ ++ _), l.map(_.lwmap(List(_))))  
 }

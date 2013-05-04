@@ -20,20 +20,15 @@ trait Service[S <: Scope, ImplT] {
 
 // these must support identity comparison
 trait MultiService[S <: Scope, ImplT] extends Service[S, List[ImplT]] {
-  override def monoid : Monoid[List[ImplT]] = scalaz.Monoid.monoid(
-    Scalaz.semigroup((a,b) => a ++ b),
-    Scalaz.zero(Nil)
-  )
+  override def monoid : Monoid[List[ImplT]] = scalaz.std.list.listMonoid
 }
 
 trait SingleService[S <: Scope, ImplT] extends Service[S, Option[ImplT]] {
-  override def monoid : Monoid[Option[ImplT]] = scalaz.Monoid.monoid(
-    Scalaz.semigroup(
+  override def monoid : Monoid[Option[ImplT]] = scalaz.Monoid.instance(
       (a, b) => b match {
         case None => a
         case b => b
-      }),
-    Scalaz.zero(None))
+      },None)
 }
 
 trait ServiceProvider[S <: Scope] {
@@ -50,20 +45,19 @@ object ServiceProvider {
         if(s == service) value.asInstanceOf[T] else mzero
     }*/
 
-  implicit def zero[S <: Scope] : Zero[ServiceProvider[S]] = Scalaz.zero(
-    new ServiceProvider[S] {
-      def implementation[T](service : Service[S, T]) : T = {
-        service.monoid.zero
-      }
-    })
-  implicit def semigroup[S <: Scope] : Semigroup[ServiceProvider[S]] = 
-    Scalaz.semigroup((a,b) => {
+  implicit def monoid[S <: Scope] : Monoid[ServiceProvider[S]] = scalaz.Monoid.instance(
+    (a,b) => {
       val e = new Exception
       new ServiceProvider[S]{
       def implementation[T](service : Service[S, T]) : T = {
-        import service.monoid
-        a.implementation(service) |+| b.implementation(service)
+        import service.{monoid => mmm}
+        import scalaz.syntax.semigroup
+        ToSemigroupOps(a.implementation(service)) |+| b.implementation(service)
       }}
+    }, new ServiceProvider[S] {
+      def implementation[T](service : Service[S, T]) : T = {
+        service.monoid.zero
+      }
     })
 }
 

@@ -1,6 +1,6 @@
 package org.workcraft.gui.modeleditor.tools
 
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import scalaz.Scalaz._
 
 import org.workcraft.gui.modeleditor.ToolMouseListener

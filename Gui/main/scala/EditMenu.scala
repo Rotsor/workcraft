@@ -21,7 +21,7 @@ import org.workcraft.services.ExportJob
 import org.workcraft.services.Format
 import org.workcraft.services.DefaultFormatService
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import scalaz._
 import Scalaz._
 import org.workcraft.gui.modeleditor.UndoService
@@ -35,7 +35,7 @@ class EditMenu(mainWindow: MainWindow) extends ReactiveMenu("Edit") {
       (undo match {
         case Some(action) => List(menuItem("Undo: " + action.description, Some('U'), Some(KeyStroke.getKeyStroke(KeyEvent.VK_Z, ActionEvent.CTRL_MASK)), action.action))
         case None => {
-          val item = menuItem("Nothing to undo", None, None, IO.Empty)
+          val item = menuItem("Nothing to undo", None, None, ().pure[IO])
           item.setEnabled(false)
           List(item)
         }
@@ -43,7 +43,7 @@ class EditMenu(mainWindow: MainWindow) extends ReactiveMenu("Edit") {
       (redo match {
         case Some(action) => List(menuItem("Redo: " + action.description, Some('R'), Some(KeyStroke.getKeyStroke(KeyEvent.VK_Y, ActionEvent.CTRL_MASK)), action.action))
         case None => {
-          val item = menuItem("Nothing to redo", None, None, IO.Empty)
+          val item = menuItem("Nothing to redo", None, None, ().pure[IO])
           item.setEnabled(false)
           List(item)
         }

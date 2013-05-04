@@ -2,7 +2,7 @@ package org.workcraft.plugins.petri2
 import org.workcraft.gui.modeleditor.sim.SimulationModel
 import org.workcraft.dependencymanager.advanced.user.Variable
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import scalaz.Scalaz._
 
 case class PetriNetSimulation(net: PetriNet) extends SimulationModel[Transition, Map[Place, Int]] {

@@ -41,7 +41,7 @@ import org.workcraft.gui.modeleditor.KeyEventType
 import org.workcraft.gui.GUI
 import org.workcraft.graphics.GraphicalContent
 import org.workcraft.gui.modeleditor.tools.Button
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import org.workcraft.graphics.Colorisation
 import org.workcraft.gui.modeleditor.tools.ToolEnvironment
 import org.workcraft.gui.modeleditor.tools.ModelEditorToolInstance
@@ -91,7 +91,7 @@ object SimulationTool {
           nextTransitionColorisation
         else simControl.canFire(event).unsafeRun >>= {
           case true => enabledTransitionColorisation
-          case false => IO.ioPure.pure(Colorisation.Empty)
+          case false => IO(Colorisation.Empty)
         })
       })
 }

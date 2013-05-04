@@ -9,7 +9,7 @@ import org.workcraft.gui.propertyeditor.EditableProperty
 import org.workcraft.gui.propertyeditor.GenericCellEditor
 import org.workcraft.gui.propertyeditor.GenericEditorProvider
 import org.workcraft.gui.propertyeditor.RendererProvider
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import org.workcraft.gui.propertyeditor.EditableProperty
 import org.workcraft.scala.Expressions._
 

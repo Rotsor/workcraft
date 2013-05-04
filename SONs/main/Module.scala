@@ -24,7 +24,7 @@ object NewOccurrenceNet extends NewModelImpl {
 object SonsServiceProvider extends GlobalServiceProvider {
   def implementation[T](service: Service[GlobalScope, T]) = service match {
     case NewModelService => List(NewOccurrenceNet)
-    case s => import s._; mzero
+    case s => s.monoid.zero
   }
 }
 

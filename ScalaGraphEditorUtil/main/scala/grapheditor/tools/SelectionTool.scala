@@ -17,8 +17,8 @@ import org.workcraft.gui.GUI
 import org.workcraft.graphics.Colorisation
 import org.workcraft.gui.modeleditor.tools.selection.GenericSelectionToolMouseListener
 
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import org.workcraft.dependencymanager.advanced.user.Variable
 
 import scalaz._
@@ -68,7 +68,7 @@ case class GenericSelectionTool[N] (
   doubleClickHandler: Option[N => IO[Unit]]) extends ModelEditorTool {
   
   def button = GenericSelectionTool.button
-  def createInstance (env: ToolEnvironment) = ioPure.pure { new GenericSelectionToolInstance (env.viewport, nodes, selection, moveOperation, offsetSnap, touchable, paint, customKeyBindings, doubleClickHandler) }
+  def createInstance (env: ToolEnvironment) = IO { new GenericSelectionToolInstance (env.viewport, nodes, selection, moveOperation, offsetSnap, touchable, paint, customKeyBindings, doubleClickHandler) }
 }
 
 object GenericSelectionTool {

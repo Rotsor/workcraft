@@ -15,7 +15,7 @@ class Button
 
 object Button {
   def apply(btn : JButton) : Swing[Button] =
-    newRef[ActionEvent => Swing[Unit]](_ => ().pure) >>=
+    newRef[ActionEvent => Swing[Unit]](_ => ().pure[Swing]) >>=
     (listener => unsafeToSwing(btn.addActionListener(new ActionListener {
       override def actionPerformed(action : ActionEvent) = 
           (listener.read >>= (_(action))).unsafeRun.unsafePerformIO

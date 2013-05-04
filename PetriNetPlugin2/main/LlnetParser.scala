@@ -8,8 +8,8 @@ import scala.collection.immutable.PagedSeq
 import scala.util.parsing.input.PagedSeqReader
 import java.awt.geom.Point2D
 import java.io.File
-import org.workcraft.scala.effects.IO._
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO._
+import scalaz.effect.IO
 import org.workcraft.dom.visual.connections.Polyline
 import org.workcraft.dom.visual.connections.StaticVisualConnectionData 
 import java.io.BufferedReader
@@ -257,7 +257,7 @@ object LlnetParser extends Parsers with RegexParsers {
   }
 
   def parseLlnet(file: File) = 
-    ioPure.pure {
+    IO {
       parse(phrase(llnet), (new BufferedReader(new FileReader(file)))) match {
 	case Success(r, _) => Right(r)
 	case err => Left(err.toString)

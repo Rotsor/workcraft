@@ -29,11 +29,12 @@ import org.workcraft.gui.propertyeditor.string.StringProperty
 import org.workcraft.gui.propertyeditor.EditableProperty
 import org.workcraft.gui.CommonVisualSettings
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO._
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO._
+import scalaz.effect.IO
 import org.workcraft.scala.grapheditor.tools.GenericConnectionTool
 import org.workcraft.scala.grapheditor.tools.GenericSelectionTool
 import scalaz.Scalaz._
+import org.workcraft.scala.Scalaz._
 import scalaz._
 import org.workcraft.gui.modeleditor.sim.GenericSimulationTool
 import org.workcraft.services.Service
@@ -137,9 +138,9 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
     case a: Arc => arcImage(a, settings).map(_.shape.touchable)
   }
 
-  def move(nodes: Set[Node], offset: Point2D.Double): IO[Unit] = pushUndo("move nodes") >>=| nodes.map({
+  def move(nodes: Set[Node], offset: Point2D.Double): IO[Unit] = pushUndo("move nodes") >> nodes.map({
     case c: State => fsm.layout.update(l => l + (c -> (l(c) + offset)))
-    case _ => IO.Empty
+    case _ => ().pure[IO]
   }).traverse_(x => x)
 
   private def selectionTool = GenericSelectionTool[Node](
@@ -151,8 +152,8 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
     image(_, _, _),
     List(KeyBinding("Delete selection", KeyEvent.VK_DELETE, KeyEventType.KeyPressed, Set(), selection.eval >>= { sel =>
       fsm.deleteNodes(sel) >>= {
-        case Right(io) => (pushUndo("delete nodes") >>=| selection.update(_ -- sel) >>=| io) >| None
-        case Left(message) => ioPure.pure { (Some(message)) }
+        case Right(io) => (pushUndo("delete nodes") >> selection.update(_ -- sel) >> io) >| None
+        case Left(message) => IO { (Some(message)) }
       }
     })),
     None)
@@ -164,7 +165,7 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
 	  Left(new InvalidConnectionException("There is already an arc between " + s.fsm.labels(node1) + " and " +
 					    s.fsm.labels(node2)))
 	else
-	  Right(pushUndo("create arc") >>=| fsm.createArc(node1, node2) >| Unit)
+	  Right(pushUndo("create arc") >> fsm.createArc(node1, node2) >| Unit)
 		   )
   }
 
@@ -200,7 +201,7 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
     GenericSimulationTool[Arc, (State, List[String])](
       fsm.arcs, 
       n => CommonVisualSettings.settings >>= (s => touchable(n, s)),
-      (fsm.saveState.eval <**> ioPure.pure { JOptionPane.showInputDialog(null, "Input to use for simulation:").replace(" ","").split(",").toList })( (fsm, input) => FSMSimulation(fsm.fsm, input)),
+      (fsm.saveState.eval <**> IO { JOptionPane.showInputDialog(null, "Input to use for simulation:").replace(" ","").split(",").toList })( (fsm, input) => FSMSimulation(fsm.fsm, input)),
       imageForSimulation(_, _),
       simToolMessage
       )
@@ -219,7 +220,7 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
     GenericConnectionTool[State](fsm.states, n => CommonVisualSettings.settings >>= (s => touchable(n, s)), statePosition(_), connectionManager, imageForConnection(_))
 
   private def stateGeneratorTool =
-    NodeGeneratorTool(Button("State", "images/icons/svg/place_empty.svg", Some(KeyEvent.VK_T)).unsafePerformIO, imageForConnection(_ => Colorisation(None, None)), pushUndo("create state") >>=| fsm.createState(_) >| Unit)
+    NodeGeneratorTool(Button("State", "images/icons/svg/place_empty.svg", Some(KeyEvent.VK_T)).unsafePerformIO, imageForConnection(_ => Colorisation(None, None)), pushUndo("create state") >> fsm.createState(_) >| Unit)
 
   def tools = NonEmptyList(selectionTool, connectionTool, stateGeneratorTool, simulationTool, simulationToolGen)
   def keyBindings = List()
@@ -229,20 +230,20 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
 
   def saveState(description: String): IO[EditorState] = (fsm.saveState.eval <**> selection.eval)(EditorState(description, _, _))
 
-  def loadState(state: EditorState): IO[Unit] = fsm.loadState(state.net) >>=| selection.set(state.selection)
+  def loadState(state: EditorState): IO[Unit] = fsm.loadState(state.net) >> selection.set(state.selection)
 
   def pushState(description: String, stack: ModifiableExpression[List[EditorState]]): IO[Unit] = (saveState(description) >>= (state => stack.update(s => (state :: s).take(100))))
 
-  def pushUndo(description: String) = pushState(description, undoStack) >>=| redoStack.update(_ => Nil)
+  def pushUndo(description: String) = pushState(description, undoStack) >> redoStack.update(_ => Nil)
 
   def popUndo: IO[Unit] = undoStack.eval >>= ({
-    case top :: rest => pushState(top.description, redoStack) >>=| loadState(top) >>=| undoStack.update(_ => rest)
-    case _ => ioPure.pure {}
+    case top :: rest => pushState(top.description, redoStack) >> loadState(top) >> undoStack.update(_ => rest)
+    case _ => IO {}
   })
 
   def popRedo: IO[Unit] = redoStack.eval >>= ({
-    case top :: rest => pushState(top.description, undoStack) >>=| loadState(top) >>=| redoStack.update(_ => rest)
-    case _ => ioPure.pure {}
+    case top :: rest => pushState(top.description, undoStack) >> loadState(top) >> redoStack.update(_ => rest)
+    case _ => IO {}
   })
 
   def implementation[T](service: Service[EditorScope, T]) = service match {

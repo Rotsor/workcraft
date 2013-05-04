@@ -3,7 +3,7 @@ package org.workcraft.gui.modeleditor.tools.selection
 import java.awt.geom.Point2D
 import java.util.HashMap
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import scalaz._
 import Scalaz._
 
@@ -18,7 +18,7 @@ class MoveDragHandler[Node]
 
   override def dragStarted(where: Point2D.Double, hitNode: Node) = new DragHandle {
     override def dragged(pos: Point2D.Double) = offset.set(snapOffset(hitNode, new Point2D.Double(pos.getX - where.getX, pos.getY - where.getY)))
-    override def commit = commitOperation >>=| offset.set(new Point2D.Double(0,0))
+    override def commit = commitOperation >> offset.set(new Point2D.Double(0,0))
     override def cancel = offset.set(new Point2D.Double(0,0))
   }
 }

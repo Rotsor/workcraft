@@ -1,7 +1,7 @@
 package org.workcraft.gui.modeleditor
 import org.workcraft.services._
 import org.workcraft.scala.Expressions.Expression
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 
 object UndoService extends SingleService[EditorScope, Undo]
 

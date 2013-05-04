@@ -13,7 +13,7 @@ import org.workcraft.services.FileOpenService
 import org.workcraft.gui.services.GuiToolService
 import org.workcraft.gui.services.GuiTool
 import org.workcraft.gui.services.ToolClass
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO._
 import org.workcraft.gui.MainWindow
 import javax.swing.JOptionPane
 import org.workcraft.gui.tasks.ModalTaskDialog
@@ -31,7 +31,7 @@ object FSMServiceProvider extends GlobalServiceProvider {
 
     //case ExporterService => List(DotGExporter)
     //case GuiToolService => List(LolaDeadlockTool) 
-    case s => import s._; mzero
+    case s => s.monoid.zero
   }
 }
 

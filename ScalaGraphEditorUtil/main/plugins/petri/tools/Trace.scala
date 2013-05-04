@@ -31,8 +31,9 @@ case class Trace(list : List[String]) {
 
 object TraceStep {
   import scalaz.Lens
-  val trace : Lens[TraceStep, Trace] = Lens(p => p.trace, (p, m) => p.copy(trace = m))
-  val step : Lens[TraceStep, Int] = Lens(p => p.step, (p, m) => p.copy(step = m))
+  import Lens._
+  val trace : Lens[TraceStep, Trace] = lensg(p => m => p.copy(trace = m), _.trace)
+  val step : Lens[TraceStep, Int] = lensu((p, m) => p.copy(step = m), _.step)
 }
 
 case class TraceStep(trace : Trace, step : Int)

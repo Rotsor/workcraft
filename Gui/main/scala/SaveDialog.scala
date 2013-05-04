@@ -11,8 +11,8 @@ import org.workcraft.services.DefaultFormatService
 import org.workcraft.services.Format
 import org.workcraft.services.ExportJob
 import java.io.FileOutputStream
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import scalaz.Scalaz._
 import org.workcraft.services.ExportError
 
@@ -29,7 +29,7 @@ object SaveDialog {
       case Right(right) => (lists._1, right :: lists._2)
     })
 
-  def chooseFile(currentFile: Option[File], parentWindow: Window, format: Format): IO[Option[File]] = ioPure.pure {
+  def chooseFile(currentFile: Option[File], parentWindow: Window, format: Format): IO[Option[File]] = IO {
     val fc = new JFileChooser()
     fc.setDialogType(JFileChooser.SAVE_DIALOG)
 
@@ -65,7 +65,7 @@ object SaveDialog {
   def export(parentWindow: Window, model: ModelServiceProvider, format: Format, exporter: ExportJob): IO[Option[IO[Option[ExportError]]]] = chooseFile (None, parentWindow, format).map(_.map(exporter.job(_)))
 
   def saveAs(parentWindow: Window, model: ModelServiceProvider, globalServices: GlobalServiceProvider): IO[Option[(File, IO[Option[ExportError]])]] = model.implementation(DefaultFormatService) match {
-    case None => ioPure.pure {
+    case None => IO {
       JOptionPane.showMessageDialog(parentWindow, "Current model does not define a default file format.\nTry using export and choosing a specific format instead.", "Error", JOptionPane.ERROR_MESSAGE)
       None
     }
@@ -80,7 +80,7 @@ object SaveDialog {
         else
           "Because:\n" + unapplicable.map("- " + _.toString).reduceRight(_ + "\n" + _)
 
-        ioPure.pure {
+        IO {
           JOptionPane.showMessageDialog(parentWindow,
             "Workcraft was unable to save this model in its default format:\n" + format.description + " (" + format.extension + ")\n" + explanation, "Error", JOptionPane.ERROR_MESSAGE)
           None
