@@ -208,7 +208,7 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
     new GenericSimulationTool[Arc, (State, List[String])](
       fsm.arcs, 
       n => CommonVisualSettings.settings >>= (s => touchable(n, s)),
-      (fsm.saveState.eval <**> iO{  
+      (fsm.saveState.eval <**> IO{  
         JOptionPane.showInputDialog(null, "Input to use for simulation:").replace(" ","").split(",").toList })(
         (fsm, input) =>
         FSMSimulation(fsm.fsm, input)),

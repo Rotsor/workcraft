@@ -164,7 +164,7 @@ class MainWindow(
   }
 
   def openEditor(model: ModelServiceProvider, source: Option[File]): IO[Unit] = 
-    runDefaultLayout(globalServices, model, this) >>=| (
+    runDefaultLayout(globalServices, model, this) >> (
     {
     model.implementation(EditorService) match {
       case None => IO { JOptionPane.showMessageDialog(this, "The model type that you have chosen does not support visual editing :(", "Warning", JOptionPane.WARNING_MESSAGE) }
