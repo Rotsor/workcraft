@@ -196,15 +196,27 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
 	Some(("Input trace: " + s._2.mkString(", "), Color.BLACK)))
 
   private val simToolMessageGen = ss
+
+  private val traceSimToolButton = new Button {
+    import org.workcraft.gui.GUI
+    override def hotkey = Some(KeyEvent.VK_M)
+    override def icon = Some(GUI.createIconFromSvgUsingSettingsSize("images/icons/svg/start-yellow.svg").unsafePerformIO)
+    override def label = "Simulate trace"
+  }
       
   private val simulationTool =
-    GenericSimulationTool[Arc, (State, List[String])](
+    new GenericSimulationTool[Arc, (State, List[String])](
       fsm.arcs, 
       n => CommonVisualSettings.settings >>= (s => touchable(n, s)),
-      (fsm.saveState.eval <**> IO { JOptionPane.showInputDialog(null, "Input to use for simulation:").replace(" ","").split(",").toList })( (fsm, input) => FSMSimulation(fsm.fsm, input)),
+      (fsm.saveState.eval <**> iO{  
+        JOptionPane.showInputDialog(null, "Input to use for simulation:").replace(" ","").split(",").toList })(
+        (fsm, input) =>
+        FSMSimulation(fsm.fsm, input)),
       imageForSimulation(_, _),
       simToolMessage
-      )
+      ) {
+      override def button = traceSimToolButton
+    }
 
   private val simulationToolGen =
     GenericSimulationTool[Arc, (State, List[String])](
@@ -222,7 +234,7 @@ class FSMEditor(fsm: EditableFSM) extends ModelEditor {
   private def stateGeneratorTool =
     NodeGeneratorTool(Button("State", "images/icons/svg/place_empty.svg", Some(KeyEvent.VK_T)).unsafePerformIO, imageForConnection(_ => Colorisation(None, None)), pushUndo("create state") >> fsm.createState(_) >| Unit)
 
-  def tools = NonEmptyList(selectionTool, connectionTool, stateGeneratorTool, simulationTool, simulationToolGen)
+  def tools = NonEmptyList(selectionTool, connectionTool, stateGeneratorTool, simulationToolGen, simulationTool)
   def keyBindings = List()
 
   val undoStack = Variable.create(List[EditorState]())

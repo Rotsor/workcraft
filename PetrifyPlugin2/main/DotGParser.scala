@@ -96,9 +96,9 @@ object DotGParser extends Parsers with RegexParsers {
   def outputs = (".outputs" ~> (name+) <~ (emptyline+)) ^^ (s => DotG(outputs = s))
   def internal = (".internal" ~> (name+) <~ (emptyline+)) ^^ (s => DotG(internal = s))
 
-  def m = log((placeRef ~ (("=" ~> number)?)) ^^ { case a ~ b => (a -> b.getOrElse(1)) })("placeRef")
+  def m = placeRef ~ (("=" ~> number)?) ^^ { case a ~ b => (a -> b.getOrElse(1)) }
 
-  def implicitPlaceRef = log( "<" ~> (graphElement <~ ",") ~ graphElement <~ ">" ^^ { case from ~ to => ImplicitPlace(from, to) })("implicitPlaceRef")
+  def implicitPlaceRef = "<" ~> (graphElement <~ ",") ~ graphElement <~ ">" ^^ { case from ~ to => ImplicitPlace(from, to) }
 
   def placeRef = implicitPlaceRef | (name ^^ (ExplicitPlace(_)))
 
