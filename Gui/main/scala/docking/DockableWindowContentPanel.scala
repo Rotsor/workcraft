@@ -14,7 +14,8 @@ import java.awt.Font
 import javax.swing.JComponent
 import javax.swing.BorderFactory
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO._
+import scalaz.effect.IO
 
 class DockableWindowContentPanel[A <: JComponent](val window: DockableWindow[A]) extends JPanel {
   object Header extends JPanel {
@@ -94,7 +95,7 @@ class DockableWindowContentPanel[A <: JComponent](val window: DockableWindow[A])
 
     val label = new JLabel(window.title.unsafeEval)
 
-    val refresh = swingAutoRefresh (window.title, (title:String) => ioPure.pure { label.setText(title) })
+    val refresh = swingAutoRefresh (window.title, (title:String) => IO { label.setText(title) })
 
     label.setOpaque(false);
     label.setForeground(UIManager.getColor("InternalFrame.activeTitleForeground"));

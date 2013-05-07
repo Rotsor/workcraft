@@ -14,9 +14,8 @@ import org.workcraft.scala.Expressions.ModifiableExpression
 import org.workcraft.scala.Expressions.convertModifiableExpression
 import org.workcraft.scala.Expressions.decorateExpression
 import org.workcraft.scala.Expressions.monadicSyntaxV
-import org.workcraft.scala.effects.IO.ioBind
-import org.workcraft.scala.effects.IO.ioPure
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO._
+import scalaz.effect.IO
 import org.workcraft.services.ModelService
 import org.workcraft.services.Model
 import org.workcraft.services.DefaultFormatService
@@ -36,6 +35,6 @@ case class FSMModel(val fsm: EditableFSM) extends ModelServiceProvider {
     case LayoutableService => Some(FSMLayoutable(fsm))
     case Services.NfaService => Some(fsm.saveState.eval.map(v => v.fsm.toNfa))
     case DefaultFormatService => Some(Format.WorkcraftFsm)
-    case s => import s._; mzero
+    case s => s.monoid.zero
   }
 }

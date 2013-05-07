@@ -8,7 +8,7 @@ import javax.swing.JTabbedPane
 import org.workcraft.gui.docking.tab.DockableTab
 import org.flexdock.docking.DockingManager
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO._
 
 case class DockableWindowConfiguration[A <: JComponent](
   val closeButton: Boolean = true,

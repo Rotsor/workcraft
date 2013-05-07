@@ -7,7 +7,7 @@ object IdUtils {
     * forall x. (newId map (y => y == x)) == (newId map (y => false))
     */
   class Id[T] private[IdUtils] ()
-  def newId[T] : effects.IO[Id[T]] = effects.IO.ioPure.pure { new Id }
+  def newId[T] : scalaz.effect.IO[Id[T]] = scalaz.effect.IO { new Id }
 
   /**
     * A class to be used as a unique reference.
@@ -15,5 +15,8 @@ object IdUtils {
     * for all r1, r2: r1.id == r2.id => r1.get == r2.get
     */
   class Reference[T] private[IdUtils] (val get : T)
-  def newReference[T](t : T) = effects.IO.ioPure.pure { new Reference(t) }
+  def newRef[T](t : T) = scalaz.effect.IO { new Reference(t) }
+
+/*  class TaggedReference[Tag,Data] private[IdUtils] (val get : Data)
+  def newTaggedRef[T](t : T) = effects.IO { new TaggedReference(t) } */
 }

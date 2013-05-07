@@ -1,8 +1,8 @@
 package org.workcraft.gui.tasks
 
 import org.workcraft.tasks.Task
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import javax.swing.JOptionPane
 import org.workcraft.tasks.TaskControl
 import org.workcraft.scala.Expressions._
@@ -21,7 +21,7 @@ object ModalTaskDialog {
 
       task.runAsynchronously(TaskControl(
         cancelRequested.eval, p => progress.set(Some(p)), description.set(_)),
-        (res: Either[Option[E], O]) => ioPure.pure { SwingUtilities.invokeLater { new Runnable { def run = { result = res; dialog.setVisible(false) } } } }).unsafePerformIO
+        (res: Either[Option[E], O]) => IO { SwingUtilities.invokeLater { new Runnable { def run = { result = res; dialog.setVisible(false) } } } }).unsafePerformIO
 
       dialog.setTitle(title)
       dialog.setContentPane(new TaskPanel(progress, description, cancelRequested.set(true)))

@@ -1,6 +1,6 @@
 package org.workcraft.services
 
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 
 object NewModelService extends MultiService[GlobalScope, NewModelImpl]
 

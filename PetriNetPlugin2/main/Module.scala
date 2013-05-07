@@ -23,7 +23,7 @@ object PetriNetServiceProvider extends GlobalServiceProvider {
     case NewModelService => List(NewPetriNet)
     case ExporterService => List(PnExporter)
     case FileOpenService => List(PnFileOpen, LlnetFileOpen)
-    case s => import s._; mzero
+    case s => s.monoid.zero
   }
 }
 

@@ -1,8 +1,9 @@
 package org.workcraft.graphics
 
 import org.workcraft.scala.Util._
-import org.workcraft.scala.Scalaz._
 import org.workcraft.scala.Expressions._
+import scalaz._
+import Scalaz._
 
 object GraphicsHelper {
   def paintNodes[N](painter: N => Expression[GraphicalContent], nodes: Expression[_ <: Iterable[N]]) =

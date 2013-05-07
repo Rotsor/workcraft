@@ -10,7 +10,8 @@ import java.awt.geom.Point2D
 import org.workcraft.plugins.cpog.optimisation.BinaryBooleanFormula
 import org.workcraft.plugins.cpog.optimisation.expressions._
 import org.workcraft.plugins.cpog.optimisation.BooleanFormula
-import scalaz.Monad
+import scalaz.{One => _, _}
+import Scalaz._
 import org.workcraft.scala.Scalaz._ 
 import scala.collection.JavaConversions._
 import org.workcraft.scala.Expressions._

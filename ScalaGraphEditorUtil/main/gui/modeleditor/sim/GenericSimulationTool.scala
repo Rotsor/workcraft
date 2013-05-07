@@ -2,7 +2,7 @@ package org.workcraft.gui.modeleditor.sim
 import java.util.TimerTask
 import javax.swing.SwingUtilities
 
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO._
 import org.workcraft.scala.Expressions._
 import java.awt.geom.Point2D
 import java.awt.Color
@@ -22,12 +22,13 @@ import org.workcraft.dependencymanager.advanced.user.Variable
 import scalaz.Scalaz._
 import org.workcraft.gui.modeleditor.tools.ModelEditorToolInstance
 import org.workcraft.gui.modeleditor.tools.ToolEnvironment
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import javax.swing.JPanel
 import javax.swing.JLabel
 import java.util.Timer
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
+import org.workcraft.scala.Scalaz._
 
 case class Trace[Event](events: Seq[Event])
 
@@ -35,7 +36,7 @@ case class StateAnnotatedTrace[Event, State](initialState: State, events: Seq[(E
 
 case class MarkedTrace[Event, State](trace: StateAnnotatedTrace[Event, State], position: Int) {
   def goto(position: Int, applyState: State => IO[Unit]) = {
-    applyState(if (position > 0) trace.events(position - 1)._2 else trace.initialState) >>=| ioPure.pure { MarkedTrace(trace, position) }
+    applyState(if (position > 0) trace.events(position - 1)._2 else trace.initialState) >> IO { MarkedTrace(trace, position) }
   }
 
   def !(e: Event, s: State) = MarkedTrace(StateAnnotatedTrace(trace.initialState, trace.events.take(position) :+ (e, s)), position + 1)
@@ -43,7 +44,7 @@ case class MarkedTrace[Event, State](trace: StateAnnotatedTrace[Event, State], p
 
 object Trace {
   def annotateWithState[Event, State](t: Trace[Event], state: IO[State], fire: Event => IO[Unit]) =
-    state >>= (initialState => t.events.traverse(e => (fire(e) >>=| state).map((e, _))).map(StateAnnotatedTrace(initialState, _)))
+    state >>= (initialState => t.events.toList.traverse(e => (fire(e) >> state).map((e, _))).map(StateAnnotatedTrace(initialState, _)))
 }
 
 class GenericSimulationToolInstance[Event, State](
@@ -57,12 +58,12 @@ class GenericSimulationToolInstance[Event, State](
   message: Expression[State => Option[(String, Color)]]
 ) extends ModelEditorToolInstance {
 
-  def fire(event: Event): IO[Unit] = sim.fire(event) >>=| sim.state.eval >>= (state => trace.update(_ ! (event, state)))
+  def fire(event: Event): IO[Unit] = sim.fire(event) >> sim.state.eval >>= (state => trace.update(_ ! (event, state)))
 
   def gotoState(position: Int) = trace.eval >>= (_.goto(position, sim.setState(_))) >>= (t => trace.set(t))
 
   val hitTester = HitTester.create(eventSources, touchable)
-  val mouseListener = Some(new GenericSimulationToolMouseListener(node => ioPure.pure { hitTester.hitTest(node) }, sim.enabled.eval, (e: Event) => fire(e)))
+  val mouseListener = Some(new GenericSimulationToolMouseListener(node => IO { hitTester.hitTest(node) }, sim.enabled.eval, (e: Event) => fire(e)))
 
   def keyBindings = List()
 

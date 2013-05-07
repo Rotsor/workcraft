@@ -22,8 +22,8 @@ import org.workcraft.gui.modeleditor.ToolMouseListener
 import org.workcraft.gui.modeleditor.Viewport
 import org.workcraft.gui.GUI
 import org.workcraft.gui.modeleditor.Modifier
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import org.workcraft.gui.modeleditor.MouseButton
 import org.workcraft.gui.modeleditor.LeftButton
 import org.workcraft.gui.modeleditor.RightButton
@@ -36,10 +36,10 @@ class GenericConnectionToolImpl[N](centerProvider: N => Expression[Point2D.Doubl
   private val mouseOverObject: ModifiableExpression[Option[N]] = Variable.create[Option[N]](None)
   private val first: ModifiableExpression[Option[N]] = Variable.create[Option[N]](None)
 
-  private var mouseExitRequiredForSelfLoop: Boolean = true
+  private val mouseExitRequiredForSelfLoop: Boolean = true
   private var leftFirst: Boolean = false
-  private var lastMouseCoords: ModifiableExpression[Point2D.Double] = Variable.create(new Point2D.Double)
-  private var warningMessage: ModifiableExpression[Option[String]] = Variable.create[Option[String]](None)
+  private val lastMouseCoords: ModifiableExpression[Point2D.Double] = Variable.create(new Point2D.Double)
+  private val warningMessage: ModifiableExpression[Option[String]] = Variable.create[Option[String]](None)
 
   val mouseOverNode: Expression[Option[N]] = mouseOverObject
   val firstNode: Expression[Option[N]] = first
@@ -48,13 +48,13 @@ class GenericConnectionToolImpl[N](centerProvider: N => Expression[Point2D.Doubl
     first >>= {
       case None => constant(GraphicalContent.Empty)
       case Some(first) => {
-        warningMessage.setValue(None)
+        warningMessage.set(None).unsafePerformIO
         mouseOverObject >>= (mouseOverObject =>
           {
             def zogo : Expression[(Color, Point2D.Double)] = (mouseOverObject match {
               case None => lastMouseCoords.map ((Color.BLUE, _))
               case Some(second) => connectionManager.connect(first, second) >>= {
-                case Left(err) => { warningMessage.setValue(Some(err.getMessage)); lastMouseCoords.map((Color.RED,_)) }
+                case Left(err) => { warningMessage.set(Some(err.getMessage)).unsafePerformIO; lastMouseCoords.map((Color.RED,_)) }
                 case Right(_) => centerProvider(second).map((Color.GREEN,_))
               }})
 
@@ -73,39 +73,39 @@ class GenericConnectionToolImpl[N](centerProvider: N => Expression[Point2D.Doubl
 
   val mouseListener: ToolMouseListener = new DML {
     override def mouseMoved(modifiers: Set[Modifier], position: Point2D.Double): IO[Unit] =
-      lastMouseCoords.set(position) >>=|
+      lastMouseCoords.set(position) >>
         hitTester(position) >>= (n => {
-          mouseOverObject.set(n) >>=|
+          mouseOverObject.set(n) >>
             (if (!leftFirst && mouseExitRequiredForSelfLoop)
-              first.eval >>= (f => if (f == n) mouseOverObject.set(None) else ioPure.pure { leftFirst = true })
+              first.eval >>= (f => if (f == n) mouseOverObject.set(None) else IO { leftFirst = true })
             else
-              IO.Empty)
+              ().pure[IO])
         })
 
     override def buttonPressed(button: MouseButton, modifiers: Set[Modifier], position: Point2D.Double): IO[Unit] = button match {
       case LeftButton => first.eval >>= {
         case None => mouseOverObject.eval >>= {
-          case None => IO.Empty
-          case Some(mouseOver) => (first := mouseOverObject) >>=| ioPure.pure { leftFirst = false } >>=| mouseMoved(modifiers, position)
+          case None => ().pure[IO]
+          case Some(mouseOver) => (first := mouseOverObject) >> IO { leftFirst = false } >> mouseMoved(modifiers, position)
         }
         case Some(currentFirst) => {
           mouseOverObject.eval >>= {
-            case None => IO.Empty
+            case None => ().pure[IO]
             case Some(mouseOver) => {
               connectionManager.connect(currentFirst, mouseOver).eval >>= {
                 case Right(connect) => {
-                  connect >>=| (
-                    if (modifiers.contains(Modifier.Control)) (first := mouseOverObject) >>=| mouseOverObject.set(None)
+                  connect >> (
+                    if (modifiers.contains(Modifier.Control)) (first := mouseOverObject) >> mouseOverObject.set(None)
                     else first.set(None))
                 }
-                case Left(err) => ioPure.pure { Toolkit.getDefaultToolkit.beep }
+                case Left(err) => IO { Toolkit.getDefaultToolkit.beep }
               }
             }
           }
         }
       }
-      case RightButton => first.set(None) >>=| mouseOverObject.set(None)
-      case _ => IO.Empty
+      case RightButton => first.set(None) >> mouseOverObject.set(None)
+      case _ => ().pure[IO]
     }
   }
 
@@ -121,8 +121,8 @@ class GenericConnectionToolImpl[N](centerProvider: N => Expression[Point2D.Doubl
       }) >>= (msg => GUI.editorMessage(viewport, msg._1, msg._2))
     }
 
-  def deactivated = {
-    first.setValue(None)
-    mouseOverObject.setValue(None)
-  }
+/*  def deactivated = {
+    first.set(None).unsafePerformIO
+    mouseOverObject.set(None).unsafePerformIO
+  } */
 }

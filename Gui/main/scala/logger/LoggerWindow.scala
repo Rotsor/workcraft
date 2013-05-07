@@ -1,7 +1,7 @@
 package org.workcraft.gui.logger
 import org.workcraft.logging.Logger
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import scalaz.Scalaz._
 import javax.swing.JPanel
 import javax.swing.JTable
@@ -17,7 +17,7 @@ import javax.swing.event.TableModelEvent
 class LoggerWindow extends JPanel with Logger[IO] {
   def log(message: String, klass: MessageClass) = {
     ltm.log(new Date(), message, klass)
-  }.pure
+  }.pure[IO]
 
   val ltm = new LoggerTableModel()
   val table = new JTable(ltm)

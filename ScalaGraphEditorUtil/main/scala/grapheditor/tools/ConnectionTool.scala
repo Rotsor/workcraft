@@ -1,8 +1,11 @@
 package org.workcraft.scala.grapheditor.tools
 
+import scalaz._
+import Scalaz._
 import org.workcraft.scala.Util._
 import org.workcraft.scala.Scalaz._
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO._
+import scalaz.effect.IO
 import org.workcraft.scala.Expressions._
 import java.awt.geom.Point2D
 import java.awt.Color
@@ -30,7 +33,7 @@ class GenericConnectionToolInstance[N](
 
   import GenericConnectionTool._
 
-  val impl = new GenericConnectionToolImpl(arrowPoint, connectionController, n => ioPure.pure { HitTester.create(components, touchableProvider).hitTest(n) })
+  val impl = new GenericConnectionToolImpl(arrowPoint, connectionController, n => IO { HitTester.create(components, touchableProvider).hitTest(n) })
 
   def keyBindings = List()
   def mouseListener = Some(impl.mouseListener)
@@ -49,7 +52,7 @@ case class GenericConnectionTool[N](components: Expression[Iterable[N]],
   paint: (N => Colorisation) => Expression[GraphicalContent]) extends ModelEditorTool {
 
   def button = GenericConnectionTool.button
-  def createInstance(env: ToolEnvironment) = ioPure.pure { new GenericConnectionToolInstance(env.viewport, env.hasFocus, components, touchableProvider, arrowPoint, connectionController, paint) }
+  def createInstance(env: ToolEnvironment) = IO { new GenericConnectionToolInstance(env.viewport, env.hasFocus, components, touchableProvider, arrowPoint, connectionController, paint) }
 
 }
 

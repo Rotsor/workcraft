@@ -20,8 +20,8 @@ import org.workcraft.services.ExporterService
 import org.workcraft.services.ExportJob
 import org.workcraft.services.Format
 import org.workcraft.services.DefaultFormatService
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import org.workcraft.scala.Expressions._
 import scalaz.Scalaz._
 import org.workcraft.services.ExportError
@@ -30,11 +30,11 @@ import IOUtils._
 
 class FileMenu(services: GlobalServiceProvider, mainWindow: MainWindow, newModel: ((NewModelImpl, Boolean)) => IO[Unit]) extends ReactiveMenu("File") {
   def handleExportError(error: Option[ExportError]): IO[Unit] = error match {
-    case None => IO.Empty
-    case Some(error) => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, error match { case ExportError.Exception(e) => e.toString(); case ExportError.Message(m) => m }, "Error", JOptionPane.ERROR_MESSAGE) }
+    case None => ().pure[IO]
+    case Some(error) => IO { JOptionPane.showMessageDialog(mainWindow, error match { case ExportError.Exception(e) => e.toString(); case ExportError.Message(m) => m }, "Error", JOptionPane.ERROR_MESSAGE) }
   }
 
-  def unsupportedFormatWarning (errorMessage: String): IO[Unit] = ioPure.pure {
+  def unsupportedFormatWarning (errorMessage: String): IO[Unit] = IO {
     JOptionPane.showMessageDialog(mainWindow, 
 				  "Workcraft is unable to save this file in its current format.\nPlease use the Save As command and save it using one of the supported formats.\n\nWorkcraft is unable to use the current format for the following reason:\n" + errorMessage, "Unsupported format", JOptionPane.WARNING_MESSAGE)
   }
@@ -45,18 +45,18 @@ class FileMenu(services: GlobalServiceProvider, mainWindow: MainWindow, newModel
 	case Some(error) => handleExportError(Some(error))
 	case None => mainWindow.fileMapping.update (model, Some(file))
       }
-      case None => IO.Empty
+      case None => ().pure[IO]
     }
 
   // Must be lazy because Scala allows to read uninitialized values
   lazy val items = mainWindow.editorInFocus.map(editor => {
     val newWork = menuItem("New work", Some('N'), Some(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK)),
-      CreateWorkDialog.show(services.implementation(NewModelService), mainWindow) >>= { case Some(choice) => newModel(choice); case None => IO.Empty })
+      CreateWorkDialog.show(services.implementation(NewModelService), mainWindow) >>= { case Some(choice) => newModel(choice); case None => ().pure[IO] })
 
     val open = menuItem("Open file...", Some('O'), Some(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK)),
 			OpenDialog.open(mainWindow, services) >>= {
 			  case Some((file, model)) => mainWindow.openEditor(model, Some(file));
-			  case None => IO.Empty })
+			  case None => ().pure[IO] })
 
     val save = editor match {
       case Some(e) => {
@@ -76,8 +76,8 @@ class FileMenu(services: GlobalServiceProvider, mainWindow: MainWindow, newModel
         List(save, saveAs)
       }
       case None => {
-        val save = menuItem("Save", None, None, IO.Empty)
-        val saveAs = menuItem("Save as...", None, None, IO.Empty)
+        val save = menuItem("Save", None, None, ().pure[IO])
+        val saveAs = menuItem("Save as...", None, None, ().pure[IO])
         save.setEnabled(false)
         saveAs.setEnabled(false)
         List(save, saveAs)
@@ -85,7 +85,7 @@ class FileMenu(services: GlobalServiceProvider, mainWindow: MainWindow, newModel
     }
 
     def disabledExportMenu = {
-      val export = menuItem("Export...", None, None, IO.Empty)
+      val export = menuItem("Export...", None, None, ().pure[IO])
       export.setEnabled(false)
       export
     }
@@ -97,7 +97,7 @@ class FileMenu(services: GlobalServiceProvider, mainWindow: MainWindow, newModel
         x.map({
           case (fmt, job) => menuItem(fmt.description + " (" + fmt.extension + ")", None, None, SaveDialog.export(mainWindow, model, fmt, job) >>= {
             case Some(job) => job >>= handleExportError
-            case None => IO.Empty
+            case None => ().pure[IO]
           })
         }).foreach(menu.add(_))
         menu

@@ -14,8 +14,8 @@ import org.workcraft.dependencymanager.advanced.user.Variable
 import java.awt.event.FocusListener
 import java.awt.event.FocusEvent
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import java.awt.BasicStroke
 import org.workcraft.graphics.GraphicalContent
 import scalaz._

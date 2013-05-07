@@ -6,7 +6,7 @@ import java.io.File
 import javax.swing.JFileChooser
 import org.workcraft.services.FileOpen
 import javax.swing.filechooser.FileFilter
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import org.workcraft.services.Format
 import org.workcraft.services.FileOpenJob
 import javax.swing.JOptionPane
@@ -16,12 +16,12 @@ import javax.swing.JTextArea
 import org.workcraft.services.FileOpenService
 
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import scalaz.Scalaz._
 
 object OpenDialog {
-  def chooseFile(currentFile: Option[File], parentWindow: Window, formats: List[Format]): IO[Option[File]] = ioPure.pure {
+  def chooseFile(currentFile: Option[File], parentWindow: Window, formats: List[Format]): IO[Option[File]] = IO {
     val fc = new JFileChooser()
     fc.setDialogType(JFileChooser.OPEN_DIALOG)
 
@@ -40,12 +40,12 @@ object OpenDialog {
   }
 
   def openFile(parentWindow: Window, file: File, importers: List[FileOpen]): IO[Option[FileOpenJob]] = importers.map(_.open(file)).sequence >>= (_.flatten match {
-    case Nil => ioPure.pure {
+    case Nil => IO {
       JOptionPane.showMessageDialog(parentWindow, "No import plug-in could recognise this file.", "Cannot open file", JOptionPane.ERROR_MESSAGE)
       None
     }
-    case one :: Nil => ioPure.pure { Some(one) }
-    case many => ioPure.pure {
+    case one :: Nil => IO { Some(one) }
+    case many => IO {
       JOptionPane.showInputDialog(parentWindow, "More that one plug-in is able to open this file.\nPlease choose which plug-in to use:", "Choice",
         JOptionPane.QUESTION_MESSAGE, null, many.toArray, many.head) match {
           case job: FileOpenJob => Some(job)
@@ -57,7 +57,7 @@ object OpenDialog {
   def open(parentWindow: Window, globalServices: GlobalServiceProvider): IO[Option[(File, ModelServiceProvider)]] = {
     val importers = globalServices.implementation(FileOpenService)
 
-    if (importers.isEmpty) ioPure.pure {
+    if (importers.isEmpty) IO {
       JOptionPane.showMessageDialog(parentWindow, "No import plug-ins are available.", "Error", JOptionPane.ERROR_MESSAGE)
       None
     }
@@ -65,7 +65,7 @@ object OpenDialog {
       chooseFile(None, parentWindow, importers.map(_.sourceFormat).distinct) >>= {
         case Some(file) => openFile(parentWindow, file, importers) >>= {
           case Some(openJob) => openJob.job >>= {
-            case Left(error) => ioPure.pure {
+            case Left(error) => IO {
               val label = new JTextArea(error)
               label.setEditable(false)
 
@@ -74,11 +74,11 @@ object OpenDialog {
 
               None
             }
-            case Right(model) => ioPure.pure { Some((file, model))  }
+            case Right(model) => IO { Some((file, model))  }
           }
-          case None => ioPure.pure { None }
+          case None => IO { None }
         }
-        case None => ioPure.pure { None }
+        case None => IO { None }
       }
   }
 }

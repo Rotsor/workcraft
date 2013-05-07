@@ -1,8 +1,9 @@
 package org.workcraft.plugins.fsm
 
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO._
-import org.workcraft.scala.effects.IO
+import org.workcraft.scala.Scalaz._
+import scalaz.effect.IO._
+import scalaz.effect.IO
 import scalaz.Scalaz._
 import scalaz._
 import org.workcraft.dependencymanager.advanced.user.Variable
@@ -34,9 +35,9 @@ class EditableFSM(
   def preset(s: State) = presetV.map(_(s))
   def postset(s: State) = postsetV.map(_(s))
 
-  private def newState = ioPure.pure { new State }
+  private def newState = IO { new State }
 
-  private def newArc(from: State, to: State) = ioPure.pure { new Arc(from, to) }
+  private def newArc(from: State, to: State) = IO { new Arc(from, to) }
 
   def createState(where: Point2D.Double): IO[State] = for {
     s <- newState;
@@ -50,7 +51,7 @@ class EditableFSM(
   def createArc(from: State, to: State) = for {
     arc <- newArc(from, to);
     _ <- arcs.update(arc :: _);
-    _ <- arcLabels.update(_ + (arc -> nel(None, Nil)))
+    _ <- arcLabels.update(_ + (arc -> NonEmptyList.nel(None, Nil)))
     _ <- visualArcs.update(_ + (arc -> Polyline(List())))
   } yield arc
 
@@ -59,7 +60,10 @@ class EditableFSM(
     case a: Arc => deleteArc(a)
   }
 
-  def deleteArc(a: Arc) = arcs.update(_ - a) >>=| arcLabels.update (_ - a) >>=| visualArcs.update(_ - a)
+  def deleteArc(a: Arc) = 
+    arcs.update(_.filter(_ != a)) >>
+    arcLabels.update (_.filter(_ != a)) >> 
+    visualArcs.update(_.filter(_ != a))
 
   def remove[A](list: List[A], what: A): List[A] = {
     if (list.head == what)
@@ -67,17 +71,17 @@ class EditableFSM(
         list.tail
       else throw new RuntimeException("cannot remove last element from NonEmptyList"))
     else
-      list.head :: (list.tail - what)
+      list.head :: (list.tail.filter(_ != what))
   }
 
   def deleteState(s: State) =
     (incidentArcs.eval <|***|> (labels.eval, initialState.eval, states.eval)) >>= {
       case (a, l, ist, st) =>
-        val del = a(s).map(deleteArc(_)).sequence >>=| states.update(remove(_, s)) >>=| layout.update(_ - s) >>=| stateNames.update(_ - l(s)) >>=| labels.update(_ - s) >>=| finalStates.update(_ - s)
+        val del = a(s).map(deleteArc(_)).sequence >> states.update(remove(_, s)) >> layout.update(_ - s) >> stateNames.update(_ - l(s)) >> labels.update(_ - s) >> finalStates.update(_ - s)
 
-        val updateInitial =  if (ist == s) states.eval >>= (st => initialState.set(st.head)) else IO.Empty
+        val updateInitial =  if (ist == s) states.eval >>= (st => initialState.set(st.head)) else ().pure[IO]
 
-        del >>=| updateInitial
+        del >> updateInitial
     }
 
   def deleteNodes(nodes: Set[Node]): IO[Either[String, IO[Unit]]] = states.eval.map(states => {
@@ -99,8 +103,8 @@ class EditableFSM(
   } yield VisualFSM(FSM(states, arcs, finalStates, initial, labels, arcLabels), layout, visualArcs)
 
   def loadState(state: VisualFSM): IO[Unit] =
-    states.set(state.fsm.states) >>=| labels.set(state.fsm.labels) >>=| stateNames.set(state.fsm.names) >>=| finalStates.set(state.fsm.finalStates) >>=|
-      initialState.set(state.fsm.initialState) >>=| arcs.set(state.fsm.arcs) >>=| arcLabels.set(state.fsm.arcLabels) >>=| layout.set(state.layout) >>=| visualArcs.set(state.visualArcs)
+    states.set(state.fsm.states) >> labels.set(state.fsm.labels) >> stateNames.set(state.fsm.names) >> finalStates.set(state.fsm.finalStates) >>
+      initialState.set(state.fsm.initialState) >> arcs.set(state.fsm.arcs) >> arcLabels.set(state.fsm.arcLabels) >> layout.set(state.layout) >> visualArcs.set(state.visualArcs)
 }
 
 object EditableFSM {

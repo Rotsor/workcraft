@@ -1,7 +1,7 @@
 package org.workcraft.gui
 
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import org.workcraft.scala.Expressions._
 import org.workcraft.services.ExportError
 import org.workcraft.services.ExporterService
@@ -22,7 +22,7 @@ object IOUtils {
 
   def open (file: File, globalServices: GlobalServiceProvider): IO[Either[String, List[ModelServiceProvider]]] = 
     globalServices.implementation(FileOpenService).map(_.open(file)).sequence >>= (_.flatten match {
-       case Nil => ioPure.pure { Left ("No import plug-ins know how to read the file \"" + file.getName + "\".") }
+       case Nil => IO { Left ("No import plug-ins know how to read the file \"" + file.getName + "\".") }
        case x => x.map(_.job).sequence.map( results => {
          val (bad, good) = partitionEither(results)
          if (good.isEmpty) Left ("Could not open the file \"" + file.getName +"\" because:\n" + bad.map("-- " + _).mkString("\n"))
@@ -59,17 +59,17 @@ object IOUtils {
         case x :: xs => x >>= (res => if (res.isDefined) rec (xs, excuses.map( res.get :: _ )) else excuses.map((_, true)))
       }
 
-    rec (actions, ioPure.pure { List[String]() } )
+    rec (actions, IO { List[String]() } )
   }
 /*
   def convert (inputFile: File, targetFormat: Format, outputFile: File, globalServices: GlobalServiceProvider): IO[Option[String]] =
-    if (inputFile.getName.endsWith(targetFormat.extension)) ioPure.pure { Files.copy(inputFile, outputFile); Right(outputFile) } // assume that the file is already in the correct format
+    if (inputFile.getName.endsWith(targetFormat.extension)) IO { Files.copy(inputFile, outputFile); Right(outputFile) } // assume that the file is already in the correct format
     else {
       open (inputFile, globalServices) >>= {
-        case Left(error) => ioPure.pure { Some(error) }
+        case Left(error) => IO { Some(error) }
         case Right(models) => doUntilSuccessful(models.map(export(_, targetFormat, outputFile, globalServices))) >>= {
-          case (_, true) => ioPure.pure { Right(outputFile) }
-          case (excuses, false) => ioPure.pure { Left ("File format conversion was unsuccessful for the following reason(s):\n\n" + excuses.map ("-- " + _).mkString("\n\n")) }
+          case (_, true) => IO { Right(outputFile) }
+          case (excuses, false) => IO { Left ("File format conversion was unsuccessful for the following reason(s):\n\n" + excuses.map ("-- " + _).mkString("\n\n")) }
         }
       }
     }*/

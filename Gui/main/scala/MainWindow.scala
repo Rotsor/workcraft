@@ -14,8 +14,8 @@ import org.streum.configrity.Configuration
 import javax.swing.SwingUtilities
 import javax.swing.JPanel
 import java.awt.BorderLayout
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import scalaz.Scalaz._
 import java.awt.Frame
 import javax.swing.WindowConstants
@@ -85,7 +85,7 @@ class MainWindow(
   val toolControlDockable = createUtilityWindow(constant("Tool controls"), "ToolControls", toolControlWindow, toolboxDockable, DockingConstants.NORTH_REGION, 0.8)
   val propEdDockable = createUtilityWindow(constant("Properties"), "PropEd", propEdWindow, toolControlDockable, DockingConstants.CENTER_REGION, 0.8)
 
-  val tabSwitcher = swingAutoRefresh(interfacePanel, (i: Option[JPanel]) => ioPure.pure {
+  val tabSwitcher = swingAutoRefresh(interfacePanel, (i: Option[JPanel]) => IO {
     if (i.isDefined) toolControlDockable.ensureTabSelected
     else propEdDockable.ensureTabSelected
   })
@@ -137,10 +137,10 @@ class MainWindow(
   private def applyIconManager(implicit logger: () => Logger[IO]) = MainWindowIconManager.apply(this, logger)
 
   def newModel(model: ModelServiceProvider, editorRequested: Boolean) =
-    fileMapping.update(model, None) >>=|
-    (if (editorRequested) openEditor(model, None) else IO.Empty)
+    fileMapping.update(model, None) >>
+    (if (editorRequested) openEditor(model, None) else ().pure[IO])
   
-  def setFocus(editorDockable: Option[DockableWindow[ModelEditorPanel]]): IO[Unit] = ioPure.pure {
+  def setFocus(editorDockable: Option[DockableWindow[ModelEditorPanel]]): IO[Unit] = IO {
     toolboxWindow.removeAll()
     editorDockable match {
       case Some(editorWindow) => {
@@ -164,11 +164,11 @@ class MainWindow(
   }
 
   def openEditor(model: ModelServiceProvider, source: Option[File]): IO[Unit] = 
-    runDefaultLayout(globalServices, model, this) >>=| (
+    runDefaultLayout(globalServices, model, this) >> (
     {
     model.implementation(EditorService) match {
-      case None => ioPure.pure { JOptionPane.showMessageDialog(this, "The model type that you have chosen does not support visual editing :(", "Warning", JOptionPane.WARNING_MESSAGE) }
-      case Some(editor) => fileMapping.update (model, source) >>=| ioPure.pure {
+      case None => IO { JOptionPane.showMessageDialog(this, "The model type that you have chosen does not support visual editing :(", "Warning", JOptionPane.WARNING_MESSAGE) }
+      case Some(editor) => fileMapping.update (model, source) >> IO {
         val editorPanel = new ModelEditorPanel(model, editor)(implicitLogger)
         
         val editorDockable = dockingRoot.createWindow(fileMapping.lastSavedAs(model).map(_.map(_.getName).getOrElse("New model")), "unused", editorPanel, DockableWindowConfiguration(onCloseClicked = closeEditor), if (openEditors.isEmpty) placeholderDockable else (openEditors.head), DockingConstants.CENTER_REGION)
@@ -187,7 +187,7 @@ class MainWindow(
 
 	(editorDockable, editorPanel)
 
-      } >>= { case (dockable, panel) => setFocus(Some(dockable)) }// >>=| panel.fitView }
+      } >>= { case (dockable, panel) => setFocus(Some(dockable)) }// >> panel.fitView }
     }
     })
 
@@ -204,7 +204,7 @@ class MainWindow(
     DockingManager.undock(editorDockable)
   }
 
-  def exit = ioPure.pure {
+  def exit = IO {
     setVisible(false)
     dispose()
     this.synchronized {

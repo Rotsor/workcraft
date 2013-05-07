@@ -1,7 +1,7 @@
 package org.workcraft.services
 
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 
 import scalaz._
 import Scalaz._
@@ -12,9 +12,9 @@ object FileNameService extends SingleService[ModelScope, FileName] {
       case FileNameService => Some (new Object with FileName {
 	var name = fileName
 	def lastSavedAs = name
-	def update (savedAs: String) = ioPure.pure { name = Some(savedAs) }
+	def update (savedAs: String) = IO { name = Some(savedAs) }
       })
-      case s => import s._; mzero
+      case s => s.monoid.zero
     }
   }
 }

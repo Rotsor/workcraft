@@ -3,12 +3,14 @@ package org.workcraft.plugins.fsm
 import org.workcraft.gui.MainWindow
 import org.workcraft.gui.services.GuiTool
 import org.workcraft.gui.services.ToolClass
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO._
 import org.workcraft.scala.Expressions._
 import org.workcraft.scala.Scalaz._
 import org.workcraft.dom.visual.connections._
 import java.awt.geom.Point2D
 import Services._
+import scalaz._
+import Scalaz._
 
 
 object DeterminisationTool extends GuiTool {

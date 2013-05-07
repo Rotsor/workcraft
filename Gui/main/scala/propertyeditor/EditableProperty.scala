@@ -4,8 +4,8 @@ import java.awt.BorderLayout
 import java.awt.Component
 import javax.swing.JPanel
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import scalaz._
 import Scalaz._
 import javax.swing.JComponent
@@ -18,7 +18,7 @@ trait EditableProperty {
 
 object EditableProperty {
   def apply[T](propertyName: String, editor: GenericEditorProvider[T], _renderer: RendererProvider[T], value: T, _commit: T => IO[Unit]): EditableProperty = {
-    withValidation(propertyName, editor, _renderer, value, (t: T) => ioPure.pure { try {_commit(t).unsafePerformIO; None } catch { case e: Throwable => Some(e.toString)}})
+    withValidation(propertyName, editor, _renderer, value, (t: T) => IO { try {_commit(t).unsafePerformIO; None } catch { case e: Throwable => Some(e.toString)}})
   }
 
   def withValidation[T](propertyName: String, editor: GenericEditorProvider[T], _renderer: RendererProvider[T], value: T, _commit: T => IO[Option[String]]): EditableProperty =

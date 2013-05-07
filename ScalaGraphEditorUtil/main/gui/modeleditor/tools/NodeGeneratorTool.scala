@@ -11,8 +11,8 @@ import org.workcraft.scala.Expressions._
 import org.workcraft.graphics.GraphicalContent
 import org.workcraft.gui.GUI
 import javax.swing.JPanel
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import scalaz.Scalaz._
 
 import org.workcraft.graphics.Colorisation
@@ -21,7 +21,7 @@ object NodeGeneratorTool {
   def apply(look: Button, painter: Expression[GraphicalContent], action: Point2D.Double => IO[Unit]): ModelEditorTool =
     new ModelEditorTool {
       def button = look
-      def createInstance(env: ToolEnvironment) = ioPure.pure {
+      def createInstance(env: ToolEnvironment) = IO {
         new ModelEditorToolInstance {
           def keyBindings = Nil
           def mouseListener: Option[ToolMouseListener] = Some(new DummyMouseListener {

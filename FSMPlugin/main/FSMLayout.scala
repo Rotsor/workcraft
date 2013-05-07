@@ -1,7 +1,7 @@
 package org.workcraft.plugins.fsm
 import java.awt.geom.Point2D
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IOMonad
+import scalaz.effect.MonadIO
 import scalaz.Scalaz._
 import org.workcraft.services.layout.Layoutable
 import org.workcraft.services.layout.Layouter
@@ -11,8 +11,8 @@ import org.workcraft.gui.CommonVisualSettings
 
 object FSMLayoutable {
   def apply(efsm: EditableFSM) : Layoutable = new Layoutable {
-    def apply[M[_]](layouter : Layouter[M])(implicit m : IOMonad[M]) = {
-      m.lift((for(
+    def apply[M[_]](layouter : Layouter[M])(implicit m : MonadIO[M]) = {
+      m.liftIO((for(
         vfsm <- efsm.saveState;
         size <- CommonVisualSettings.settings.map(_.size))
       yield {
@@ -24,8 +24,8 @@ object FSMLayoutable {
           2, 
           LayoutOrientation.Down
         )) >>= { 
-          l => m.lift(l.traverse_ { 
-            p => efsm.layout.update(_ + p) 
+          l => m.liftIO(l.traverse_ {
+            p => efsm.layout.update(_ + p)
           })
         }
       }).eval).flatMap(x => x)

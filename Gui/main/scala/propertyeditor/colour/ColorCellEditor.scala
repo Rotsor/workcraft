@@ -10,7 +10,7 @@ import javax.swing.JDialog
 import org.workcraft.gui.propertyeditor.GenericCellEditor
 import org.workcraft.gui.propertyeditor.GenericEditorProvider
 import org.workcraft.util.Action
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 
 
 object ColorCellEditor extends GenericEditorProvider[Color] {

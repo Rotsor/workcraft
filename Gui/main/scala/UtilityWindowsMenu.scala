@@ -6,7 +6,7 @@ import java.awt.event.ActionListener
 import java.awt.event.ActionEvent
 import javax.swing.JComponent
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO._
 
 class UtilityWindowMenuItem(window: DockableWindow[_]) extends JCheckBoxMenuItem {
   setText(window.title.unsafeEval)

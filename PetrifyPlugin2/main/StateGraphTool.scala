@@ -4,8 +4,8 @@ import org.workcraft.gui.services.GuiTool
 import org.workcraft.gui.services.ToolClass
 import org.workcraft.gui.MainWindow
 import org.workcraft.scala.Expressions
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import org.workcraft.scala.Expressions._
 import scalaz.Scalaz._
 import java.io.File
@@ -38,13 +38,13 @@ object StateGraphTool extends GuiTool {
       val parse = DotGParser.parseTask(output).mapError(DotGParseError(_))
       val writeSgTask = new WriteSgTask("./tools/write_sg", input, output)
 
-      val chain = export >>=| writeSgTask >>=| parse
+      val chain = export >> writeSgTask >> parse
 
       val a : IO[Either[Option[PetrifyError], DotGParser.DotG]]
         = ModalTaskDialog.runTask(mainWindow, "Generating state graph using petrify", chain)
       a flatMap {
-        case Left(None) => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, "Cancelled") }
-        case Left(Some(error)) => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, error, "Error", JOptionPane.ERROR_MESSAGE) }
+        case Left(None) => IO { JOptionPane.showMessageDialog(mainWindow, "Cancelled") }
+        case Left(Some(error)) => IO { JOptionPane.showMessageDialog(mainWindow, error, "Error", JOptionPane.ERROR_MESSAGE) }
         case Right(dotg) => 
           (EditableFSM.create(
             VisualFSM(

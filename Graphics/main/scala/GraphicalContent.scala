@@ -45,5 +45,5 @@ object GraphicalContent {
   def cloneGraphics(g: Graphics2D) = g.create.asInstanceOf[Graphics2D]
   def apply(f: Graphics2D => Unit) = new GraphicalContent { def draw(graphics: Graphics2D) = f(graphics) }
   val Empty = apply(_ => {})
-  implicit def gcSemigroup : Semigroup[GraphicalContent] = semigroup((a,b) => a.compose(b))
+  implicit def gcSemigroup : Semigroup[GraphicalContent] = Semigroup.instance((a,b) => a.compose(b))
 }

@@ -3,8 +3,8 @@ import java.io.File
 import java.io.PrintStream
 import java.io.BufferedOutputStream
 import java.io.FileOutputStream
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import org.workcraft.services.layout._
 import org.workcraft.services._
 import scalaz.Scalaz._
@@ -19,7 +19,7 @@ import scalaz.Scalaz._
 }*/
 
 class DotExportJob[N](layout: LayoutSpec[N]) extends ExportJob {
-  def job(file: File) = ioPure.pure {
+  def job(file: File) = IO {
     val out = new PrintStream(new BufferedOutputStream(new FileOutputStream(file)))
     try {
       out.println("digraph work {");

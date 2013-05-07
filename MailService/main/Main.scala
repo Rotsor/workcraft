@@ -7,8 +7,8 @@ import org.workcraft.services._
 import com.google.common.io.Files
 import scalaz._
 import Scalaz._
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 
 object Copy {
 	def apply(in: InputStream, out: OutputStream) = {
@@ -127,7 +127,7 @@ object IOUtils {
 
   def open (file: File, globalServices: GlobalServiceProvider): IO[Either[String, List[ModelServiceProvider]]] = 
     globalServices.implementations(FileOpenService).map(_.open(file)).sequence >>= (_.flatten match {
-       case Nil => ioPure.pure { Left ("No import plug-ins know how to read the file \"" + file.getName + "\".") }
+       case Nil => IO { Left ("No import plug-ins know how to read the file \"" + file.getName + "\".") }
        case x => x.map(_.job).sequence.map( results => {
          val (bad, good) = partitionEither(results)
          if (good.isEmpty) Left ("Could not open the file \"" + file.getName +"\" because:\n" + bad.map("-- " + _).mkString("\n"))
@@ -142,9 +142,9 @@ object IOUtils {
     if (applicable.isEmpty) {
      val explanation = if (exporters.isEmpty) " because no export plug-ins are available for this format."
                        else " because:\n" + unapplicable.map("-- " + _.toString).mkString ("\n") + "."
-     ioPure.pure { Some ("Could not export the model as \"" + format.description + "\"" + explanation) }
+     IO { Some ("Could not export the model as \"" + format.description + "\"" + explanation) }
     } else {
-      applicable.head.job(file) >>=| ioPure.pure { None }
+      applicable.head.job(file) >> IO { None }
     }
    }
 
@@ -155,17 +155,17 @@ object IOUtils {
         case x :: xs => x >>= (res => if (res.isDefined) rec (xs, excuses.map( res.get :: _ )) else excuses.map((_, true)))
       }
 
-    rec (actions, ioPure.pure { List[String]() } )
+    rec (actions, IO { List[String]() } )
   }
 
   def convert (inputFile: File, targetFormat: Format, outputFile: File, globalServices: GlobalServiceProvider): IO[Either[String, File]] =
-    if (inputFile.getName.endsWith(targetFormat.extension)) ioPure.pure { Files.copy(inputFile, outputFile); Right(outputFile) } // assume that the file is already in the correct format
+    if (inputFile.getName.endsWith(targetFormat.extension)) IO { Files.copy(inputFile, outputFile); Right(outputFile) } // assume that the file is already in the correct format
     else {
       open (inputFile, globalServices) >>= {
-        case Left(error) => ioPure.pure { Left(error) }
+        case Left(error) => IO { Left(error) }
         case Right(models) => doUntilSuccessful(models.map(export(_, targetFormat, outputFile, globalServices))) >>= {
-          case (_, true) => ioPure.pure { Right(outputFile) }
-          case (excuses, false) => ioPure.pure { Left ("File format conversion was unsuccessful for the following reason(s):\n\n" + excuses.map ("-- " + _).mkString("\n\n")) }
+          case (_, true) => IO { Right(outputFile) }
+          case (excuses, false) => IO { Left ("File format conversion was unsuccessful for the following reason(s):\n\n" + excuses.map ("-- " + _).mkString("\n\n")) }
         }
       }
     }
@@ -209,7 +209,7 @@ object MailService extends App {
   def timeOut (seconds: Double): IO[Boolean] = {
     val time = System.currentTimeMillis + (seconds * 1000.0).toInt
 
-    ioPure.pure {
+    IO {
       if (System.currentTimeMillis > time) true else false
     }
   }
@@ -245,10 +245,10 @@ object MailService extends App {
 
     "--- " + file.getName + " ---\n" +
     (IOUtils.convert (file, Format.LolaPetriNet, lolaIn, globalServices) >>= {
-      case Left(error) => ioPure.pure { error }
+      case Left(error) => IO { error }
       case Right(file) => {
         val task = new LolaTask ("/home/mech/tools/lola-1.16/src/lola-deadlock", lolaIn, lolaOut)
-        task.runTask (TaskControl (timeOut (timeout), _ => IO.Empty, _ => IO.Empty)) map (result => lolaReport (timeout, lolaOut, result))
+        task.runTask (TaskControl (timeOut (timeout), _ => ().pure[IO], _ => IO.Empty)) map (result => lolaReport (timeout, lolaOut, result))
        }
     }).unsafePerformIO + "\n"
   }

@@ -6,8 +6,8 @@ import org.workcraft.services.ModelServiceProvider
 import org.workcraft.services.ServiceNotAvailableException
 import org.workcraft.services.ExportJob
 import java.io.OutputStream
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import java.io.PrintWriter
 import java.io.BufferedOutputStream
 import scalaz._
@@ -34,7 +34,7 @@ object LolaExporter extends Exporter {
 class LolaExportJob(snapshot: IO[PetriNet]) extends ExportJob {
   val complete = false
 
-  def job(file: File) = snapshot >>= (net => ioPure.pure {
+  def job(file: File) = snapshot >>= (net => IO {
     var writer: PrintWriter = null
     if (net.places.isEmpty) Some(ExportError.Message("LoLA does not support nets with no places."))
     else if (net.transitions.isEmpty) Some(ExportError.Message("LoLA does not support nets with no transitions."))

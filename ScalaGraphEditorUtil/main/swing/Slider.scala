@@ -15,7 +15,7 @@ class Slider
 }
 object Slider {
   def apply(sld : JSlider) : Swing[Slider] =
-    newRef[ChangeEvent => Swing[Unit]](_ => ().pure) >>=
+    newRef[ChangeEvent => Swing[Unit]](_ => ().pure[Swing]) >>=
     (listener => unsafeToSwing(sld.addChangeListener(new ChangeListener {
       override def stateChanged(change : ChangeEvent) = 
            (listener.read >>= (_(change))).unsafeRun.unsafePerformIO

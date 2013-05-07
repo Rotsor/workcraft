@@ -1,10 +1,13 @@
 package org.workcraft.tasks
 
-import scalaz.Scalaz
-import scalaz.Scalaz._
-import org.workcraft.scala.effects.IO._
-import org.workcraft.scala.effects.IO
+// import scalaz.Scalaz
+// import scalaz.Scalaz._
+import scalaz.effect.IO._
+import scalaz.effect.IO
 import Task._
+import Task.ioMonad
+import scalaz.syntax.monad._
+import scalaz.Unapply._
 
 object Test {
   def step1 : Task[Unit, Nothing] = Task( tc => {
@@ -50,17 +53,14 @@ object Test {
   def main(args: Array[String]) : Unit = {
     var cancelled = false
     
-     
-    
-    val myComplexTask = for {
+    val myComplexTask = (for {
       _ <- ioTask (statusUpdate ("step 1"));
       x <- step1;
       _ <- ioTask (statusUpdate ("step 2"));
       y <- step2;
-      _ <- ioTask (statusUpdate ("step 3"));
-      z <- step3
-    } yield z
+      _ <- ioTask (statusUpdate ("step 3"))
+    } yield ()).flatMap(_ => step3)
     
-    myComplexTask.runTask(TaskControl(cancelled.pure, Test.progressUpdate(_), _ => ioPure.pure {} )).unsafePerformIO
+    myComplexTask.runTask(TaskControl(cancelled.pure, Test.progressUpdate(_), _ => IO {} )).unsafePerformIO
   }
 }

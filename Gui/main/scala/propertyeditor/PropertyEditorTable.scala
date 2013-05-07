@@ -8,8 +8,8 @@ import javax.swing.JTable
 import javax.swing.table.TableCellEditor
 import javax.swing.table.TableCellRenderer
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import javax.swing.JOptionPane
 
 class PropertyEditorTable extends JTable with PropertyEditor {
@@ -42,9 +42,9 @@ class PropertyEditorTable extends JTable with PropertyEditor {
     model.setProperties(Some(o))
     cellRenderers = new ArrayList[Component]()
     cellEditors = new ArrayList[AbstractTableCellEditor]()
-    for (val p <- o) {
+    for (p <- o) {
       cellEditors.add(new AbstractTableCellEditor {
-        val editor = p.createEditor(ioPure.pure(stopCellEditing), ioPure.pure{cancelCellEditing})
+        val editor = p.createEditor(IO(stopCellEditing), IO{cancelCellEditing})
         
         override def getCellEditorValue = null
         override def stopCellEditing: Boolean = {

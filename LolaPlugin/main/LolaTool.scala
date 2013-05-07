@@ -1,8 +1,8 @@
 package org.workcraft.plugins.lola
 
 import org.workcraft.tasks.Task
-import org.workcraft.scala.effects.IO._
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO._
+import scalaz.effect.IO
 import org.workcraft.tasks.TaskControl
 import scalaz.Scalaz._
 import org.workcraft.gui.services.GuiTool
@@ -67,17 +67,17 @@ class LolaVerificationTool(val lolaCommand: String,
       val megaTask = exportTask flatMap (_ => lolaTask)
 
       ModalTaskDialog.runTask(mainWindow, "Searching for deadlocks with LoLA", megaTask) >>= {
-        case Left(None) => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, "Cancelled") }
+        case Left(None) => IO { JOptionPane.showMessageDialog(mainWindow, "Cancelled") }
         case Left(Some(error)) => error match {
-          case LolaExportError(ExportError.Exception(reason)) => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, "Error while exporting the net in LoLA format:\n" + reason.toString(), "Error", JOptionPane.ERROR_MESSAGE) }
-          case LolaExportError(ExportError.Message(message)) => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, "Error while exporting the net in LoLA format:\n" + message, "Error", JOptionPane.ERROR_MESSAGE) }
+          case LolaExportError(ExportError.Exception(reason)) => IO { JOptionPane.showMessageDialog(mainWindow, "Error while exporting the net in LoLA format:\n" + reason.toString(), "Error", JOptionPane.ERROR_MESSAGE) }
+          case LolaExportError(ExportError.Message(message)) => IO { JOptionPane.showMessageDialog(mainWindow, "Error while exporting the net in LoLA format:\n" + message, "Error", JOptionPane.ERROR_MESSAGE) }
           case LolaRunError(error) => error match {
-            case CouldNotStart(reason) => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, "Could not start LoLA:\n" + reason.toString(), "Error", JOptionPane.ERROR_MESSAGE) }
-            case OutOfMemory => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, "LoLA ran out of memory", "Error", JOptionPane.ERROR_MESSAGE) }
-            case Syntax(reason) => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, "Synax error in LoLA input (this is very likely a bug in Workcraft):\n" + reason, "Error", JOptionPane.ERROR_MESSAGE) }
-            case ArgsOrIO(reason) => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, "Invalid arguments or IO error in LoLA:\n(this means either a bug in Workcraft, file permissions issue or disk being full)\n" + reason, "Error", JOptionPane.ERROR_MESSAGE) }
-            case StateOverflow => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, "LoLA exceeded the state space limit.\nThis net's state space is too large to be analysed by LoLA.", "Error", JOptionPane.ERROR_MESSAGE) }
-            case Undefined(reason) => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, "Unhandled exception in LoLA:\n" + reason, "Error", JOptionPane.ERROR_MESSAGE) }
+            case CouldNotStart(reason) => IO { JOptionPane.showMessageDialog(mainWindow, "Could not start LoLA:\n" + reason.toString(), "Error", JOptionPane.ERROR_MESSAGE) }
+            case OutOfMemory => IO { JOptionPane.showMessageDialog(mainWindow, "LoLA ran out of memory", "Error", JOptionPane.ERROR_MESSAGE) }
+            case Syntax(reason) => IO { JOptionPane.showMessageDialog(mainWindow, "Synax error in LoLA input (this is very likely a bug in Workcraft):\n" + reason, "Error", JOptionPane.ERROR_MESSAGE) }
+            case ArgsOrIO(reason) => IO { JOptionPane.showMessageDialog(mainWindow, "Invalid arguments or IO error in LoLA:\n(this means either a bug in Workcraft, file permissions issue or disk being full)\n" + reason, "Error", JOptionPane.ERROR_MESSAGE) }
+            case StateOverflow => IO { JOptionPane.showMessageDialog(mainWindow, "LoLA exceeded the state space limit.\nThis net's state space is too large to be analysed by LoLA.", "Error", JOptionPane.ERROR_MESSAGE) }
+            case Undefined(reason) => IO { JOptionPane.showMessageDialog(mainWindow, "Unhandled exception in LoLA:\n" + reason, "Error", JOptionPane.ERROR_MESSAGE) }
           }
         }
 	case Right(result) => resultHandler(result, mainWindow, editorWindow.get)
@@ -97,10 +97,10 @@ class LolaTask(lolaCommand: String, input: File, output: File) extends Task[Lola
   } else Nil
 
   def runTask(tc: TaskControl) =
-    tc.descriptionUpdate("Running LoLA...") >>=|
+    tc.descriptionUpdate("Running LoLA...") >>
   ExternalProcess.runSyncCollectOutput(List(lolaCommand, input.getAbsolutePath, "-p", output.getAbsolutePath), None, tc.cancelRequest) >>= {
-    case Left(cause) => ioPure.pure { Left(Some(LolaError.CouldNotStart(cause))) }
-    case Right((exitValue, cancelled, stdout, stderr)) => ioPure.pure {
+    case Left(cause) => IO { Left(Some(LolaError.CouldNotStart(cause))) }
+    case Right((exitValue, cancelled, stdout, stderr)) => IO {
       if (cancelled) Left(None) else exitValue match {
 	// 0 = specified state or deadlock found/net or place unbounded/home marking exists/net is reversible/predicate is live etc.
 	// 1 = the opposite verification result as a thumb rule, if the outcome of a verification result can be supported by a counterexample or witness path, that case corresponds to return value 0

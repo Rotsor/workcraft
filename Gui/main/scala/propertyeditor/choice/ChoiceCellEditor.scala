@@ -8,7 +8,7 @@ import org.workcraft.gui.propertyeditor.GenericCellEditor
 import org.workcraft.util.Action
 import org.workcraft.util.Pair
 import org.pcollections.PVector
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 
 
 class ChoiceCellEditor[T](initialValue:T, choice:List[(String, T)], editingStopped:IO[Unit]) extends GenericCellEditor[T] {
@@ -16,7 +16,7 @@ class ChoiceCellEditor[T](initialValue:T, choice:List[(String, T)], editingStopp
    val comboBox = new JComboBox[ComboboxItemWrapper]()
    comboBox.setEditable(false)
    comboBox.setFocusable(false)
-   for (val p <- choice) {
+   for (p <- choice) {
       var comboBoxItem:ComboboxItemWrapper = new ComboboxItemWrapper(p)
       comboBox.addItem(comboBoxItem)
       if (p._2 == initialValue) 

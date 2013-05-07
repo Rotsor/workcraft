@@ -1,6 +1,6 @@
 package org.workcraft.services
 import java.io.File
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 import java.io.InputStream
 
 object FileOpenService extends MultiService[GlobalScope, FileOpen]

@@ -13,7 +13,7 @@ object ArcLabels {
       case "ε" => None
       case w => Some(w)
     }.toList match {
-      case Nil => nel(None, Nil)
-      case (x :: xs) => nel(x, xs)
+      case Nil => NonEmptyList.nel(None, Nil)
+      case (x :: xs) => NonEmptyList.nel(x, xs)
     }
 }

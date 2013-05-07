@@ -21,7 +21,7 @@ object DefaultConfiguration {
         def implementation[T](s : Service[GlobalScope, T]) : T = s match {
           case DefaultLayouterService =>
             Some(org.workcraft.plugins.dot.DotLayoutTool.layouter)
-          case s => import s._; mzero
+          case s => s.monoid.zero
         }
       } : GlobalServiceProvider)
 

@@ -8,7 +8,8 @@ import javax.swing.Box
 import java.awt.Dimension
 import javax.swing.JComponent
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO._
+import scalaz.effect.IO
 import scalaz.Scalaz._
 
 class DockableTab[A <: JComponent](window: DockableWindow[A]) extends JPanel {
@@ -29,7 +30,7 @@ class DockableTab[A <: JComponent](window: DockableWindow[A]) extends JPanel {
 
   val label = new JLabel(trimmedTitle.unsafeEval)
 
-  val refresh = swingAutoRefresh (trimmedTitle, (title:String) => ioPure.pure { label.setText(title)} )
+  val refresh = swingAutoRefresh (trimmedTitle, (title:String) => IO { label.setText(title)} )
 
   label.setFocusable(false)
 

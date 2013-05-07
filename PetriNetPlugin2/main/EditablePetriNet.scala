@@ -1,8 +1,8 @@
 package org.workcraft.plugins.petri2
 
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO._
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO._
+import scalaz.effect.IO
 import scalaz.Scalaz._
 import org.workcraft.dependencymanager.advanced.user.Variable
 import java.awt.geom.Point2D
@@ -55,7 +55,7 @@ class EditablePetriNet private (
   private var transitionNameCounter = 0
 
   private def newPlaceName =
-    names.eval >>= (names => ioPure.pure {
+    names.eval >>= (names => IO {
       def name = "p" + placeNameCounter
       while (names.contains(name)) placeNameCounter += 1
       val result = name
@@ -64,7 +64,7 @@ class EditablePetriNet private (
     })
 
   private def newTransitionName =
-    names.eval >>= (names => ioPure.pure {
+    names.eval >>= (names => IO {
       def name = "t" + transitionNameCounter
       while (names.contains(name)) transitionNameCounter += 1
       val result = name
@@ -103,13 +103,13 @@ class EditablePetriNet private (
      _ <- visualArcs.update( _ + (arc -> Polyline(List())))
   } yield arc
 
-  def deleteArc(a: Arc) = arcs.update(_ - a) >>=| visualArcs.update(_ - a)
+  def deleteArc(a: Arc) = arcs.update(_.filterNot(_ == a)) >> visualArcs.update(_.filterNot(_ == a))
 
-  private def deleteComponent(c: Component) = (incidentArcs.eval <|*|> labelling.eval) >>= { case (a, l) => a(c).map(deleteArc(_)).sequence >>=| names.update(_ - l(c)) >>=| labelling.update(_ - c) >>=| layout.update (_ - c)}
+  private def deleteComponent(c: Component) = (incidentArcs.eval <|*|> labelling.eval) >>= { case (a, l) => a(c).map(deleteArc(_)).sequence >> names.update(_ - l(c)) >> labelling.update(_ - c) >> layout.update (_ - c)}
 
-  def deletePlace(p: Place) = deleteComponent(p) >>=| places.update(_ - p)
+  def deletePlace(p: Place) = deleteComponent(p) >> places.update(_.filterNot(_ == p))
   
-  def deleteTransition(t: Transition) = deleteComponent(t) >>=| transitions.update(_ - t)
+  def deleteTransition(t: Transition) = deleteComponent(t) >> transitions.update(_.filter(_ != t))
   
   def deleteNode(n: Node): IO[Unit] = n match {
     case p: Place => deletePlace(p)
@@ -130,7 +130,7 @@ class EditablePetriNet private (
   } yield VisualPetriNet(PetriNet(marking, labelling, places, transitions, arcs), layout, visualArcs)
 
   def loadState(state: VisualPetriNet): IO[Unit] =
-    marking.set(state.net.marking) >>=| labelling.set(state.net.labelling) >>=| names.set(state.net.names) >>=|
-      places.set(state.net.places) >>=| transitions.set(state.net.transitions) >>=| arcs.set(state.net.arcs) >>=|
-      layout.set(state.layout) >>=| visualArcs.set(state.visualArcs)
+    marking.set(state.net.marking) >> labelling.set(state.net.labelling) >> names.set(state.net.names) >>
+      places.set(state.net.places) >> transitions.set(state.net.transitions) >> arcs.set(state.net.arcs) >>
+      layout.set(state.layout) >> visualArcs.set(state.visualArcs)
 }

@@ -13,15 +13,15 @@ import javax.swing.JPanel
 import javax.swing.JProgressBar
 import javax.swing.border.Border
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import scalaz.Scalaz._
 
 class TaskPanel (progress: Expression[Option[Double]], description: Expression[String], cancelAction: IO[Unit]) extends JPanel {
   private val sz = Array(Array(TableLayoutConstants.FILL, 80.0, 100.0), Array(20.0, 20.0, 20.0))
   private val lineBorder = BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY), BorderFactory.createEmptyBorder(3, 3, 3, 3))
   
-  private val refresh = (progress: Option[Double], description: String) => ioPure.pure {
+  private val refresh = (progress: Option[Double], description: String) => IO {
     label.setText(description)
     
     progress match { 

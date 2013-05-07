@@ -8,7 +8,7 @@ import org.workcraft.services.GlobalServiceProvider
 import org.workcraft.services.NewModelImpl
 import javax.swing.JComponent
 
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 
 class MainMenu(
   mainWindow: MainWindow,

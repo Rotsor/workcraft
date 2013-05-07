@@ -1,8 +1,8 @@
 package org.workcraft.plugins.lola
 
 import org.workcraft.tasks.Task
-import org.workcraft.scala.effects.IO._
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO._
+import scalaz.effect.IO
 import org.workcraft.tasks.TaskControl
 import scalaz.Scalaz._
 import org.workcraft.gui.services.GuiTool
@@ -39,27 +39,27 @@ object LolaVerificationResult {
   def showTrace (mainWindow: MainWindow, editorWindow: DockableWindow[ModelEditorPanel], trace: List[String]): IO[Unit] =
     editorWindow.content.editor.implementation(ShowTraceService) match {
       case Some(service) => service.show(trace) match {	case (tool, instance) => 
-	  mainWindow.setFocus(Some(editorWindow)) >>=| editorWindow.content.toolbox.selectToolWithInstance(tool, instance) }
-      case None => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, "Unfortunately, this model does not support interactive trace replays :-(\n\nWitness trace: " + trace.mkString(", "), "Verification result", JOptionPane.INFORMATION_MESSAGE) }
+	  mainWindow.setFocus(Some(editorWindow)) >> editorWindow.content.toolbox.selectToolWithInstance(tool, instance) }
+      case None => IO { JOptionPane.showMessageDialog(mainWindow, "Unfortunately, this model does not support interactive trace replays :-(\n\nWitness trace: " + trace.mkString(", "), "Verification result", JOptionPane.INFORMATION_MESSAGE) }
     }
 
 
   def handleDeadlockResult (result: LolaResult, mainWindow: MainWindow, editorWindow: DockableWindow[ModelEditorPanel]) = result match {
-    case Positive(trace) => ioPure.pure {
+    case Positive(trace) => IO {
       JOptionPane.showConfirmDialog(mainWindow,
 				    "The net has a deadlock state!\nWould you like to examine the event trace that leads to the deadlock?",
 				    "Deadlock verification result", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE) == JOptionPane.YES_OPTION
-    } >>= (if (_) showTrace(mainWindow, editorWindow, trace) else IO.Empty)
-    case Negative(_) => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, "The net is deadlock free.") }
+    } >>= (if (_) showTrace(mainWindow, editorWindow, trace) else ().pure[IO])
+    case Negative(_) => IO { JOptionPane.showMessageDialog(mainWindow, "The net is deadlock free.") }
   }
 
 def handleReversibilityResult (result: LolaResult, mainWindow: MainWindow, editorWindow: DockableWindow[ModelEditorPanel]) = result match {
-    case Positive(_) => ioPure.pure { JOptionPane.showMessageDialog(mainWindow, "The net is reversible.") }
-    case Negative(trace) => ioPure.pure {
+    case Positive(_) => IO { JOptionPane.showMessageDialog(mainWindow, "The net is reversible.") }
+    case Negative(trace) => IO {
       JOptionPane.showConfirmDialog(mainWindow,
 				    "There is an irreversible state.\nWould you like to examine the event trace that leads to that state?",
 				    "Reversibility verification result", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE) == JOptionPane.YES_OPTION
-    } >>= (if (_) showTrace(mainWindow, editorWindow, trace) else IO.Empty) 
+    } >>= (if (_) showTrace(mainWindow, editorWindow, trace) else ().pure[IO]) 
   }
 
 }

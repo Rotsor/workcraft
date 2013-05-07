@@ -9,7 +9,8 @@ import org.workcraft.dependencymanager.advanced.user.AutoRefreshExpression
 import org.workcraft.dependencymanager.advanced.core.EvaluationContext
 import org.workcraft.dependencymanager.advanced.user.Variable
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO._
+import scalaz.effect.IO
 import scalaz._
 import Scalaz._
 
@@ -26,7 +27,7 @@ class PropertyEditorWindow extends JPanel {
 
   //@SuppressWarnings(Array("unused"))
 
-  private val refresh = swingAutoRefresh(prop, (p: Option[List[EditableProperty]]) => ioPure.pure {
+  private val refresh = swingAutoRefresh(prop, (p: Option[List[EditableProperty]]) => IO {
     p match {
       case None => clearObject
       case Some(props) => setObject(props)
@@ -35,7 +36,7 @@ class PropertyEditorWindow extends JPanel {
 
   private val refresher: AutoRefreshExpression = new AutoRefreshExpression {
     override def onEvaluate(context: EvaluationContext) = {
-      val obj = context.resolve(prop)
+      val obj = context.resolve(prop.jexpr)
     }
   }
 

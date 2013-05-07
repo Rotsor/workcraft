@@ -4,8 +4,8 @@ import java.awt.event.MouseEvent
 import java.awt.Point
 import java.awt.geom.Point2D
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import scalaz._
 import Scalaz._
 import java.awt.event.MouseWheelEvent

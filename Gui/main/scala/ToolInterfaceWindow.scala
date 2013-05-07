@@ -8,7 +8,7 @@ import org.workcraft.gui.modeleditor.tools.ModelEditorToolInstance
 import scalaz._
 import Scalaz._
 import org.workcraft.scala.Expressions._
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 
 class ToolInterfaceWindow(interfacePanel : Expression[Option[JPanel]]) extends JPanel(new BorderLayout()) {
   private val content: JScrollPane = new JScrollPane(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED)
@@ -16,7 +16,7 @@ class ToolInterfaceWindow(interfacePanel : Expression[Option[JPanel]]) extends J
   content.setViewportView(new DisabledPanel())
   add(content, BorderLayout.CENTER)
   setFocusable(false)
-  val refresh = swingAutoRefresh[Option[JPanel]](interfacePanel, p => IO.ioPure.pure {
+  val refresh = swingAutoRefresh[Option[JPanel]](interfacePanel, p => IO {
     content.setViewportView(p.getOrElse(new DisabledPanel))
     content.revalidate
     })

@@ -8,8 +8,8 @@ import scala.collection.immutable.PagedSeq
 import scala.util.parsing.input.PagedSeqReader
 import java.awt.geom.Point2D
 import java.io.File
-import org.workcraft.scala.effects.IO._
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO._
+import scalaz.effect.IO
 import org.workcraft.dom.visual.connections.Polyline
 import java.io.BufferedReader
 import java.io.FileReader
@@ -108,7 +108,7 @@ object DotGParser extends Parsers with RegexParsers {
 
   def stgFile = phrase((emptyline*) ~> stg <~ (emptyline*))
 
-  def parseDotG(file: File): IO[Either[String, DotG]] = ioPure.pure {
+  def parseDotG(file: File): IO[Either[String, DotG]] = IO {
     parse(stgFile, (new BufferedReader(new FileReader(file)))) match {
       case Success(r, _) => Right(r)
       case err => Left(err.toString)
@@ -117,7 +117,7 @@ object DotGParser extends Parsers with RegexParsers {
 
   def parseTask(file: File) = new Task[DotG, String] {
     def runTask(tc: TaskControl) =
-      (tc.descriptionUpdate("Reading " + file.getPath) >>=| (parseDotG(file))).map {
+      (tc.descriptionUpdate("Reading " + file.getPath) >> (parseDotG(file))).map {
         case Left(err) => Left(Some(err))
         case Right(dotg) => Right(dotg)
       }
@@ -126,7 +126,7 @@ object DotGParser extends Parsers with RegexParsers {
 
 object Test extends App {
   (DotGParser.parseDotG(new File("e:/winpetrify/stgshka.g")) >>= {
-    case Left(err) => ioPure.pure { println(err) }
+    case Left(err) => IO { println(err) }
     case Right(dotg) => PetriNetBuilder.buildPetriNet(dotg).map(println(_))
   }).unsafePerformIO
 }

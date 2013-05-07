@@ -6,7 +6,7 @@ import org.workcraft.gui.modeleditor.EditorService
 import org.workcraft.dependencymanager.advanced.user.Variable
 import org.workcraft.scala.Expressions._
 import org.workcraft.plugins.stg21.types.VisualStg
-import org.workcraft.scala.effects.IO
+import scalaz.effect.IO
 
 class StgModel(visualStg : ModifiableExpression[VisualStg]) extends ModelServiceProvider {
   def implementation[T](service: Service[ModelScope, T]) = service match {
@@ -28,14 +28,14 @@ class PetriNetEditor(net: PetriNet) extends ModelEditor {
     def screenSpaceContent = Variable.create(GraphicalContent.Empty)
     def userSpaceContent = Variable.create(GraphicalContent.Empty)
     def mouseListener = Some(new DummyMouseListener {
-      override def mousePressed(button: MouseButton, modifiers: Set[Modifier], position: Point2D.Double) = ioPure.pure ({
+      override def mousePressed(button: MouseButton, modifiers: Set[Modifier], position: Point2D.Double) = IO ({
         if (modifiers.contains(Control))
         	println("Heee hee heee " + position)
         else
           println(position)
       })
     })
-    def keyBindings = List(KeyBinding("Sumshit", KeyEvent.VK_Q, KeyPressed, Set(),  ioPure.pure {JOptionPane.showMessageDialog (null, "KUZUKA!", "Important message!", JOptionPane.INFORMATION_MESSAGE)} ))
+    def keyBindings = List(KeyBinding("Sumshit", KeyEvent.VK_Q, KeyPressed, Set(),  IO {JOptionPane.showMessageDialog (null, "KUZUKA!", "Important message!", JOptionPane.INFORMATION_MESSAGE)} ))
     def button = new Button {
       def hotkey = Some(KeyEvent.VK_K)
       def icon = None

@@ -16,15 +16,15 @@ import java.awt.BorderLayout
 import org.workcraft.gui.NotAvailablePanel
 import org.workcraft.gui.modeleditor.HotkeyBinding
 
-import org.workcraft.scala.effects.IO
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO
+import scalaz.effect.IO._
 import scalaz._
 import Scalaz._
 
 class ToolboxPanel(toolbox: Toolbox) extends JPanel {
   private val buttons = toolbox.tools.map(t => (t, createButton(t)))
   
-  private val refresh = swingAutoRefresh(toolbox.selectedTool, (tool: ModelEditorTool) => ioPure.pure {
+  private val refresh = swingAutoRefresh(toolbox.selectedTool, (tool: ModelEditorTool) => IO {
     buttons.foreach(_._2.setSelected(false))
     buttons.list.find( _._1 == tool).foreach(_._2.setSelected(true))
   }) 

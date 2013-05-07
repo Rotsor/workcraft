@@ -13,7 +13,7 @@ import org.workcraft.services.FileOpenService
 import org.workcraft.gui.services.GuiToolService
 import org.workcraft.gui.services.GuiTool
 import org.workcraft.gui.services.ToolClass
-import org.workcraft.scala.effects.IO._
+import scalaz.effect.IO._
 import org.workcraft.gui.MainWindow
 import javax.swing.JOptionPane
 import org.workcraft.gui.tasks.ModalTaskDialog
@@ -23,7 +23,7 @@ object LolaServiceProvider extends GlobalServiceProvider {
   def implementation[T](service: Service[GlobalScope, T]) = service match {
     case ExporterService => List(LolaExporter)
     case GuiToolService => List(LolaDeadlockTool, LolaReversibilityTool) 
-    case s => import s._; mzero
+    case s => s.monoid.zero
   }
 }
 
