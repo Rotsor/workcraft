@@ -27,12 +27,15 @@ import scalaz.Scalaz._
 import org.workcraft.services.ModelServiceProvider
 import org.workcraft.services.layout.LayoutableService
 import org.workcraft.services.layout.Layoutable
+import org.workcraft.services.DefaultFormatService
+import org.workcraft.services.Format
 
 case class FSMModel(val fsm: EditableFSM) extends ModelServiceProvider {
   def implementation[T](service: Service[ModelScope, T]) = service match {
     case EditorService => Some(new FSMEditor(fsm))
     case LayoutableService => Some(FSMLayoutable(fsm))
     case Services.NfaService => Some(fsm.saveState.eval.map(v => v.fsm.toNfa))
+    case DefaultFormatService => Some(Format.WorkcraftFsm)
     case s => import s._; mzero
   }
 }
