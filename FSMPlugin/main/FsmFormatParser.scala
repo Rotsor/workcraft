@@ -127,9 +127,9 @@ object FsmFormatParser {
     seq(state, list(tuple3(state, list(seq(option(symbol), state)), bool)))
   def mainParser = parser(string)(string)
 
-  import org.workcraft.scala.effects.IO.ioPure
+  import scalaz.effect.IO
 
-  def parseFile(file : File) = ioPure.pure {
+  def parseFile(file : File) = IO {
     val source = scala.io.Source.fromFile(file.getCanonicalPath)
     val contents = source.mkString.toList
     source.close ()
@@ -149,7 +149,7 @@ object FsmFormatParser {
     }
   }
 
-  def printFile(file : File, d : (String, List[(String, List[(Option[String], String)], Boolean)])) = ioPure.pure {
+  def printFile(file : File, d : (String, List[(String, List[(Option[String], String)], Boolean)])) = IO {
     writeToFile(file, mainParser.print(d)(Nil).mkString)
   }
 }
